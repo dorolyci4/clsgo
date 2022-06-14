@@ -1,4 +1,4 @@
-module clsgo
+module github.com/lovelacelee/clsgo
 
 go 1.18
 
