@@ -1,4 +1,4 @@
-package clsgo
+package config
 
 // integration of implements of json/yaml/ini
 // yarml: https://github.com/go-yaml/yaml

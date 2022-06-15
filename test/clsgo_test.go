@@ -5,7 +5,7 @@ import (
 	"reflect"
 	"testing"
 
-	"clsgo"
+	"github.com/lovelacelee/clsgo/pkg"
 )
 
 func TestClsgo(t *testing.T) {

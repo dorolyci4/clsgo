@@ -1,10 +1,11 @@
 package clsgo
 
 import (
-	"clsgo/config"
 	"fmt"
 	"reflect"
 	"testing"
+
+	"github.com/lovelacelee/clsgo/pkg/config"
 )
 
 type JsonModel struct {
@@ -14,7 +15,7 @@ type JsonModel struct {
 }
 
 func TestJson(t *testing.T) {
-	var json clsgo.ClsJson
+	var json config.ClsJson
 	//Load
 	json.Load("test.json")
 
@@ -33,7 +34,7 @@ func TestJson(t *testing.T) {
 }
 
 func BenchmarkJson(b *testing.B) {
-	var json clsgo.ClsJson
+	var json config.ClsJson
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		json.Load("test.json")

@@ -1,8 +1,9 @@
-package clsgo
+package utils
 
 import (
 	"io/ioutil"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 )
@@ -44,4 +45,12 @@ func WalkDir(dirPth, suffix string) (dirs []string, files []string, err error) {
 		return nil
 	})
 	return dirs, files, err
+}
+
+func RunInDir(dir string, cmd *exec.Cmd) (err error) {
+	os.Chdir(dir)
+	if err := cmd.Run(); err != nil {
+		return err
+	}
+	return nil
 }

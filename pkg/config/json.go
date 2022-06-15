@@ -1,4 +1,4 @@
-package clsgo
+package config
 
 import (
 	"bytes"

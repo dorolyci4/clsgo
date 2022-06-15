@@ -1,5 +1,5 @@
 // log.go
-package clsgo
+package log
 
 import (
 	"io/ioutil"
