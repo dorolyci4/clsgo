@@ -1,6 +1,8 @@
 package utils
 
 import (
+	"errors"
+	"fmt"
 	"io/ioutil"
 	"os"
 	"os/exec"
@@ -43,7 +45,7 @@ func WalkDir(dirPth, suffix string) (dirs []string, files []string, err error) {
 		if strings.HasSuffix(strings.ToUpper(fi.Name()), suffix) {
 			files = append(files, filename)
 		}
-		return nil
+		return err
 	})
 	return dirs, files, err
 }
@@ -51,7 +53,7 @@ func WalkDir(dirPth, suffix string) (dirs []string, files []string, err error) {
 // Get all files under the specified path, search only the current path,
 // do not enter the next level of directory, support suffix filtering (suffix
 // is empty, not filtered)
-func ListDir(dir, suffix string) (files []string, err error) {
+func ListDirFiles(dir, suffix string) (files []string, err error) {
 	files = []string{}
 
 	_dir, err := ioutil.ReadDir(dir)
@@ -80,7 +82,7 @@ func CopyDir(srcPath, desPath string) error {
 		return err
 	} else {
 		if !srcInfo.IsDir() {
-			return errors.New("srcPath is not a valid directory path!")
+			return errors.New("srcPath is not a valid directory path")
 		}
 	}
 
@@ -88,12 +90,12 @@ func CopyDir(srcPath, desPath string) error {
 		return err
 	} else {
 		if !desInfo.IsDir() {
-			return errors.New("destPath is not a valid directory path!")
+			return errors.New("destPath is not a valid directory path")
 		}
 	}
 
 	if strings.TrimSpace(srcPath) == strings.TrimSpace(desPath) {
-		return errors.New("destPath must be different from srcPath !")
+		return errors.New("destPath must be different from srcPath")
 	}
 
 	err := filepath.Walk(srcPath, func(path string, f os.FileInfo, err error) error {
@@ -179,7 +181,11 @@ func RunInDir(dir string, cmd *exec.Cmd) (err error) {
 
 func DeleteThingsInDir(targetDir string) error {
 	dir, err := ioutil.ReadDir(targetDir)
+	if err != nil {
+		return err
+	}
 	for _, d := range dir {
 		os.RemoveAll(path.Join([]string{targetDir, d.Name()}...))
 	}
+	return err
 }
