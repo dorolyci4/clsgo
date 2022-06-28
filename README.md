@@ -6,6 +6,7 @@ CLS packages
 
 ## todo
 
-🟩File logger
-✅Terminal logger
-✅Json config loader
+* 🟩File logger
+* ✅Terminal logger
+* ✅Json config loader
+* ✅Viper config support
