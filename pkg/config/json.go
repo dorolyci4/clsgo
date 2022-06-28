@@ -43,6 +43,9 @@ func (obj *ClsJson) Parse(model interface{}) error {
 // Struct
 func (obj *ClsJson) Save(model interface{}, filepath string) error {
 	b, err := json.Marshal(model)
+	if err != nil {
+		return err
+	}
 	obj.content = b
 	f, err := os.Create(filepath)
 	if err != nil {

@@ -2,7 +2,7 @@
  * @Author          : Lovelace
  * @Github          : https://github.com/lovelacelee
  * @Date            : 2022-06-15 17:31:09
- * @LastEditTime    : 2022-06-24 18:28:25
+ * @LastEditTime    : 2022-06-28 16:47:57
  * @LastEditors     : Lovelace
  * @Description     :
  * @FilePath        : /pkg/log/internal.go
@@ -53,7 +53,7 @@ func Error(format string, args ...interface{}) {
 	fmt.Printf("%s[INFO][%v %v %v] %s%s\n", ANSI_RED, path.Base(file), split[len(split)-1], line, fmt.Sprintf(format, args...), ANSI_RESET)
 }
 
-func Imprtant(format string, args ...interface{}) {
+func Important(format string, args ...interface{}) {
 	pc, file, line, _ := runtime.Caller(1)
 	name := runtime.FuncForPC(pc).Name()
 	split := strings.Split(name, ".")

@@ -2,7 +2,7 @@
  * @Author          : Lovelace
  * @Github          : https://github.com/lovelacelee
  * @Date            : 2022-06-13 15:40:43
- * @LastEditTime    : 2022-06-24 18:07:14
+ * @LastEditTime    : 2022-06-28 16:40:56
  * @LastEditors     : Lovelace
  * @Description     :
  * @FilePath        : /test/clsgo_test.go
@@ -26,6 +26,6 @@ func TestClsgo(t *testing.T) {
 	if reflect.TypeOf(v) != reflect.TypeOf(want) {
 		t.Errorf("Not passed\n")
 	} else {
-		log.Info("CLSGO: %s\n", v)
+		log.Info("CLSGO: %s", v)
 	}
 }
