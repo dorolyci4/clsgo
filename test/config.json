@@ -1,6 +1,17 @@
 {
   "log": {
     "enable": true,
-    "prefix": "log"
+    "filename": "clsgo",
+    "filepath": "logs",
+    "loglevel": "info",
+    "rotatemaxage": 2,
+    "rotatemode": "time",
+    "rotatesavecount": 3,
+    "rotatesize": 5,
+    "rotatetime": 1,
+    "separatefile": true
+  },
+  "project": {
+    "name": "clsgo"
   }
 }

@@ -2,7 +2,7 @@
  * @Author          : Lovelace
  * @Github          : https://github.com/lovelacelee
  * @Date            : 2022-06-13 15:40:43
- * @LastEditTime    : 2022-06-28 16:40:56
+ * @LastEditTime    : 2022-06-30 16:56:22
  * @LastEditors     : Lovelace
  * @Description     :
  * @FilePath        : /test/clsgo_test.go
@@ -28,4 +28,5 @@ func TestClsgo(t *testing.T) {
 	} else {
 		log.Info("CLSGO: %s", v)
 	}
+
 }

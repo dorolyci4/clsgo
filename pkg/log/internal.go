@@ -2,7 +2,7 @@
  * @Author          : Lovelace
  * @Github          : https://github.com/lovelacelee
  * @Date            : 2022-06-15 17:31:09
- * @LastEditTime    : 2022-06-29 18:32:21
+ * @LastEditTime    : 2022-06-30 10:17:48
  * @LastEditors     : Lovelace
  * @Description     :
  * @FilePath        : /pkg/log/internal.go
@@ -36,26 +36,26 @@ func Info(format string, args ...interface{}) {
 	pc, file, line, _ := runtime.Caller(1)
 	name := runtime.FuncForPC(pc).Name()
 	split := strings.Split(name, ".")
-	fmt.Printf("%s[   INFO][%v %v %v] %s%s\n", ANSI_GREEN, path.Base(file), split[len(split)-1], line, fmt.Sprintf(format, args...), ANSI_RESET)
+	fmt.Printf("%s[INFO][%v %v %v] %s%s\n", ANSI_GREEN, path.Base(file), split[len(split)-1], line, fmt.Sprintf(format, args...), ANSI_RESET)
 }
 
 func Warning(format string, args ...interface{}) {
 	pc, file, line, _ := runtime.Caller(1)
 	name := runtime.FuncForPC(pc).Name()
 	split := strings.Split(name, ".")
-	fmt.Printf("%s[WARNING][%v %v %v] %s%s\n", ANSI_MAGENTA, path.Base(file), split[len(split)-1], line, fmt.Sprintf(format, args...), ANSI_RESET)
+	fmt.Printf("%s[WARN][%v %v %v] %s%s\n", ANSI_MAGENTA, path.Base(file), split[len(split)-1], line, fmt.Sprintf(format, args...), ANSI_RESET)
 }
 
 func Error(format string, args ...interface{}) {
 	pc, file, line, _ := runtime.Caller(1)
 	name := runtime.FuncForPC(pc).Name()
 	split := strings.Split(name, ".")
-	fmt.Printf("%s[  ERROR][%v %v %v] %s%s\n", ANSI_RED, path.Base(file), split[len(split)-1], line, fmt.Sprintf(format, args...), ANSI_RESET)
+	fmt.Printf("%s[ERRO][%v %v %v] %s%s\n", ANSI_RED, path.Base(file), split[len(split)-1], line, fmt.Sprintf(format, args...), ANSI_RESET)
 }
 
 func Important(format string, args ...interface{}) {
 	pc, file, line, _ := runtime.Caller(1)
 	name := runtime.FuncForPC(pc).Name()
 	split := strings.Split(name, ".")
-	fmt.Printf("%s[ IMPORT][%v %v %v] %s%s\n", ANSI_BLUE, path.Base(file), split[len(split)-1], line, fmt.Sprintf(format, args...), ANSI_RESET)
+	fmt.Printf("%s[IMPO][%v %v %v] %s%s\n", ANSI_BLUE, path.Base(file), split[len(split)-1], line, fmt.Sprintf(format, args...), ANSI_RESET)
 }
