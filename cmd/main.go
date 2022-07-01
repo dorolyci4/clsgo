@@ -2,7 +2,7 @@
  * @Author          : Lovelace
  * @Github          : https://github.com/lovelacelee
  * @Date            : 2022-01-14 08:59:04
- * @LastEditTime    : 2022-06-30 17:26:41
+ * @LastEditTime    : 2022-07-01 15:34:31
  * @LastEditors     : Lovelace
  * @Description     :
  * @FilePath        : /cmd/main.go
@@ -37,6 +37,5 @@ func main() {
 	}()
 
 	App()
-
 	workGroup.Wait()
 }

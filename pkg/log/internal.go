@@ -2,7 +2,7 @@
  * @Author          : Lovelace
  * @Github          : https://github.com/lovelacelee
  * @Date            : 2022-06-15 17:31:09
- * @LastEditTime    : 2022-06-30 10:17:48
+ * @LastEditTime    : 2022-07-01 15:42:58
  * @LastEditors     : Lovelace
  * @Description     :
  * @FilePath        : /pkg/log/internal.go
@@ -16,7 +16,6 @@ import (
 	"fmt"
 	"path"
 	"runtime"
-	"strings"
 )
 
 var (
@@ -35,27 +34,23 @@ var (
 func Info(format string, args ...interface{}) {
 	pc, file, line, _ := runtime.Caller(1)
 	name := runtime.FuncForPC(pc).Name()
-	split := strings.Split(name, ".")
-	fmt.Printf("%s[INFO][%v %v %v] %s%s\n", ANSI_GREEN, path.Base(file), split[len(split)-1], line, fmt.Sprintf(format, args...), ANSI_RESET)
+	fmt.Printf("%s[INFO][%v:%v %v] %s%s\n", ANSI_GREEN, path.Base(file), line, path.Base(name), fmt.Sprintf(format, args...), ANSI_RESET)
 }
 
 func Warning(format string, args ...interface{}) {
 	pc, file, line, _ := runtime.Caller(1)
 	name := runtime.FuncForPC(pc).Name()
-	split := strings.Split(name, ".")
-	fmt.Printf("%s[WARN][%v %v %v] %s%s\n", ANSI_MAGENTA, path.Base(file), split[len(split)-1], line, fmt.Sprintf(format, args...), ANSI_RESET)
+	fmt.Printf("%s[WARN][%v:%v %v] %s%s\n", ANSI_MAGENTA, path.Base(file), line, path.Base(name), fmt.Sprintf(format, args...), ANSI_RESET)
 }
 
 func Error(format string, args ...interface{}) {
 	pc, file, line, _ := runtime.Caller(1)
 	name := runtime.FuncForPC(pc).Name()
-	split := strings.Split(name, ".")
-	fmt.Printf("%s[ERRO][%v %v %v] %s%s\n", ANSI_RED, path.Base(file), split[len(split)-1], line, fmt.Sprintf(format, args...), ANSI_RESET)
+	fmt.Printf("%s[ERRO][%v:%v %v] %s%s\n", ANSI_RED, path.Base(file), line, path.Base(name), fmt.Sprintf(format, args...), ANSI_RESET)
 }
 
 func Important(format string, args ...interface{}) {
 	pc, file, line, _ := runtime.Caller(1)
 	name := runtime.FuncForPC(pc).Name()
-	split := strings.Split(name, ".")
-	fmt.Printf("%s[IMPO][%v %v %v] %s%s\n", ANSI_BLUE, path.Base(file), split[len(split)-1], line, fmt.Sprintf(format, args...), ANSI_RESET)
+	fmt.Printf("%s[IMPO][%v:%v %v] %s%s\n", ANSI_BLUE, path.Base(file), line, path.Base(name), fmt.Sprintf(format, args...), ANSI_RESET)
 }
