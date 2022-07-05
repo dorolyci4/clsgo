@@ -2,7 +2,7 @@
  * @Author          : Lovelace
  * @Github          : https://github.com/lovelacelee
  * @Date            : 2022-01-14 09:01:57
- * @LastEditTime    : 2022-06-30 17:27:46
+ * @LastEditTime    : 2022-07-05 20:07:16
  * @LastEditors     : Lovelace
  * @Description     : Use logrus as the file logger
  * @FilePath        : /pkg/log/log.go
@@ -31,6 +31,7 @@ package log
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"os"
 	"path"
@@ -213,6 +214,11 @@ func loglevel(loglevel string) (level logrus.Level, color string) {
 }
 
 func Update(logcfg *viper.Viper) (logger *logrus.Logger, err error) {
+	if logcfg == nil {
+		err := errors.New("log config section is nil")
+		Error("%v", err)
+		return nil, err
+	}
 	logcfg.Unmarshal(&Config)
 
 	if !Config.Enable {

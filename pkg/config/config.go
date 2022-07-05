@@ -2,7 +2,7 @@
  * @Author          : Lovelace
  * @Github          : https://github.com/lovelacelee
  * @Date            : 2022-06-13 14:46:44
- * @LastEditTime    : 2022-06-30 17:09:36
+ * @LastEditTime    : 2022-07-05 20:01:25
  * @LastEditors     : Lovelace
  * @Description     :
  * @FilePath        : /pkg/config/config.go
@@ -49,6 +49,8 @@ func ClsConfig(filename string, projectname string, monitoring bool) (cfg *viper
 	paths = append(paths, "$HOME/."+projectname)
 	ViperInstance.AddConfigPath(".") // optionally look for config in the working directory
 	paths = append(paths, ".")
+	ViperInstance.AddConfigPath("./config") // optionally look for config in the working directory
+	paths = append(paths, "./config")
 	err = ViperInstance.ReadInConfig() // Find and read the config file
 	if err != nil {                    // Handle errors reading the config file
 		if _, ok := err.(viper.ConfigFileNotFoundError); ok {

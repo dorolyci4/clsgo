@@ -2,7 +2,7 @@
  * @Author          : Lovelace
  * @Github          : https://github.com/lovelacelee
  * @Date            : 2022-06-15 16:39:44
- * @LastEditTime    : 2022-07-01 17:47:26
+ * @LastEditTime    : 2022-07-05 19:52:48
  * @LastEditors     : Lovelace
  * @Description     :
  * @FilePath        : /pkg/http/server.go
@@ -25,7 +25,7 @@ var ClsLog = log.ClsLog()
 type Request = ghttp.Request
 
 func init() {
-	ClsLog.Info("%v", gf.VERSION)
+	ClsLog.Info(gf.VERSION)
 }
 
 type APIS map[string]interface{}
@@ -33,10 +33,8 @@ type APIS map[string]interface{}
 func App(host string, portApi int, portWeb int, apis *APIS) {
 	sApi := g.Server("API")
 	for k, v := range *apis {
-		ClsLog.Info(k, v)
 		sApi.BindHandler(k, v)
 	}
-
 	sApi.SetAddr(host)
 	sApi.SetPort(portApi)
 	sApi.Start()
