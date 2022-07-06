@@ -1,11 +1,15 @@
-viewpath: "/home/www/templates/"
+project:
+  name: clsgo
+
 database:
   default:
   - link: "mysql:root:12345678@tcp(127.0.0.1:3306)/test"
     role: "master"
   - link: "mysql:root:12345678@tcp(127.0.0.1:3306)/test"
     role: "slave"
-    
+server:
+  openapiPath: "/api.json"
+  swaggerPath: "/api"    
 logger:
   path:                  "logs/"   # 日志文件路径。默认为空，表示关闭，仅输出到终端
   file:                  "GLOG-{Y-m-d}.log" # 日志文件格式。默认为"{Y-m-d}.log"
@@ -22,3 +26,21 @@ logger:
   rotateCheckInterval:   "1h"          # 滚动切分的时间检测间隔，一般不需要设置。默认为1小时
   stdoutColorDisabled:   false         # 关闭终端的颜色打印。默认开启
   writerColorEnable:     false         # 日志文件是否带上颜色。默认false，表示不带颜色
+
+log:
+  enable: true
+  separateFile: false 
+  filePath: logs
+  #log filename
+  fileName: clsgo
+  #trace,debug,info,warning,error,fatal,panic
+  logLevel: info
+  #time(default),count
+  rotateMode: time
+  #Unit:Hours
+  rotateMaxage: 2
+  #Rotate interval unit:Hours
+  rotateTime: 1
+  rotateSaveCount: 3
+  #Unit:MB rotate when log size larger than rotatesize
+  rotateSize: 5

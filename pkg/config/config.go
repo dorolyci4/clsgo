@@ -2,7 +2,7 @@
  * @Author          : Lovelace
  * @Github          : https://github.com/lovelacelee
  * @Date            : 2022-06-13 14:46:44
- * @LastEditTime    : 2022-07-05 20:01:25
+ * @LastEditTime    : 2022-07-06 13:32:14
  * @LastEditors     : Lovelace
  * @Description     :
  * @FilePath        : /pkg/config/config.go
@@ -34,6 +34,11 @@ func monitor(cfg *viper.Viper) {
 	}
 }
 
+func clsDefConfigSearchPath(v *viper.Viper, paths []string, path string) []string {
+	v.AddConfigPath(path) // optionally look for config in the working directory
+	return append(paths, path)
+}
+
 func ClsConfig(filename string, projectname string, monitoring bool) (cfg *viper.Viper, err error) {
 	ViperInstance := viper.New()
 	// viper could guess the extension of filename
@@ -42,15 +47,12 @@ func ClsConfig(filename string, projectname string, monitoring bool) (cfg *viper
 		ViperInstance.SetConfigType(extension[1:]) // REQUIRED if the config file does not have the extension in the name
 	}
 	var paths []string
-	ViperInstance.SetConfigName(filename)              // name of config file (without extension)
-	ViperInstance.AddConfigPath("/etc/" + projectname) // path to look for the config file in
-	paths = append(paths, "/etc/"+projectname)
-	ViperInstance.AddConfigPath("$HOME/." + projectname) // call multiple times to add many search paths
-	paths = append(paths, "$HOME/."+projectname)
-	ViperInstance.AddConfigPath(".") // optionally look for config in the working directory
-	paths = append(paths, ".")
-	ViperInstance.AddConfigPath("./config") // optionally look for config in the working directory
-	paths = append(paths, "./config")
+	ViperInstance.SetConfigName(filename)                               // name of config file (without extension)
+	clsDefConfigSearchPath(ViperInstance, paths, "/etc/"+projectname)   // path to look for the config file in
+	clsDefConfigSearchPath(ViperInstance, paths, "$HOME/."+projectname) // call multiple times to add many search paths
+	clsDefConfigSearchPath(ViperInstance, paths, ".")                   // optionally look for config in the working directory
+	clsDefConfigSearchPath(ViperInstance, paths, "./config")            // optionally look for config in the working directory
+
 	err = ViperInstance.ReadInConfig() // Find and read the config file
 	if err != nil {                    // Handle errors reading the config file
 		if _, ok := err.(viper.ConfigFileNotFoundError); ok {

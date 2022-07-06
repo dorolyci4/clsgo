@@ -2,7 +2,7 @@
  * @Author          : Lovelace
  * @Github          : https://github.com/lovelacelee
  * @Date            : 2022-01-14 08:59:04
- * @LastEditTime    : 2022-07-05 16:32:37
+ * @LastEditTime    : 2022-07-06 18:39:09
  * @LastEditors     : Lovelace
  * @Description     :
  * @FilePath        : /cmd/main.go
@@ -36,6 +36,7 @@ func main() {
 		}
 	}()
 
-	App()
+	// App()
+	TCPApp()
 	workGroup.Wait()
 }

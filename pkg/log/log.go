@@ -2,7 +2,7 @@
  * @Author          : Lovelace
  * @Github          : https://github.com/lovelacelee
  * @Date            : 2022-01-14 09:01:57
- * @LastEditTime    : 2022-07-05 20:07:16
+ * @LastEditTime    : 2022-07-06 11:41:21
  * @LastEditors     : Lovelace
  * @Description     : Use logrus as the file logger
  * @FilePath        : /pkg/log/log.go
@@ -103,7 +103,7 @@ func (f *ClsFormatter) Format(entry *logrus.Entry) ([]byte, error) {
 		b = &bytes.Buffer{}
 	}
 
-	timestamp := entry.Time.Format("2006-01-02 15:04:05")
+	timestamp := entry.Time.Format("2006-01-02 15:04:05.000")
 	var logString string
 	_, color := loglevel(entry.Level.String())
 
