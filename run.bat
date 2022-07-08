@@ -1,1 +1,1 @@
-go run cmd/main.go cmd/app.go
+go run cmd/main.go cmd/app.go cmd/hmprotocol.go

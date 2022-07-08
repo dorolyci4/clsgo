@@ -2,7 +2,7 @@
  * @Author          : Lovelace
  * @Github          : https://github.com/lovelacelee
  * @Date            : 2022-01-14 08:59:04
- * @LastEditTime    : 2022-07-06 18:39:09
+ * @LastEditTime    : 2022-07-08 14:02:32
  * @LastEditors     : Lovelace
  * @Description     :
  * @FilePath        : /cmd/main.go
@@ -26,7 +26,7 @@ func main() {
 
 	cfg, err := config.ClsConfig("config", "clsgo", true)
 	if err != nil {
-		log.Error("Config load failed!")
+		l.Error("Config load failed!")
 	}
 	// Init logger
 	go func() {
@@ -36,7 +36,6 @@ func main() {
 		}
 	}()
 
-	// App()
-	TCPApp()
+	App()
 	workGroup.Wait()
 }

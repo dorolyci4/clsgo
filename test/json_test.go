@@ -27,7 +27,7 @@ type JsonModel struct {
 }
 
 func TestJson(t *testing.T) {
-	var json config.ClsJson
+	var json config.JsonFile
 	//Load
 	json.Load("test.json")
 
@@ -46,7 +46,7 @@ func TestJson(t *testing.T) {
 }
 
 func BenchmarkJson(b *testing.B) {
-	var json config.ClsJson
+	var json config.JsonFile
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		json.Load("test.json")
