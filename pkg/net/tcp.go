@@ -2,7 +2,7 @@
  * @Author          : Lovelace
  * @Github          : https://github.com/lovelacelee
  * @Date            : 2022-01-14 09:03:01
- * @LastEditTime    : 2022-07-08 18:42:07
+ * @LastEditTime    : 2022-07-15 17:47:56
  * @LastEditors     : Lovelace
  * @Description     :
  * @FilePath        : /pkg/net/tcp.go
@@ -25,8 +25,8 @@ type Retry = gtcp.Retry
 var l = log.ClsLog()
 
 type TcpProtocol interface {
-	Recv(conn *Conn) ([]byte, error)
-	Send(conn *Conn, data []byte) error
+	HandleMessage(conn *Conn) ([]byte, error)
+	Instance() TcpProtocol
 }
 
 func connectionClose(conn *gtcp.Conn) {
@@ -41,18 +41,19 @@ func TcpServer(host string, port int, proto TcpProtocol) {
 	gtcp.NewServer(host+":"+strconv.Itoa(port), func(conn *gtcp.Conn) {
 		l.Info("New connection ", conn.RemoteAddr().String())
 		defer connectionClose(conn)
+		p := proto.Instance()
 		for {
-			data, err := proto.Recv(conn)
+			data, err := p.HandleMessage(conn)
 			if err != nil {
 				l.Error(err)
 				break
 			}
-			err = proto.Send(conn, data)
+			err = conn.Send(data)
 			if err != nil {
 				l.Error(err)
 				break
 			}
 		}
-		l.Error("connection closed ", conn.RemoteAddr().String())
+		l.Error(conn.RemoteAddr().String(), " connection closed. ")
 	}).Run()
 }

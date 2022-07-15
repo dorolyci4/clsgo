@@ -2,7 +2,7 @@
  * @Author          : Lovelace
  * @Github          : https://github.com/lovelacelee
  * @Date            : 2022-06-13 15:25:49
- * @LastEditTime    : 2022-06-24 18:10:18
+ * @LastEditTime    : 2022-07-15 15:12:25
  * @LastEditors     : Lovelace
  * @Description     :
  * @FilePath        : /test/json_test.go
@@ -10,10 +10,9 @@
  *
  *
  */
-package clsgo
+package clsgo_test
 
 import (
-	"github.com/lovelacelee/clsgo/pkg/log"
 	"reflect"
 	"testing"
 
@@ -33,7 +32,7 @@ func TestJson(t *testing.T) {
 
 	var m JsonModel
 	err := json.Parse(&m)
-	log.Info("%v %v %v %v", err, m.Author, m.Version, m.Github)
+	l.Infof("%v %v %v %v", err, m.Author, m.Version, m.Github)
 	//Read check
 	if !reflect.DeepEqual(m.Author, "Lovelace") {
 		t.Errorf("Json value not match: %s != %s\n", m.Author, "Lovelace")
@@ -42,7 +41,7 @@ func TestJson(t *testing.T) {
 	//Modification
 	m.Author = "Lovelace"
 	json.Save(m, "test.json")
-	log.Info(json.String())
+	l.Info(json.String())
 }
 
 func BenchmarkJson(b *testing.B) {

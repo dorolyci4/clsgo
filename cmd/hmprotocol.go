@@ -2,7 +2,7 @@
  * @Author          : Lovelace
  * @Github          : https://github.com/lovelacelee
  * @Date            : 2022-07-08 09:14:05
- * @LastEditTime    : 2022-07-08 18:37:02
+ * @LastEditTime    : 2022-07-15 17:48:08
  * @LastEditors     : Lovelace
  * @Description     :
  * @FilePath        : /cmd/hmprotocol.go
@@ -193,7 +193,7 @@ func (h HMHead) Id() uint32 {
 	}
 }
 
-func (h HMHead) AckBuffer(bodylen int) (*bytes.Buffer, error) {
+func (h HMHead) AckBufferWithHead(bodylen int) (*bytes.Buffer, error) {
 	var err error = nil
 	buffer := bytes.NewBufferString("")
 
@@ -211,11 +211,13 @@ func (h HMHead) AckBuffer(bodylen int) (*bytes.Buffer, error) {
 
 var timeout = net.Retry{Count: 3, Interval: 10}
 
-func (p HMProtocol) onLogin(conn *net.Conn, data []byte) ([]byte, error) {
+func (p *HMProtocol) onLogin(conn *net.Conn, data []byte) ([]byte, error) {
 	xv, err := config.XmlDecode(data)
+
 	if err != nil {
-		l.Errorf("Xml decode failed: %s", err)
-		p.Err = HMERR_Format
+		e := &p.Err
+		*e = HMERR_Format
+		l.Errorf("Xml decode failed: %s %s", err, p.Err.Msg.Error())
 		return nil, err
 	}
 	msgReq := xv["Message"].(map[string]interface{})
@@ -232,7 +234,7 @@ func (p HMProtocol) onLogin(conn *net.Conn, data []byte) ([]byte, error) {
 	return ackBytes, err
 }
 
-func (p HMProtocol) onHeatBeat(conn *net.Conn, data []byte) ([]byte, error) {
+func (p *HMProtocol) onHeatBeat(conn *net.Conn, data []byte) ([]byte, error) {
 	ackMsg := make(map[string]interface{})
 	ackMsg["Time"] = time.Now().Unix()
 	ackBytes, err := config.XmlEncodeWithIndent(ackMsg, "Message")
@@ -241,7 +243,9 @@ func (p HMProtocol) onHeatBeat(conn *net.Conn, data []byte) ([]byte, error) {
 	return ackBytes, err
 }
 
-func (p HMProtocol) msgHandler(conn *net.Conn, data []byte) ([]byte, error) {
+// Return response message head & body in bytes
+// Return nil while error occurred
+func (p *HMProtocol) msgHandler(conn *net.Conn, data []byte) ([]byte, error) {
 	var err error = nil
 	var dataAck []byte
 	switch p.Head.Id() {
@@ -252,18 +256,22 @@ func (p HMProtocol) msgHandler(conn *net.Conn, data []byte) ([]byte, error) {
 	default:
 		err = HMERR_NotSupported.Msg
 	}
-
-	buffer, err := p.Head.AckBuffer(len(dataAck))
 	if err != nil {
 		return nil, err
 	}
+	//Write head first
+	buffer, err := p.Head.AckBufferWithHead(len(dataAck))
+	if err != nil {
+		return nil, err
+	}
+	// Write body if exist
 	if len(dataAck) > 0 {
 		buffer.Write(dataAck)
 	}
 	return buffer.Bytes(), err
 }
 
-func (p HMProtocol) OnHead(conn *net.Conn, headlen int) ([]byte, error) {
+func (p *HMProtocol) OnHead(conn *net.Conn, headlen int) ([]byte, error) {
 	bodylen := 0
 	msgid := 0
 	if p.Head.len == 12 {
@@ -281,7 +289,7 @@ func (p HMProtocol) OnHead(conn *net.Conn, headlen int) ([]byte, error) {
 	return p.OnBody(conn, bodylen)
 }
 
-func (p HMProtocol) OnBody(conn *net.Conn, bodylen int) ([]byte, error) {
+func (p *HMProtocol) OnBody(conn *net.Conn, bodylen int) ([]byte, error) {
 	// message body receive
 	data, err := conn.Recv(bodylen, timeout)
 	if err != nil {
@@ -292,22 +300,12 @@ func (p HMProtocol) OnBody(conn *net.Conn, bodylen int) ([]byte, error) {
 	return p.msgHandler(conn, data)
 }
 
-func (p HMProtocol) Send(conn *net.Conn, data []byte) error {
-	var err error = nil
-	l.Info(len(data), string(data))
-	if len(data) > 0 {
-		err = conn.Send(data, timeout)
-	}
-	l.Info("Send result ", err)
-	return err
-}
-
-func (p HMProtocol) Recv(conn *net.Conn) ([]byte, error) {
-	p.Head = HMHead{}
+func (p *HMProtocol) HandleMessage(conn *net.Conn) ([]byte, error) {
 	if p.Cli.BootTime.IsZero() {
 		p.Cli.BootTime = time.Now()
 		p.Cli.LastKeepAlive = p.Cli.BootTime
 		p.Cli.Remote = conn.RemoteAddr().String()
+		l.Info(p.Cli.Remote, " waiting for login message.")
 	}
 	// First connected, authorization required
 	if !p.Cli.Authorized {
@@ -334,4 +332,8 @@ func (p HMProtocol) Recv(conn *net.Conn) ([]byte, error) {
 		}
 	}
 	return p.OnHead(conn, p.Head.len)
+}
+
+func (p *HMProtocol) Instance() net.TcpProtocol {
+	return &HMProtocol{}
 }

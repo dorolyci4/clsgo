@@ -2,7 +2,7 @@
  * @Author          : Lovelace
  * @Github          : https://github.com/lovelacelee
  * @Date            : 2022-06-30 17:13:53
- * @LastEditTime    : 2022-07-08 18:01:56
+ * @LastEditTime    : 2022-07-15 18:03:55
  * @LastEditors     : Lovelace
  * @Description     :
  * @FilePath        : /cmd/app.go
@@ -40,11 +40,10 @@ func simpleHTTPServer() {
 }
 
 func tcpServer() {
-	var proto net.TcpProtocol = HMProtocol{}
-	net.TcpServer("0.0.0.0", 8081, proto)
+	net.TcpServer("0.0.0.0", 8081, &HMProtocol{})
 }
 
 func App() {
-	// go simpleHTTPServer()
+	go simpleHTTPServer()
 	go tcpServer()
 }

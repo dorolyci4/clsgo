@@ -2,7 +2,7 @@
  * @Author          : Lovelace
  * @Github          : https://github.com/lovelacelee
  * @Date            : 2022-06-28 16:05:32
- * @LastEditTime    : 2022-06-30 16:57:59
+ * @LastEditTime    : 2022-07-15 11:20:45
  * @LastEditors     : Lovelace
  * @Description     :
  * @FilePath        : /test/config_test.go
@@ -10,7 +10,7 @@
  *
  *
  */
-package clsgo
+package clsgo_test
 
 import (
 	"testing"
@@ -22,7 +22,7 @@ import (
 func TestConfig(t *testing.T) {
 	cfg, err := config.ClsConfig("config", "clsgo", false)
 	if err == nil {
-		log.Info("%v", cfg.Sub("log").GetString("enable"))
+		l.Info(cfg.Sub("log").GetString("enable"))
 	} else {
 		t.Errorf("Not passed")
 	}
