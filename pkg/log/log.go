@@ -2,7 +2,7 @@
  * @Author          : Lovelace
  * @Github          : https://github.com/lovelacelee
  * @Date            : 2022-01-14 09:01:57
- * @LastEditTime    : 2022-07-06 11:41:21
+ * @LastEditTime    : 2022-07-16 17:06:14
  * @LastEditors     : Lovelace
  * @Description     : Use logrus as the file logger
  * @FilePath        : /pkg/log/log.go
@@ -53,6 +53,7 @@ type ClsFormatter struct {
 	EnvironmentOverrideColors bool
 	// Force disabling colors.
 	DisableColors bool
+	Prefix        bool
 }
 
 // Unmarshal need TWO most important features:
@@ -106,21 +107,22 @@ func (f *ClsFormatter) Format(entry *logrus.Entry) ([]byte, error) {
 	timestamp := entry.Time.Format("2006-01-02 15:04:05.000")
 	var logString string
 	_, color := loglevel(entry.Level.String())
-
-	if f.isColored() && (entry.Logger.Out == os.Stderr || entry.Logger.Out == os.Stdout) {
-		logString = fmt.Sprintf("%s[%s]%s[%s]", color, strings.ToUpper(entry.Level.String())[:4], ANSI_RESET, timestamp)
-	} else {
-		logString = fmt.Sprintf("[%s][%s]", strings.ToUpper(entry.Level.String())[:4], timestamp)
+	if f.Prefix {
+		if f.isColored() && (entry.Logger.Out == os.Stderr || entry.Logger.Out == os.Stdout) {
+			logString = fmt.Sprintf("%s[%s]%s[%s]", color, strings.ToUpper(entry.Level.String())[:4], ANSI_RESET, timestamp)
+		} else {
+			logString = fmt.Sprintf("[%s][%s]", strings.ToUpper(entry.Level.String())[:4], timestamp)
+		}
+		if entry.HasCaller() {
+			fName := path.Base(entry.Caller.File)
+			fFunc := path.Base(entry.Caller.Function)
+			logString += fmt.Sprintf("[%s:%d %s]", fName, entry.Caller.Line, fFunc)
+		}
+		for k, v := range entry.Data {
+			logString += fmt.Sprintf("[%s=%s]", k, v)
+		}
 	}
-	if entry.HasCaller() {
-		fName := path.Base(entry.Caller.File)
-		fFunc := path.Base(entry.Caller.Function)
-		logString += fmt.Sprintf("[%s:%d %s]", fName, entry.Caller.Line, fFunc)
-	}
-	for k, v := range entry.Data {
-		logString += fmt.Sprintf("[%s=%s]", k, v)
-	}
-	logString += fmt.Sprintf(" %s\n", entry.Message)
+	logString += fmt.Sprintf("%s\n", entry.Message)
 	b.WriteString(logString)
 	return b.Bytes(), nil
 }
@@ -128,6 +130,7 @@ func (f *ClsFormatter) Format(entry *logrus.Entry) ([]byte, error) {
 func init() {
 	logrusInstance.SetReportCaller(true)
 	logrusInstance.SetFormatter(&ClsFormatter{
+		Prefix:      false,
 		ForceColors: true,
 	})
 	logrusInstance.SetLevel(logrus.TraceLevel)
