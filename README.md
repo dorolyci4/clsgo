@@ -6,10 +6,9 @@ CLS packages
 
 ## todo
 
-* 🟩HTTP static file server
-* 🟩HTTP RESTFUL API server
-* 🟩TCP protocol plugin
-* 🟩Goframe components wrapper
+* ✅HTTP static file server
+* ✅HTTP RESTFUL API server
+* ✅TCP protocol plugin
 * ✅Simple TCP server
 * ✅File logger
 * ✅Terminal logger
