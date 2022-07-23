@@ -2,7 +2,7 @@
  * @Author          : Lovelace
  * @Github          : https://github.com/lovelacelee
  * @Date            : 2022-01-14 09:03:01
- * @LastEditTime    : 2022-07-15 17:47:56
+ * @LastEditTime    : 2022-07-23 15:15:18
  * @LastEditors     : Lovelace
  * @Description     :
  * @FilePath        : /pkg/net/tcp.go
@@ -22,7 +22,10 @@ import (
 type Conn = gtcp.Conn
 type Retry = gtcp.Retry
 
-var l = log.ClsLog()
+var l = log.ClsLog(&log.ClsFormatter{
+	Prefix:      true,
+	ForceColors: false,
+})
 
 type TcpProtocol interface {
 	HandleMessage(conn *Conn) ([]byte, error)

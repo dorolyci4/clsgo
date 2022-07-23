@@ -2,7 +2,7 @@
  * @Author          : Lovelace
  * @Github          : https://github.com/lovelacelee
  * @Date            : 2022-06-30 17:13:53
- * @LastEditTime    : 2022-07-15 18:03:55
+ * @LastEditTime    : 2022-07-23 15:15:32
  * @LastEditors     : Lovelace
  * @Description     :
  * @FilePath        : /cmd/app.go
@@ -20,7 +20,10 @@ import (
 	"github.com/lovelacelee/clsgo/pkg/net"
 )
 
-var l = log.ClsLog()
+var l = log.ClsLog(&log.ClsFormatter{
+	Prefix:      true,
+	ForceColors: false,
+})
 
 func simpleHTTPServer() {
 

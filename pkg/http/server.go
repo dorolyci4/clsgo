@@ -2,7 +2,7 @@
  * @Author          : Lovelace
  * @Github          : https://github.com/lovelacelee
  * @Date            : 2022-06-15 16:39:44
- * @LastEditTime    : 2022-07-07 17:57:54
+ * @LastEditTime    : 2022-07-23 15:15:25
  * @LastEditors     : Lovelace
  * @Description     :
  * @FilePath        : /pkg/http/server.go
@@ -23,7 +23,10 @@ import (
 	"github.com/lovelacelee/clsgo/pkg/log"
 )
 
-var ClsLog = log.ClsLog()
+var ClsLog = log.ClsLog(&log.ClsFormatter{
+	Prefix:      true,
+	ForceColors: false,
+})
 
 type Request = ghttp.Request
 

@@ -2,7 +2,7 @@
  * @Author          : Lovelace
  * @Github          : https://github.com/lovelacelee
  * @Date            : 2022-01-14 09:01:57
- * @LastEditTime    : 2022-07-16 17:06:14
+ * @LastEditTime    : 2022-07-23 15:18:48
  * @LastEditors     : Lovelace
  * @Description     : Use logrus as the file logger
  * @FilePath        : /pkg/log/log.go
@@ -245,6 +245,14 @@ func Update(logcfg *viper.Viper) (logger *logrus.Logger, err error) {
 	return logrusInstance, err
 }
 
-func ClsLog() *logrus.Logger {
+// Return global logrus instance, use ClsFormatter
+// For example:
+// import "github.com/lovelacelee/clsgo/pkg/log"
+// var Log = log.ClsLog(&log.ClsFormatter{
+//     Prefix:      true,
+//     ForceColors: false,
+// })
+func ClsLog(f *ClsFormatter) *logrus.Logger {
+	logrusInstance.SetFormatter(f)
 	return logrusInstance
 }
