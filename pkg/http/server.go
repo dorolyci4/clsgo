@@ -1,16 +1,5 @@
-/*
- * @Author          : Lovelace
- * @Github          : https://github.com/lovelacelee
- * @Date            : 2022-06-15 16:39:44
- * @LastEditTime    : 2022-07-23 15:15:25
- * @LastEditors     : Lovelace
- * @Description     :
- * @FilePath        : /pkg/http/server.go
- * Copyright 2022 Lovelace, All Rights Reserved.
- *
- * Simple http web server support apis and static files both.
- * GoFrame used.
- */
+// Simple http web server support apis and static files both.
+// GoFrame used.
 package http
 
 import (

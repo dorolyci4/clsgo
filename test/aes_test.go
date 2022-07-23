@@ -1,15 +1,3 @@
-/*
- * @Author          : Lovelace
- * @Github          : https://github.com/lovelacelee
- * @Date            : 2022-07-14 14:31:26
- * @LastEditTime    : 2022-07-15 15:19:13
- * @LastEditors     : Lovelace
- * @Description     :
- * @FilePath        : /test/aes_test.go
- * Copyright 2022 Lovelace, All Rights Reserved.
- *
- *
- */
 package clsgo_test
 
 import (

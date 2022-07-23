@@ -1,15 +1,3 @@
-/*
- * @Author          : Lovelace
- * @Github          : https://github.com/lovelacelee
- * @Date            : 2022-01-14 09:03:01
- * @LastEditTime    : 2022-07-23 15:15:18
- * @LastEditors     : Lovelace
- * @Description     :
- * @FilePath        : /pkg/net/tcp.go
- * Copyright 2022 Lovelace, All Rights Reserved.
- *
- *
- */
 package net
 
 import (

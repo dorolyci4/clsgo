@@ -1,15 +1,3 @@
-/*
- * @Author          : Lovelace
- * @Github          : https://github.com/lovelacelee
- * @Date            : 2022-06-15 17:31:09
- * @LastEditTime    : 2022-07-01 15:42:58
- * @LastEditors     : Lovelace
- * @Description     :
- * @FilePath        : /pkg/log/internal.go
- * Copyright 2022 Lovelace, All Rights Reserved.
- *
- *
- */
 package log
 
 import (

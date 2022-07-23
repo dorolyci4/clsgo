@@ -1,15 +1,3 @@
-/*
- * @Author          : Lovelace
- * @Github          : https://github.com/lovelacelee
- * @Date            : 2022-07-15 15:15:30
- * @LastEditTime    : 2022-07-15 15:42:18
- * @LastEditors     : Lovelace
- * @Description     :
- * @FilePath        : /pkg/crypto/md5.go
- * Copyright 2022 Lovelace, All Rights Reserved.
- *
- *
- */
 package crypto
 
 import (

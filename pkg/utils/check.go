@@ -1,15 +1,3 @@
-/*
- * @Author          : Lovelace
- * @Github          : https://github.com/lovelacelee
- * @Date            : 2022-06-15 17:35:57
- * @LastEditTime    : 2022-06-29 15:46:08
- * @LastEditors     : Lovelace
- * @Description     :
- * @FilePath        : /pkg/utils/check.go
- * Copyright 2022 Lovelace, All Rights Reserved.
- *
- *
- */
 package utils
 
 import (

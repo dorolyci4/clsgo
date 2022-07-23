@@ -1,15 +1,3 @@
-/*
- * @Author          : Lovelace
- * @Github          : https://github.com/lovelacelee
- * @Date            : 2022-07-05 15:11:37
- * @LastEditTime    : 2022-07-05 19:58:29
- * @LastEditors     : Lovelace
- * @Description     :
- * @FilePath        : /pkg/log/glog.go
- * Copyright 2022 Lovelace, All Rights Reserved.
- *
- *
- */
 package log
 
 import (

@@ -1,15 +1,3 @@
-/*
- * @Author          : Lovelace
- * @Github          : https://github.com/lovelacelee
- * @Date            : 2022-07-08 13:31:15
- * @LastEditTime    : 2022-07-08 13:38:51
- * @LastEditors     : Lovelace
- * @Description     :
- * @FilePath        : /pkg/config/xml.go
- * Copyright 2022 Lovelace, All Rights Reserved.
- *
- *
- */
 package config
 
 import (

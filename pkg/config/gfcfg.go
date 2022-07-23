@@ -1,16 +1,5 @@
-/*
- * @Author          : Lovelace
- * @Github          : https://github.com/lovelacelee
- * @Date            : 2022-07-05 14:26:51
- * @LastEditTime    : 2022-07-05 16:13:38
- * @LastEditors     : Lovelace
- * @Description     :
- * @FilePath        : /pkg/config/gfcfg.go
- * Copyright 2022 Lovelace, All Rights Reserved.
- *
- * Config implement use goframe, config automatic search supported
- * Only implement Get
- */
+// Config implement use goframe, config automatic search supported,
+// Only implement Get.
 package config
 
 import (

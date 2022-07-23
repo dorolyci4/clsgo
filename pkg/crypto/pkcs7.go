@@ -1,13 +1,4 @@
 /*
- * @Author          : Lovelace
- * @Github          : https://github.com/lovelacelee
- * @Date            : 2022-07-14 17:25:08
- * @LastEditTime    : 2022-07-15 09:53:10
- * @LastEditors     : Lovelace
- * @Description     :
- * @FilePath        : /pkg/crypto/pkcs7.go
- * Copyright 2022 Lovelace, All Rights Reserved.
- *
  * See also: https://datatracker.ietf.org/doc/html/rfc2315
  */
 

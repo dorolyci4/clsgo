@@ -1,15 +1,4 @@
-/*
- * @Author          : Lovelace
- * @Github          : https://github.com/lovelacelee
- * @Date            : 2022-01-14 08:59:04
- * @LastEditTime    : 2022-07-08 14:02:32
- * @LastEditors     : Lovelace
- * @Description     :
- * @FilePath        : /cmd/main.go
- * Copyright 2022 Lovelace, All Rights Reserved.
- *
- *
- */
+
 package main
 
 import (

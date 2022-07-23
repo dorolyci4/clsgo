@@ -1,15 +1,3 @@
-/*
- * @Author          : Lovelace
- * @Github          : https://github.com/lovelacelee
- * @Date            : 2022-06-28 16:05:32
- * @LastEditTime    : 2022-07-15 11:20:45
- * @LastEditors     : Lovelace
- * @Description     :
- * @FilePath        : /test/config_test.go
- * Copyright 2022 Lovelace, All Rights Reserved.
- *
- *
- */
 package clsgo_test
 
 import (

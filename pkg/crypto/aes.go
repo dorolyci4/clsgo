@@ -1,13 +1,4 @@
 /*
- * @Author          : Lovelace
- * @Github          : https://github.com/lovelacelee
- * @Date            : 2022-07-14 13:42:06
- * @LastEditTime    : 2022-07-15 15:21:25
- * @LastEditors     : Lovelace
- * @Description     :
- * @FilePath        : /pkg/crypto/aes.go
- * Copyright 2022 Lovelace, All Rights Reserved.
- *
  * Test result match: https://www.mklab.cn/utils/aes
  */
 

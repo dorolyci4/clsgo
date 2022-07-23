@@ -1,15 +1,4 @@
-/*
- * @Author          : Lovelace
- * @Github          : https://github.com/lovelacelee
- * @Date            : 2022-06-13 15:40:43
- * @LastEditTime    : 2022-07-15 15:42:34
- * @LastEditors     : Lovelace
- * @Description     :
- * @FilePath        : /test/clsgo_test.go
- * Copyright 2022 Lovelace, All Rights Reserved.
- *
- *
- */
+// Test package for clsgo
 package clsgo_test
 
 import (
@@ -22,7 +11,10 @@ import (
 	"github.com/lovelacelee/clsgo/pkg/utils"
 )
 
-var l = log.ClsLog()
+var l = log.ClsLog(&log.ClsFormatter{
+	Prefix:      true,
+	ForceColors: true,
+})
 
 func TestClsgo(t *testing.T) {
 	v := clsgo.Version

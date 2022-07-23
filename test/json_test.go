@@ -1,15 +1,3 @@
-/*
- * @Author          : Lovelace
- * @Github          : https://github.com/lovelacelee
- * @Date            : 2022-06-13 15:25:49
- * @LastEditTime    : 2022-07-15 15:12:25
- * @LastEditors     : Lovelace
- * @Description     :
- * @FilePath        : /test/json_test.go
- * Copyright 2022 Lovelace, All Rights Reserved.
- *
- *
- */
 package clsgo_test
 
 import (

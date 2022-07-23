@@ -1,15 +1,3 @@
-/*
- * @Author          : Lovelace
- * @Github          : https://github.com/lovelacelee
- * @Date            : 2022-07-08 09:14:05
- * @LastEditTime    : 2022-07-15 17:48:08
- * @LastEditors     : Lovelace
- * @Description     :
- * @FilePath        : /cmd/hmprotocol.go
- * Copyright 2022 Lovelace, All Rights Reserved.
- *
- *
- */
 package main
 
 import (

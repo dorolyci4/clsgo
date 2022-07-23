@@ -1,15 +1,3 @@
-/*
- * @Author          : Lovelace
- * @Github          : https://github.com/lovelacelee
- * @Date            : 2022-07-15 15:07:16
- * @LastEditTime    : 2022-07-15 15:09:01
- * @LastEditors     : Lovelace
- * @Description     :
- * @FilePath        : /pkg/utils/id.go
- * Copyright 2022 Lovelace, All Rights Reserved.
- *
- *
- */
 package utils
 
 import (

@@ -1,32 +1,4 @@
-/*
- * @Author          : Lovelace
- * @Github          : https://github.com/lovelacelee
- * @Date            : 2022-01-14 09:01:57
- * @LastEditTime    : 2022-07-23 15:18:48
- * @LastEditors     : Lovelace
- * @Description     : Use logrus as the file logger
- * @FilePath        : /pkg/log/log.go
- * Copyright 2022 Lovelace, All Rights Reserved.
- *
- * // Init logger
-	go func() {
-		for {
-			log.Update(cfg.Sub("log"))
-			time.Sleep(time.Second)
-		}
-	}()
-	ClsLog := log.ClsLog()
-
-	for {
-		time.Sleep(time.Second * 1)
-		ClsLog.WithField("name", "lee").Trace("trace")
-		ClsLog.WithField("name", "lee").Debug("debug")
-		ClsLog.WithField("name", "lee").Info("info")
-		ClsLog.WithField("name", "lee").Warn("warning")
-		ClsLog.WithField("name", "lee").Error("error")
-	}
-*/
-// log.go
+// Sub package log provide logrus wrapper functions
 package log
 
 import (
@@ -127,12 +99,14 @@ func (f *ClsFormatter) Format(entry *logrus.Entry) ([]byte, error) {
 	return b.Bytes(), nil
 }
 
+var innerFormatter = ClsFormatter{
+	Prefix:      false,
+	ForceColors: true,
+}
+
 func init() {
 	logrusInstance.SetReportCaller(true)
-	logrusInstance.SetFormatter(&ClsFormatter{
-		Prefix:      false,
-		ForceColors: true,
-	})
+	logrusInstance.SetFormatter(&innerFormatter)
 	logrusInstance.SetLevel(logrus.TraceLevel)
 }
 
@@ -181,7 +155,7 @@ func newhook() (hook logrus.Hook) {
 		logrus.PanicLevel: writer("panic"),
 	}
 
-	lfHook := lfshook.NewHook(writeMap, &ClsFormatter{})
+	lfHook := lfshook.NewHook(writeMap, &innerFormatter)
 
 	return lfHook
 }
@@ -216,6 +190,8 @@ func loglevel(loglevel string) (level logrus.Level, color string) {
 	return
 }
 
+// Use go routine check config file changes
+// Update memory object while config file (logcfg *viper.Viper) changes.
 func Update(logcfg *viper.Viper) (logger *logrus.Logger, err error) {
 	if logcfg == nil {
 		err := errors.New("log config section is nil")
@@ -254,5 +230,6 @@ func Update(logcfg *viper.Viper) (logger *logrus.Logger, err error) {
 // })
 func ClsLog(f *ClsFormatter) *logrus.Logger {
 	logrusInstance.SetFormatter(f)
+	innerFormatter = *f
 	return logrusInstance
 }

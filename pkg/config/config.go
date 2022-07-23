@@ -1,15 +1,3 @@
-/*
- * @Author          : Lovelace
- * @Github          : https://github.com/lovelacelee
- * @Date            : 2022-06-13 14:46:44
- * @LastEditTime    : 2022-07-06 13:32:14
- * @LastEditors     : Lovelace
- * @Description     :
- * @FilePath        : /pkg/config/config.go
- * Copyright 2022 Lovelace, All Rights Reserved.
- *
- *
- */
 // Doc more on https://pkg.go.dev/github.com/spf13/viper
 // https://yaml.org/ https://yaml.org/spec/1.2.2/
 

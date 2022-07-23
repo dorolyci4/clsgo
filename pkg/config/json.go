@@ -1,15 +1,3 @@
-/*
- * @Author          : Lovelace
- * @Github          : https://github.com/lovelacelee
- * @Date            : 2022-01-14 09:01:24
- * @LastEditTime    : 2022-07-08 13:43:06
- * @LastEditors     : Lovelace
- * @Description     :
- * @FilePath        : /pkg/config/json.go
- * Copyright 2022 Lovelace, All Rights Reserved.
- *
- *
- */
 package config
 
 import (
