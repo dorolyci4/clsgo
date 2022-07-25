@@ -4,6 +4,9 @@ CLS packages
 
 ## requirments
 
+* [Viper](github.com/spf13/viper)
+* [GFrame](github.com/gogf/gf)
+
 ## todo
 
 * ✅HTTP static file server

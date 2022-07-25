@@ -1,14 +1,11 @@
-package log
+package log_test
 
 import (
-	"fmt"
+	"github.com/lovelacelee/clsgo/pkg/log"
 )
 
 // Exmaple
 func ExampleClsLog() {
-	var Log = ClsLog(&ClsFormatter{
-		Prefix:      true,
-		ForceColors: false,
-	})
-	fmt.Println(Log.Level)
+	var Log = log.ClsLog(&log.Formatter)
+	Log.Info(Log.Level)
 }

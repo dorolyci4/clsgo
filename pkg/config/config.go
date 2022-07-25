@@ -27,7 +27,7 @@ func clsDefConfigSearchPath(v *viper.Viper, paths []string, path string) []strin
 	return append(paths, path)
 }
 
-func ClsConfig(filename string, projectname string, monitoring bool) (cfg *viper.Viper, err error) {
+func ClsConfig(filename string /*Config file name*/, projectname string, monitoring bool) (cfg *viper.Viper, err error) {
 	ViperInstance := viper.New()
 	// viper could guess the extension of filename
 	extension := path.Ext(filename)

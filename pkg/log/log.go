@@ -99,14 +99,15 @@ func (f *ClsFormatter) Format(entry *logrus.Entry) ([]byte, error) {
 	return b.Bytes(), nil
 }
 
-var innerFormatter = ClsFormatter{
+// Internal global ClsFormatter instance
+var Formatter = ClsFormatter{
 	Prefix:      false,
 	ForceColors: true,
 }
 
 func init() {
 	logrusInstance.SetReportCaller(true)
-	logrusInstance.SetFormatter(&innerFormatter)
+	logrusInstance.SetFormatter(&Formatter)
 	logrusInstance.SetLevel(logrus.TraceLevel)
 }
 
@@ -155,7 +156,7 @@ func newhook() (hook logrus.Hook) {
 		logrus.PanicLevel: writer("panic"),
 	}
 
-	lfHook := lfshook.NewHook(writeMap, &innerFormatter)
+	lfHook := lfshook.NewHook(writeMap, &Formatter)
 
 	return lfHook
 }
@@ -190,7 +191,7 @@ func loglevel(loglevel string) (level logrus.Level, color string) {
 	return
 }
 
-// Use go routine check config file changes
+// Use go routine check config file changes.
 // Update memory object while config file (logcfg *viper.Viper) changes.
 func Update(logcfg *viper.Viper) (logger *logrus.Logger, err error) {
 	if logcfg == nil {
@@ -221,15 +222,10 @@ func Update(logcfg *viper.Viper) (logger *logrus.Logger, err error) {
 	return logrusInstance, err
 }
 
-// Return global logrus instance, use ClsFormatter
-// For example:
-// import "github.com/lovelacelee/clsgo/pkg/log"
-// var Log = log.ClsLog(&log.ClsFormatter{
-//     Prefix:      true,
-//     ForceColors: false,
-// })
+// Return global logrus instance, use ClsFormatter.
+// For more, see https://pkg.go.dev/github.com/spf13/viper .
 func ClsLog(f *ClsFormatter) *logrus.Logger {
 	logrusInstance.SetFormatter(f)
-	innerFormatter = *f
+	Formatter = *f
 	return logrusInstance
 }
