@@ -16,7 +16,7 @@ var l = log.ClsLog(&log.ClsFormatter{
 func simpleHTTPServer() {
 
 	l.Info("ClsGO application ", clsgo.Version)
-	l.Info(config.Get("database.default.0.link"))
+	l.Info(config.GCfgGet("database.default.0.link"))
 
 	// HTTP simple web server
 	apis := make(http.APIS)

@@ -8,6 +8,7 @@ import (
 	"os"
 	"path"
 	"strings"
+	"sync"
 	"time"
 
 	rotatelogs "github.com/lestrrat-go/file-rotatelogs"
@@ -47,6 +48,8 @@ type LogConf struct {
 
 // The global instance
 var logrusInstance = logrus.New()
+
+var logConfig *viper.Viper
 
 const RotateSizeMB = 1024 * 1024
 
@@ -222,10 +225,40 @@ func Update(logcfg *viper.Viper) (logger *logrus.Logger, err error) {
 	return logrusInstance, err
 }
 
+var once sync.Once
+
+// If logConfig exist, use 'log' node to update the config of clslog
+func logUpdate() {
+	// once callback
+	go func() {
+		for {
+			if logConfig != nil {
+				// Fixed config node: 'log'
+				Update(logConfig.Sub("log"))
+				logrusInstance.Warn("Update")
+			}
+			time.Sleep(time.Second * 5)
+		}
+	}()
+}
+
 // Return global logrus instance, use ClsFormatter.
 // For more, see https://pkg.go.dev/github.com/spf13/viper .
-func ClsLog(f *ClsFormatter) *logrus.Logger {
-	logrusInstance.SetFormatter(f)
-	Formatter = *f
+// Example: (cfg *viper.Viper, f ...*ClsFormatter)
+// If specified cfg, then Update function will be valid.
+func ClsLog(args ...any) *logrus.Logger {
+	for _, arg := range args {
+		switch argtype := arg.(type) {
+		case *viper.Viper:
+			logConfig = arg.(*viper.Viper)
+		case *ClsFormatter:
+			logrusInstance.SetFormatter(arg.(*ClsFormatter))
+			Formatter = *arg.(*ClsFormatter)
+		default:
+			logrusInstance.Error(arg, " ", argtype, " is an unknown type. Only accept[*viper.Viper, *ClsFormatter]")
+		}
+	}
+
+	once.Do(logUpdate)
 	return logrusInstance
 }

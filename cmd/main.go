@@ -1,11 +1,9 @@
-
 package main
 
 import (
 	"github.com/lovelacelee/clsgo/pkg/config"
 	"github.com/lovelacelee/clsgo/pkg/log"
 	"sync"
-	"time"
 )
 
 func main() {
@@ -17,14 +15,7 @@ func main() {
 	if err != nil {
 		l.Error("Config load failed!")
 	}
-	// Init logger
-	go func() {
-		for {
-			log.Update(cfg.Sub("log"))
-			time.Sleep(time.Second)
-		}
-	}()
-
+	log.ClsLog(cfg)
 	App()
 	workGroup.Wait()
 }

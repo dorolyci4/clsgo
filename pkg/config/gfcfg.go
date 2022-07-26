@@ -8,12 +8,12 @@ import (
 	"github.com/gogf/gf/v2/os/gctx"
 )
 
-// Get retrieves and returns value by specified `pattern`.
+// GCfgGet retrieves and returns value by specified `pattern`.
 // It returns all values of current Json object if `pattern` is given empty or string ".".
 // It returns nil if no value found by `pattern`.
 //
 // It returns a default value specified by `def` if value for `pattern` is not found.
-func Get(pattern string, def ...interface{}) (x *gvar.Var) {
+func GCfgGet(pattern string, def ...interface{}) (x *gvar.Var) {
 	var ctx = gctx.New()
 	result, err := gcfg.Instance().Get(ctx, pattern)
 	if err != nil {
