@@ -4,12 +4,19 @@
 package config
 
 import (
+	"github.com/gogf/gf/v2/container/gvar"
+	"github.com/gogf/gf/v2/os/gcfg"
+	"github.com/gogf/gf/v2/os/gctx"
+
+	"github.com/lovelacelee/clsgo/pkg/utils"
 	"github.com/spf13/viper"
 	"log"
 	"os"
 	"path"
 	"time"
 )
+
+type Config = *viper.Viper
 
 // viper.ConfigWatch is not reliable
 func monitor(cfg *viper.Viper) {
@@ -27,6 +34,8 @@ func clsDefConfigSearchPath(v *viper.Viper, paths []string, path string) []strin
 	return append(paths, path)
 }
 
+// Param: monitoring will use go routine to watch file changes, and reload it.
+// the goroutine never ends.
 func ClsConfig(filename string /*Config file name*/, projectname string, monitoring bool) (cfg *viper.Viper, err error) {
 	ViperInstance := viper.New()
 	// viper could guess the extension of filename
@@ -34,12 +43,13 @@ func ClsConfig(filename string /*Config file name*/, projectname string, monitor
 	if extension != "" {
 		ViperInstance.SetConfigType(extension[1:]) // REQUIRED if the config file does not have the extension in the name
 	}
-	var paths []string
-	ViperInstance.SetConfigName(filename)                               // name of config file (without extension)
-	clsDefConfigSearchPath(ViperInstance, paths, "/etc/"+projectname)   // path to look for the config file in
-	clsDefConfigSearchPath(ViperInstance, paths, "$HOME/."+projectname) // call multiple times to add many search paths
-	clsDefConfigSearchPath(ViperInstance, paths, ".")                   // optionally look for config in the working directory
-	clsDefConfigSearchPath(ViperInstance, paths, "./config")            // optionally look for config in the working directory
+	var paths = make([]string, 0)
+	ViperInstance.SetConfigName(filename)                                       // name of config file (without extension)
+	paths = clsDefConfigSearchPath(ViperInstance, paths, "/etc/"+projectname)   // path to look for the config file in
+	paths = clsDefConfigSearchPath(ViperInstance, paths, "$HOME/."+projectname) // call multiple times to add many search paths
+	paths = clsDefConfigSearchPath(ViperInstance, paths, ".")                   // optionally look for config in the working directory
+	paths = clsDefConfigSearchPath(ViperInstance, paths, "./config")            // optionally look for config in the working directory
+	paths = clsDefConfigSearchPath(ViperInstance, paths, utils.GetCurrentAbPath()+"/../../config")
 
 	err = ViperInstance.ReadInConfig() // Find and read the config file
 	if err != nil {                    // Handle errors reading the config file
@@ -54,4 +64,21 @@ func ClsConfig(filename string /*Config file name*/, projectname string, monitor
 		go monitor(ViperInstance)
 	}
 	return ViperInstance, err
+}
+
+// Functions implemented using goframe
+
+// Get using gcfg
+func Get(pattern string, def ...interface{}) (x *gvar.Var) {
+	var ctx = gctx.New()
+	result, err := gcfg.Instance().Get(ctx, pattern)
+	if err != nil {
+		if len(def) > 0 {
+			return gvar.New(def[0])
+		} else {
+			return gvar.New(nil)
+		}
+	} else {
+		return result
+	}
 }

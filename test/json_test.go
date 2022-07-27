@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/lovelacelee/clsgo/pkg/config"
+	"github.com/lovelacelee/clsgo/pkg/log"
 )
 
 type JsonModel struct {
@@ -20,7 +21,7 @@ func TestJson(t *testing.T) {
 
 	var m JsonModel
 	err := json.Parse(&m)
-	l.Infof("%v %v %v %v", err, m.Author, m.Version, m.Github)
+	log.Infof("%v %v %v %v", err, m.Author, m.Version, m.Github)
 	//Read check
 	if !reflect.DeepEqual(m.Author, "Lovelace") {
 		t.Errorf("Json value not match: %s != %s\n", m.Author, "Lovelace")
@@ -29,7 +30,7 @@ func TestJson(t *testing.T) {
 	//Modification
 	m.Author = "Lovelace"
 	json.Save(m, "test.json")
-	l.Info(json.String())
+	log.Info(json.String())
 }
 
 func BenchmarkJson(b *testing.B) {

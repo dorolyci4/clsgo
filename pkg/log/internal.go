@@ -1,7 +1,9 @@
+// Package log provides [Infoi/Warni/Errori/Importanti] internal functions.
 package log
 
 import (
 	"fmt"
+	"os"
 	"path"
 	"runtime"
 )
@@ -19,26 +21,46 @@ var (
 	ANSI_MAGENTA = "\x1b[35;1m"
 )
 
-func Info(format string, args ...interface{}) {
-	pc, file, line, _ := runtime.Caller(1)
-	name := runtime.FuncForPC(pc).Name()
-	fmt.Printf("%s[INFO][%v:%v %v] %s%s\n", ANSI_GREEN, path.Base(file), line, path.Base(name), fmt.Sprintf(format, args...), ANSI_RESET)
+func isColored() bool {
+	isColored := false
+
+	switch force, ok := os.LookupEnv("CLICOLOR_FORCE"); {
+	case ok && force != "0":
+		isColored = true
+	case ok && force == "0", os.Getenv("CLICOLOR") == "0":
+		isColored = false
+	}
+	return isColored
 }
 
-func Warning(format string, args ...interface{}) {
-	pc, file, line, _ := runtime.Caller(1)
-	name := runtime.FuncForPC(pc).Name()
-	fmt.Printf("%s[WARN][%v:%v %v] %s%s\n", ANSI_MAGENTA, path.Base(file), line, path.Base(name), fmt.Sprintf(format, args...), ANSI_RESET)
+func color(c string) string {
+	if isColored() {
+		return c
+	} else {
+		return ""
+	}
 }
 
-func Error(format string, args ...interface{}) {
+func Infoi(format string, args ...interface{}) {
 	pc, file, line, _ := runtime.Caller(1)
 	name := runtime.FuncForPC(pc).Name()
-	fmt.Printf("%s[ERRO][%v:%v %v] %s%s\n", ANSI_RED, path.Base(file), line, path.Base(name), fmt.Sprintf(format, args...), ANSI_RESET)
+	fmt.Printf("%s[INFO][%v:%v %v] %s%s\n", color(ANSI_GREEN), path.Base(file), line, path.Base(name), fmt.Sprintf(format, args...), color(ANSI_RESET))
 }
 
-func Important(format string, args ...interface{}) {
+func Warni(format string, args ...interface{}) {
 	pc, file, line, _ := runtime.Caller(1)
 	name := runtime.FuncForPC(pc).Name()
-	fmt.Printf("%s[IMPO][%v:%v %v] %s%s\n", ANSI_BLUE, path.Base(file), line, path.Base(name), fmt.Sprintf(format, args...), ANSI_RESET)
+	fmt.Printf("%s[WARN][%v:%v %v] %s%s\n", color(ANSI_MAGENTA), path.Base(file), line, path.Base(name), fmt.Sprintf(format, args...), color(ANSI_RESET))
+}
+
+func Errori(format string, args ...interface{}) {
+	pc, file, line, _ := runtime.Caller(1)
+	name := runtime.FuncForPC(pc).Name()
+	fmt.Printf("%s[ERRO][%v:%v %v] %s%s\n", color(ANSI_RED), path.Base(file), line, path.Base(name), fmt.Sprintf(format, args...), color(ANSI_RESET))
+}
+
+func Importi(format string, args ...interface{}) {
+	pc, file, line, _ := runtime.Caller(1)
+	name := runtime.FuncForPC(pc).Name()
+	fmt.Printf("%s[IMPO][%v:%v %v] %s%s\n", color(ANSI_BLUE), path.Base(file), line, path.Base(name), fmt.Sprintf(format, args...), color(ANSI_RESET))
 }

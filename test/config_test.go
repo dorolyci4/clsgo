@@ -10,7 +10,7 @@ import (
 func TestConfig(t *testing.T) {
 	cfg, err := config.ClsConfig("config", "clsgo", false)
 	if err == nil {
-		l.Info(cfg.Sub("log").GetString("enable"))
+		log.Info(cfg.Sub("log").GetString("enable"))
 	} else {
 		t.Errorf("Not passed")
 	}

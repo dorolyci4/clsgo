@@ -1,264 +1,155 @@
-// Sub package log provide logrus wrapper functions
+// Package log provids glog functions.
 package log
 
 import (
-	"bytes"
-	"errors"
-	"fmt"
-	"os"
 	"path"
-	"strings"
-	"sync"
-	"time"
+	"runtime"
+	"strconv"
 
-	rotatelogs "github.com/lestrrat-go/file-rotatelogs"
-	"github.com/rifflock/lfshook"
-	"github.com/sirupsen/logrus"
-
-	"github.com/spf13/viper"
+	"context"
+	"github.com/gogf/gf/v2/frame/g"
 )
 
-// DIY logrus formatter
-type ClsFormatter struct {
-	// Set to true to bypass checking for a TTY before outputting colors.
-	ForceColors bool
-	// Override coloring based on CLICOLOR and CLICOLOR_FORCE. - https://bixense.com/clicolors/
-	EnvironmentOverrideColors bool
-	// Force disabling colors.
-	DisableColors bool
-	Prefix        bool
+func reverse(a []any) []any {
+	for i := len(a)/2 - 1; i >= 0; i-- {
+		opp := len(a) - 1 - i
+		a[i], a[opp] = a[opp], a[i]
+	}
+	return a
 }
 
-// Unmarshal need TWO most important features:
-// 1.struct member must be exportable
-// 2.struct member name must be same as the description
+func Info(v ...any) {
+	var ctx = context.TODO()
 
-type LogConf struct {
-	Enable          bool   `yml:"enable"`
-	SeparateFile    bool   `yml:"separateFile"`
-	FilePath        string `yml:"filePath"`
-	FileName        string `yml:"fileName"`
-	LogLevel        string `yml:"logLevel"`
-	RotateMode      string `yml:"rotateMode"`
-	RotateMaxAge    uint   `yml:"rotateMaxage"`
-	RotateTime      uint   `yml:"rotateTime"`
-	RotateSaveCount uint   `yml:"rotateSaveCount"`
-	RotateSize      uint   `yml:"rotateSize"`
+	pc, file, line, _ := runtime.Caller(1)
+	name := runtime.FuncForPC(pc).Name()
+	s := "[" + path.Base(file) + ":" + strconv.Itoa(line) + " " + path.Base(name) + "]"
+	v = append(v, s)
+	v = reverse(v)
+
+	g.Log().Info(ctx, v...)
 }
 
-// The global instance
-var logrusInstance = logrus.New()
+func Infof(fmt string, v ...any) {
+	var ctx = context.TODO()
+	pc, file, line, _ := runtime.Caller(1)
+	name := runtime.FuncForPC(pc).Name()
+	s := "[" + path.Base(file) + ":" + strconv.Itoa(line) + " " + path.Base(name) + "]"
 
-var logConfig *viper.Viper
-
-const RotateSizeMB = 1024 * 1024
-
-// Global config of logrusInstance
-var Config LogConf
-
-func (f *ClsFormatter) isColored() bool {
-	isColored := f.ForceColors
-
-	if f.EnvironmentOverrideColors {
-		switch force, ok := os.LookupEnv("CLICOLOR_FORCE"); {
-		case ok && force != "0":
-			isColored = true
-		case ok && force == "0", os.Getenv("CLICOLOR") == "0":
-			isColored = false
-		}
-	}
-
-	return isColored && !f.DisableColors
+	g.Log().Infof(ctx, s+fmt, v...)
 }
 
-func (f *ClsFormatter) Format(entry *logrus.Entry) ([]byte, error) {
-	var b *bytes.Buffer
-	if entry.Buffer != nil {
-		b = entry.Buffer
-	} else {
-		b = &bytes.Buffer{}
-	}
-
-	timestamp := entry.Time.Format("2006-01-02 15:04:05.000")
-	var logString string
-	_, color := loglevel(entry.Level.String())
-	if f.Prefix {
-		if f.isColored() && (entry.Logger.Out == os.Stderr || entry.Logger.Out == os.Stdout) {
-			logString = fmt.Sprintf("%s[%s]%s[%s]", color, strings.ToUpper(entry.Level.String())[:4], ANSI_RESET, timestamp)
-		} else {
-			logString = fmt.Sprintf("[%s][%s]", strings.ToUpper(entry.Level.String())[:4], timestamp)
-		}
-		if entry.HasCaller() {
-			fName := path.Base(entry.Caller.File)
-			fFunc := path.Base(entry.Caller.Function)
-			logString += fmt.Sprintf("[%s:%d %s]", fName, entry.Caller.Line, fFunc)
-		}
-		for k, v := range entry.Data {
-			logString += fmt.Sprintf("[%s=%s]", k, v)
-		}
-	}
-	logString += fmt.Sprintf("%s\n", entry.Message)
-	b.WriteString(logString)
-	return b.Bytes(), nil
+func Debug(v ...any) {
+	var ctx = context.TODO()
+	pc, file, line, _ := runtime.Caller(1)
+	name := runtime.FuncForPC(pc).Name()
+	s := "[" + path.Base(file) + ":" + strconv.Itoa(line) + " " + path.Base(name) + "]"
+	v = append(v, s)
+	v = reverse(v)
+	g.Log().Debug(ctx, v...)
 }
 
-// Internal global ClsFormatter instance
-var Formatter = ClsFormatter{
-	Prefix:      false,
-	ForceColors: true,
+func Debugf(fmt string, v ...any) {
+	var ctx = context.TODO()
+	pc, file, line, _ := runtime.Caller(1)
+	name := runtime.FuncForPC(pc).Name()
+	s := "[" + path.Base(file) + ":" + strconv.Itoa(line) + " " + path.Base(name) + "]"
+
+	g.Log().Debugf(ctx, s+fmt, v...)
 }
 
-func init() {
-	logrusInstance.SetReportCaller(true)
-	logrusInstance.SetFormatter(&Formatter)
-	logrusInstance.SetLevel(logrus.TraceLevel)
+func Print(v ...any) {
+	var ctx = context.TODO()
+	pc, file, line, _ := runtime.Caller(1)
+	name := runtime.FuncForPC(pc).Name()
+	s := "[" + path.Base(file) + ":" + strconv.Itoa(line) + " " + path.Base(name) + "]"
+	v = append(v, s)
+	v = reverse(v)
+	g.Log().Print(ctx, v...)
 }
 
-// Unit of maxage is Hour
-func writer(level string) *rotatelogs.RotateLogs {
-	var logFullPath string
-	var rotatelogs_suffix string
-	var options []rotatelogs.Option
-	logfile := path.Join(Config.FilePath, Config.FileName)
-	if Config.RotateMode == "count" {
-		rotatelogs_suffix = ".%Y%m%d"
-		options = append(options, rotatelogs.WithMaxAge(-1))
-		options = append(options, rotatelogs.WithRotationCount(Config.RotateSaveCount))
-		options = append(options, rotatelogs.WithRotationSize((int64)(RotateSizeMB*Config.RotateSize)))
-	} else {
-		rotatelogs_suffix = "-%Y%m%d%H%M%S"
-		options = append(options, rotatelogs.WithMaxAge(time.Hour*time.Duration(Config.RotateMaxAge)))
-		options = append(options, rotatelogs.WithRotationTime(time.Hour*time.Duration(Config.RotateTime)))
-	}
-	if Config.SeparateFile {
-		logFullPath = logfile + "-" + strings.ToUpper(level) + rotatelogs_suffix
-	} else {
-		logFullPath = logfile + rotatelogs_suffix
-	}
-
-	// Warning: logFullPath must have right date format, otherwise rotatelogs cannot remove expired files.
-	wr, err := rotatelogs.New(
-		logFullPath,
-		options...,
-	)
-
-	if err != nil {
-		panic(err)
-	}
-	return wr
+func Printf(fmt string, v ...any) {
+	var ctx = context.TODO()
+	// pc, file, line, _ := runtime.Caller(1)
+	// name := runtime.FuncForPC(pc).Name()
+	// s := "[" + path.Base(file) + ":" + strconv.Itoa(line) + " " + path.Base(name) + "]"
+	// v = append(v, s)
+	// v = reverse(v)
+	g.Log().Printf(ctx, fmt, v...)
 }
 
-func newhook() (hook logrus.Hook) {
-	writeMap := lfshook.WriterMap{
-		logrus.TraceLevel: writer("trace"),
-		logrus.DebugLevel: writer("debug"),
-		logrus.InfoLevel:  writer("info"),
-		logrus.WarnLevel:  writer("warning"),
-		logrus.ErrorLevel: writer("error"),
-		logrus.FatalLevel: writer("fatal"),
-		logrus.PanicLevel: writer("panic"),
-	}
-
-	lfHook := lfshook.NewHook(writeMap, &Formatter)
-
-	return lfHook
+func Warning(v ...any) {
+	var ctx = context.TODO()
+	pc, file, line, _ := runtime.Caller(1)
+	name := runtime.FuncForPC(pc).Name()
+	s := "[" + path.Base(file) + ":" + strconv.Itoa(line) + " " + path.Base(name) + "]"
+	v = append(v, s)
+	v = reverse(v)
+	g.Log().Warning(ctx, v...)
 }
 
-func loglevel(loglevel string) (level logrus.Level, color string) {
-	switch loglevel {
-	case "trace":
-		level = logrus.TraceLevel
-		color = ANSI_DEFAULT
-	case "debug":
-		level = logrus.DebugLevel
-		color = ANSI_WHITE
-	case "info":
-		level = logrus.InfoLevel
-		color = ANSI_GREEN
-	case "warning":
-		level = logrus.WarnLevel
-		color = ANSI_YELLOW
-	case "error":
-		level = logrus.ErrorLevel
-		color = ANSI_RED
-	case "fatal":
-		level = logrus.FatalLevel
-		color = ANSI_CYAN
-	case "panic":
-		level = logrus.PanicLevel
-		color = ANSI_CYAN
-	default:
-		level = logrus.InfoLevel
-		color = ANSI_DEFAULT
-	}
-	return
+func Warningf(fmt string, v ...any) {
+	var ctx = context.TODO()
+	pc, file, line, _ := runtime.Caller(1)
+	name := runtime.FuncForPC(pc).Name()
+	s := "[" + path.Base(file) + ":" + strconv.Itoa(line) + " " + path.Base(name) + "]"
+
+	g.Log().Warningf(ctx, s+fmt, v...)
 }
 
-// Use go routine check config file changes.
-// Update memory object while config file (logcfg *viper.Viper) changes.
-func Update(logcfg *viper.Viper) (logger *logrus.Logger, err error) {
-	if logcfg == nil {
-		err := errors.New("log config section is nil")
-		Error("%v", err)
-		return nil, err
-	}
-	logcfg.Unmarshal(&Config)
-
-	if !Config.Enable {
-		return logrusInstance, err
-	}
-	// Check if the path exist, create it first
-	dir := path.Dir(path.Join(Config.FilePath, Config.FileName))
-	if _, err = os.Stat(dir); os.IsNotExist(err) {
-		err = os.MkdirAll(dir, 0755)
-		if err != nil {
-			logrusInstance.Warnf("Create directory failed, err:%v\n", err)
-		}
-	}
-	lvl, _ := loglevel(Config.LogLevel)
-	logrusInstance.SetLevel(lvl)
-	hooks := make(logrus.LevelHooks)
-
-	hooks.Add(newhook())
-	logrusInstance.ReplaceHooks(hooks)
-
-	return logrusInstance, err
+func Error(v ...any) {
+	var ctx = context.TODO()
+	pc, file, line, _ := runtime.Caller(1)
+	name := runtime.FuncForPC(pc).Name()
+	s := "[" + path.Base(file) + ":" + strconv.Itoa(line) + " " + path.Base(name) + "]"
+	v = append(v, s)
+	v = reverse(v)
+	g.Log().Error(ctx, v...)
 }
 
-var once sync.Once
+func Errorf(fmt string, v ...any) {
+	var ctx = context.TODO()
+	pc, file, line, _ := runtime.Caller(1)
+	name := runtime.FuncForPC(pc).Name()
+	s := "[" + path.Base(file) + ":" + strconv.Itoa(line) + " " + path.Base(name) + "]"
 
-// If logConfig exist, use 'log' node to update the config of clslog
-func logUpdate() {
-	// once callback
-	go func() {
-		for {
-			if logConfig != nil {
-				// Fixed config node: 'log'
-				Update(logConfig.Sub("log"))
-				logrusInstance.Warn("Update")
-			}
-			time.Sleep(time.Second * 5)
-		}
-	}()
+	g.Log().Errorf(ctx, s+fmt, v...)
 }
 
-// Return global logrus instance, use ClsFormatter.
-// For more, see https://pkg.go.dev/github.com/spf13/viper .
-// Example: (cfg *viper.Viper, f ...*ClsFormatter)
-// If specified cfg, then Update function will be valid.
-func ClsLog(args ...any) *logrus.Logger {
-	for _, arg := range args {
-		switch argtype := arg.(type) {
-		case *viper.Viper:
-			logConfig = arg.(*viper.Viper)
-		case *ClsFormatter:
-			logrusInstance.SetFormatter(arg.(*ClsFormatter))
-			Formatter = *arg.(*ClsFormatter)
-		default:
-			logrusInstance.Error(arg, " ", argtype, " is an unknown type. Only accept[*viper.Viper, *ClsFormatter]")
-		}
-	}
+func Panic(v ...any) {
+	var ctx = context.TODO()
+	pc, file, line, _ := runtime.Caller(1)
+	name := runtime.FuncForPC(pc).Name()
+	s := "[" + path.Base(file) + ":" + strconv.Itoa(line) + " " + path.Base(name) + "]"
+	v = append(v, s)
+	v = reverse(v)
+	g.Log().Panic(ctx, v...)
+}
 
-	once.Do(logUpdate)
-	return logrusInstance
+func Panicf(fmt string, v ...any) {
+	var ctx = context.TODO()
+	pc, file, line, _ := runtime.Caller(1)
+	name := runtime.FuncForPC(pc).Name()
+	s := "[" + path.Base(file) + ":" + strconv.Itoa(line) + " " + path.Base(name) + "]"
+
+	g.Log().Panicf(ctx, s+fmt, v...)
+}
+
+func Fatal(v ...any) {
+	var ctx = context.TODO()
+	pc, file, line, _ := runtime.Caller(1)
+	name := runtime.FuncForPC(pc).Name()
+	s := "[" + path.Base(file) + ":" + strconv.Itoa(line) + " " + path.Base(name) + "]"
+	v = append(v, s)
+	v = reverse(v)
+	g.Log().Fatal(ctx, v...)
+}
+
+func Fatalf(fmt string, v ...any) {
+	var ctx = context.TODO()
+	pc, file, line, _ := runtime.Caller(1)
+	name := runtime.FuncForPC(pc).Name()
+	s := "[" + path.Base(file) + ":" + strconv.Itoa(line) + " " + path.Base(name) + "]"
+
+	g.Log().Fatalf(ctx, s+fmt, v...)
 }

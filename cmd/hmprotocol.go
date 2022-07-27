@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/lovelacelee/clsgo/pkg/config"
+	"github.com/lovelacelee/clsgo/pkg/log"
 	"github.com/lovelacelee/clsgo/pkg/net"
 )
 
@@ -205,7 +206,7 @@ func (p *HMProtocol) onLogin(conn *net.Conn, data []byte) ([]byte, error) {
 	if err != nil {
 		e := &p.Err
 		*e = HMERR_Format
-		l.Errorf("Xml decode failed: %s %s", err, p.Err.Msg.Error())
+		log.Errorf("Xml decode failed: %s %s", err, p.Err.Msg.Error())
 		return nil, err
 	}
 	msgReq := xv["Message"].(map[string]interface{})
@@ -218,7 +219,7 @@ func (p *HMProtocol) onLogin(conn *net.Conn, data []byte) ([]byte, error) {
 	ackMsg["Ver"] = "2.0"
 	ackMsg["Right"] = "65535"
 	ackBytes, err := config.XmlEncodeWithIndent(ackMsg, "Message")
-	l.Debugf("Ack:\n%s", string(ackBytes))
+	log.Debugf("Ack:\n%s", string(ackBytes))
 	return ackBytes, err
 }
 
@@ -227,7 +228,7 @@ func (p *HMProtocol) onHeatBeat(conn *net.Conn, data []byte) ([]byte, error) {
 	ackMsg["Time"] = time.Now().Unix()
 	ackBytes, err := config.XmlEncodeWithIndent(ackMsg, "Message")
 
-	l.Debugf("Ack:\n%s", string(ackBytes))
+	log.Debugf("Ack:\n%s", string(ackBytes))
 	return ackBytes, err
 }
 
@@ -269,7 +270,7 @@ func (p *HMProtocol) OnHead(conn *net.Conn, headlen int) ([]byte, error) {
 		bodylen = int(p.Head.V2.Len)
 		msgid = int(p.Head.V2.ID)
 	}
-	l.Infof("%s [%d]0x%08X len:%d", p.Cli.Remote, p.Head.len, msgid, bodylen)
+	log.Infof("%s [%d]0x%08X len:%d", p.Cli.Remote, p.Head.len, msgid, bodylen)
 	// message without body
 	if bodylen == 0 {
 		return p.msgHandler(conn, nil)
@@ -284,7 +285,7 @@ func (p *HMProtocol) OnBody(conn *net.Conn, bodylen int) ([]byte, error) {
 		return nil, err
 	}
 
-	l.Debugf("%s", string(data))
+	log.Debugf("%s", string(data))
 	return p.msgHandler(conn, data)
 }
 
@@ -293,7 +294,7 @@ func (p *HMProtocol) HandleMessage(conn *net.Conn) ([]byte, error) {
 		p.Cli.BootTime = time.Now()
 		p.Cli.LastKeepAlive = p.Cli.BootTime
 		p.Cli.Remote = conn.RemoteAddr().String()
-		l.Info(p.Cli.Remote, " waiting for login message.")
+		log.Info(p.Cli.Remote, " waiting for login message.")
 	}
 	// First connected, authorization required
 	if !p.Cli.Authorized {
@@ -304,7 +305,7 @@ func (p *HMProtocol) HandleMessage(conn *net.Conn) ([]byte, error) {
 		}
 		buf := bytes.NewBuffer(data)
 		if err := binary.Read(buf, binary.BigEndian, &p.Head.V1); err != nil {
-			l.Error("Authentication head recv failed")
+			log.Error("Authentication head recv failed")
 			return nil, err
 		}
 	} else {
@@ -315,7 +316,7 @@ func (p *HMProtocol) HandleMessage(conn *net.Conn) ([]byte, error) {
 		}
 		buf := bytes.NewBuffer(data)
 		if err := binary.Read(buf, binary.BigEndian, &p.Head.V2); err != nil {
-			l.Error("V2 head recv failed")
+			log.Error("V2 head recv failed")
 			return nil, err
 		}
 	}

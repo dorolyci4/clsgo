@@ -1,22 +1,22 @@
 package main
 
 import (
-	clsgo "github.com/lovelacelee/clsgo/pkg"
+	"github.com/lovelacelee/clsgo/pkg"
 	"github.com/lovelacelee/clsgo/pkg/config"
 	"github.com/lovelacelee/clsgo/pkg/http"
 	"github.com/lovelacelee/clsgo/pkg/log"
 	"github.com/lovelacelee/clsgo/pkg/net"
 )
 
-var l = log.ClsLog(&log.ClsFormatter{
-	Prefix:      true,
-	ForceColors: false,
-})
+var Cfg = clsgo.Cfg
+
+func init() {
+	// log.LogInfo("clsgo application")
+}
 
 func simpleHTTPServer() {
-
-	l.Info("ClsGO application ", clsgo.Version)
-	l.Info(config.GCfgGet("database.default.0.link"))
+	log.Info("ClsGO application ", clsgo.Version)
+	log.Info(config.Get("database.default.0.link"))
 
 	// HTTP simple web server
 	apis := make(http.APIS)

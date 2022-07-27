@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/lovelacelee/clsgo/pkg/crypto"
+	"github.com/lovelacelee/clsgo/pkg/log"
 )
 
 func TestAes(t *testing.T) {
@@ -17,7 +18,7 @@ func TestAes(t *testing.T) {
 	if aesECB.DecryptedString() != want {
 		t.Errorf("Not passed\n")
 	} else {
-		l.Info(aesECB.EncryptedBase64())
+		log.Info(aesECB.EncryptedBase64())
 	}
 	// CBC test
 	aesCBC := crypto.AES{Mod: crypto.CBC, Padding: crypto.PKCS5}
@@ -28,7 +29,7 @@ func TestAes(t *testing.T) {
 	if aesCBC.DecryptedString() != want {
 		t.Errorf("Not passed\n")
 	} else {
-		l.Info(aesCBC.EncryptedBase64())
+		log.Info(aesCBC.EncryptedBase64())
 	}
 	// CFB test
 	aesCFB := crypto.AES{Mod: crypto.CFB, Padding: crypto.NoPadding, Iv: []byte("1111111111111111")}
@@ -38,6 +39,6 @@ func TestAes(t *testing.T) {
 	if aesCFB.DecryptedString() != want {
 		t.Errorf("Not passed\n")
 	} else {
-		l.Info(aesCFB.EncryptedBase64())
+		log.Info(aesCFB.EncryptedBase64())
 	}
 }

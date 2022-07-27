@@ -4,18 +4,12 @@ package http
 
 import (
 	"context"
-
 	"github.com/gogf/gf"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/net/ghttp"
-	clsgo "github.com/lovelacelee/clsgo/pkg"
+	"github.com/lovelacelee/clsgo/pkg"
 	"github.com/lovelacelee/clsgo/pkg/log"
 )
-
-var ClsLog = log.ClsLog(&log.ClsFormatter{
-	Prefix:      true,
-	ForceColors: false,
-})
 
 type Request = ghttp.Request
 
@@ -57,18 +51,16 @@ type APIVRes struct {
 	Version string `dc:"Reply sever version"`
 }
 
-func (APIV) Say(ctx context.Context, req *APIVReq) (res *APIVRes, err error) {
-	g.Log().Debugf(ctx, `Server version: %+v`, clsgo.Version)
+func (APIV) Say(context.Context, *APIVReq) (res *APIVRes, err error) {
+	log.Debugf(`Server version: %+v`, clsgo.Version)
 	res = &APIVRes{
 		Version: clsgo.Version,
 	}
-	// Not recommended this way
-	// g.RequestFromCtx(ctx).Response.Writeln(res)
 	return
 }
 
 func init() {
-	ClsLog.Info(gf.VERSION)
+	log.Info(gf.VERSION)
 }
 
 type DefaultHandlerResponse struct {

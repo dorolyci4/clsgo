@@ -1,1 +1,0 @@
-go run cmd/main.go cmd/app.go cmd/hmprotocol.go
