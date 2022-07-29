@@ -11,4 +11,5 @@ func Example() {
 	log.Infoi("Internal info.")
 	log.Warni("Internal warning info.")
 	log.Print("Print message")
+	log.Printf("%s", "Print message")
 }

@@ -1,4 +1,4 @@
-// Package log provids glog functions.
+// Package log provides glog functions.
 package log
 
 import (

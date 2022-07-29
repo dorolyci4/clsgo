@@ -3,15 +3,14 @@
 package http
 
 import (
-	"context"
 	"github.com/gogf/gf"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/net/ghttp"
-	"github.com/lovelacelee/clsgo/pkg"
 	"github.com/lovelacelee/clsgo/pkg/log"
 )
 
 type Request = ghttp.Request
+type Meta = g.Meta
 
 const (
 	swaggerUIPageContent = `
@@ -40,29 +39,6 @@ const (
 `
 )
 
-type APIS map[string]interface{}
-
-type APIV struct{}
-
-type APIVReq struct {
-	g.Meta `path:"/version" method:"get" sm:"Get server version"`
-}
-type APIVRes struct {
-	Version string `dc:"Reply sever version"`
-}
-
-func (APIV) Say(context.Context, *APIVReq) (res *APIVRes, err error) {
-	log.Debugf(`Server version: %+v`, clsgo.Version)
-	res = &APIVRes{
-		Version: clsgo.Version,
-	}
-	return
-}
-
-func init() {
-	log.Info(gf.VERSION)
-}
-
 type DefaultHandlerResponse struct {
 	Code    int         `json:"code"`
 	Message string      `json:"message"`
@@ -70,7 +46,24 @@ type DefaultHandlerResponse struct {
 }
 
 // Self-defined Middleware
-func MiddlewareApi(r *ghttp.Request) {
+// Intermediate processing of the interface
+type MiddlewareFn func(r *Request)
+type Resource interface{}
+type ResourceHandle struct {
+	MiddlewareCallback MiddlewareFn
+	// Pointer of Resource struct
+	Res Resource
+}
+
+type APIS map[string]interface{}
+type APIG map[string]ResourceHandle
+
+func init() {
+	log.Info(gf.VERSION)
+}
+
+// Default Middleware
+func MiddlewareDefault(r *ghttp.Request) {
 	r.Middleware.Next()
 	//https://goframe.org/pages/viewpage.action?pageId=1114281
 	if r.Response.BufferLength() > 0 {
@@ -86,7 +79,9 @@ func MiddlewareApi(r *ghttp.Request) {
 	})
 }
 
-func App(host string, port int, apiv string, apis *APIS) {
+// Create a http server, with default routes[/(public),/api,/swagger],
+// apis is a map of api interfaces,
+func App(host string, port int, apiv string, apis *APIS, apig *APIG) {
 	sApi := g.Server("API")
 	// When server: openapiPath: "/api.json" swaggerPath: "/swagger" not set,
 	// you could enable openapi document as follow:
@@ -105,12 +100,12 @@ func App(host string, port int, apiv string, apis *APIS) {
 			r.Response.Write(swaggerUIPageContent)
 		})
 	})
-	sApi.Group("/api/"+apiv, func(group *ghttp.RouterGroup) {
-		group.Middleware(MiddlewareApi)
-		group.Bind(
-			new(APIV),
-		)
-	})
+	for k, v := range *apig {
+		sApi.Group(k, func(group *ghttp.RouterGroup) {
+			group.Middleware(v.MiddlewareCallback)
+			group.Bind(v.Res)
+		})
+	}
 	sApi.SetServerRoot("public")
 
 	sApi.SetAddr(host)

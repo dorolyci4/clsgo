@@ -1,6 +1,5 @@
-// Doc more on https://pkg.go.dev/github.com/spf13/viper
-// https://yaml.org/ https://yaml.org/spec/1.2.2/
-
+// Package config provides functions while implemented by Viper and gcfg.
+// See more on https://pkg.go.dev/github.com/spf13/viper
 package config
 
 import (
