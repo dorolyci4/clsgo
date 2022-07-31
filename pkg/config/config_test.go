@@ -1,6 +1,7 @@
 package config_test
 
 import (
+	"fmt"
 	"github.com/lovelacelee/clsgo/pkg"
 	"github.com/lovelacelee/clsgo/pkg/config"
 	"github.com/lovelacelee/clsgo/pkg/log"
@@ -11,7 +12,7 @@ func ExampleClsConfig() {
 	if err != nil {
 		log.Error("Config load failed!")
 	}
-	log.Info(cfg.Get("project.name"))
+	fmt.Print(cfg.Get("project.name"))
 
 	// Output:
 	// clsgo
@@ -21,7 +22,7 @@ func ExampleClsConfig() {
 func Example() {
 	// import "github.com/lovelacelee/clsgo/pkg" // which as clsgo package
 	var Cfg = clsgo.Cfg
-	log.Info(Cfg.Get("project.name"))
+	fmt.Print(Cfg.Get("project.name"))
 	// Output:
 	// clsgo
 }

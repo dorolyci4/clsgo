@@ -4,8 +4,8 @@ CLS packages
 
 ## Requirments
 
-* [Viper](https://github.com/spf13/viper) [Doc](https://pkg.go.dev/github.com/gogf/gf/v2)
-* [GFrame](https://github.com/gogf/gf) [Doc](https://pkg.go.dev/github.com/spf13/viper)
+* [Viper](https://github.com/spf13/viper) [Doc](https://pkg.go.dev/github.com/spf13/viper)
+* [GFrame](https://github.com/gogf/gf) [Doc](https://pkg.go.dev/github.com/gogf/gf/v2)
 
 ## Todo list
 

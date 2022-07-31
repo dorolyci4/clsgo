@@ -9,9 +9,7 @@ import (
 
 func TestConfig(t *testing.T) {
 	cfg, err := config.ClsConfig("config", "clsgo", false)
-	if err == nil {
-		log.Info(cfg.Sub("log").GetString("enable"))
-	} else {
+	if err != nil {
 		t.Errorf("Not passed")
 	}
 	err = cfg.WriteConfigAs("config.json")

@@ -14,5 +14,4 @@ func init() {
 	if err != nil {
 		log.Error("Config load failed!")
 	}
-	log.Info(Cfg.Get("project.name"))
 }
