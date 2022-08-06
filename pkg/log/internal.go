@@ -41,6 +41,14 @@ func color(c string) string {
 	}
 }
 
+func Print(v ...any) {
+	fmt.Println(v...)
+}
+
+func Printf(f string, v ...any) {
+	fmt.Printf(f, v...)
+}
+
 func Infoi(format string, args ...interface{}) {
 	pc, file, line, _ := runtime.Caller(1)
 	name := runtime.FuncForPC(pc).Name()

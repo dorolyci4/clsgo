@@ -3,27 +3,33 @@ project:
 
 database:
   default:
-  - link: "mysql:root:12345678@tcp(127.0.0.1:3306)/test"
-    role: "master"
-  - link: "mysql:root:12345678@tcp(127.0.0.1:3306)/test"
-    role: "slave"
+    - link: "mysql:root:12345678@tcp(127.0.0.1:3306)/test"
+      role: "master"
+    - link: "mysql:root:12345678@tcp(127.0.0.1:3306)/test"
+      role: "slave"
 server:
   openapiPath: "/api.json"
-  swaggerPath: "/api"    
+  swaggerPath: "/api"
+
+rabbitmq:
+  server: amqp://test:test@localhost:5672/
+  reconnect: 3 # Seconds When reconnecting to the server after connection failure
+  reinit: 1 # Seconds When setting up the channel after a channel exception
+  resend: 1 # Seconds When resending messages the server didn't confirm
 
 logger:
-  path:                  "logs/"       # 日志文件路径。默认为空，表示关闭，仅输出到终端
-  file:                  "{Y-m-d}.log" # 日志文件格式。默认为"{Y-m-d}.log"
-  prefix:                ""            # 日志内容输出前缀。默认为空
-  level:                 "all"         # 日志输出级别
-  ctxKeys:               []            # 自定义Context上下文变量名称，自动打印Context的变量到日志中。默认为空
-  header:                true          # 是否打印日志的头信息。默认true
-  stdout:                true          # 日志是否同时输出到终端。默认true
-  rotateSize:            0             # 按照日志文件大小对文件进行滚动切分。默认为0，表示关闭滚动切分特性
-  rotateExpire:          0             # 按照日志文件时间间隔对文件滚动切分。默认为0，表示关闭滚动切分特性
-  rotateBackupLimit:     0             # 按照切分的文件数量清理切分文件，当滚动切分特性开启时有效。默认为0，表示不备份，切分则删除
-  rotateBackupExpire:    0             # 按照切分的文件有效期清理切分文件，当滚动切分特性开启时有效。默认为0，表示不备份，切分则删除
-  rotateBackupCompress:  0             # 滚动切分文件的压缩比（0-9）。默认为0，表示不压缩
-  rotateCheckInterval:   "1h"          # 滚动切分的时间检测间隔，一般不需要设置。默认为1小时
-  stdoutColorDisabled:   false         # 关闭终端的颜色打印。默认开启
-  writerColorEnable:     false         # 日志文件是否带上颜色。默认false，表示不带颜色
+  path: "logs/" # Log file path. The default value is null, indicating that the device is disabled and output to the terminal only.
+  file: "{Y-m-d}.log" # Log file format. The default is"{Y-m-d}.log"
+  prefix: "" # Log output prefix. The default is empty
+  level: "all" # Log output Level
+  ctxKeys: [] # Customize the Context variable name, and automatically print the Context variable to the log. The default is empty
+  header: true # Whether to print log headers. The default true
+  stdout: true # Whether logs are simultaneously output to the terminal. The default true
+  rotateSize: 0 # Scrolling split files by log file size. The default value is 0, which indicates that the rolling shard feature is disabled
+  rotateExpire: 0 # File scrolling is split based on log file intervals. The default value is 0, which indicates that the rolling shard feature is disabled
+  rotateBackupLimit: 0 # Clears shard files based on the number of files shard. This is valid when the scrolling shard feature is enabled. The default value is 0, indicating that no backup is performed
+  rotateBackupExpire: 0 # Cleans shard files according to the shard file validity period, valid when the rolling shard feature is enabled. The default value is 0, indicating that no backup is performed
+  rotateBackupCompress: 0 # Compression ratio (0-9) of the scroll shard file. The default value is 0, indicating no compression
+  rotateCheckInterval: "1h" # Generally, you do not need to set the time detection interval for rolling segmentation. The default value is 1 hour
+  stdoutColorDisabled: false # Turn off terminal color printing. The default open
+  writerColorEnable: false # Whether the log file is colored. The default value is false, which indicates no color

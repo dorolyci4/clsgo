@@ -2,19 +2,19 @@
 package log
 
 import (
+	"context"
+	"github.com/gogf/gf/v2/frame/g"
 	"path"
 	"runtime"
 	"strconv"
-
-	"context"
-	"github.com/gogf/gf/v2/frame/g"
 )
 
 func reverse(a []any) []any {
-	for i := len(a)/2 - 1; i >= 0; i-- {
-		opp := len(a) - 1 - i
-		a[i], a[opp] = a[opp], a[i]
+	prefix := a[len(a)-1]
+	for i := len(a) - 1; i >= 1; i-- {
+		a[i] = a[i-1]
 	}
+	a[0] = prefix
 	return a
 }
 
@@ -26,17 +26,16 @@ func Info(v ...any) {
 	s := "[" + path.Base(file) + ":" + strconv.Itoa(line) + " " + path.Base(name) + "]"
 	v = append(v, s)
 	v = reverse(v)
-
 	g.Log().Info(ctx, v...)
 }
 
-func Infof(fmt string, v ...any) {
+func Infof(f string, v ...any) {
 	var ctx = context.TODO()
 	pc, file, line, _ := runtime.Caller(1)
 	name := runtime.FuncForPC(pc).Name()
 	s := "[" + path.Base(file) + ":" + strconv.Itoa(line) + " " + path.Base(name) + "]"
 
-	g.Log().Infof(ctx, s+fmt, v...)
+	g.Log().Infof(ctx, s+f, v...)
 }
 
 func Debug(v ...any) {
@@ -49,35 +48,14 @@ func Debug(v ...any) {
 	g.Log().Debug(ctx, v...)
 }
 
-func Debugf(fmt string, v ...any) {
+func Debugf(f string, v ...any) {
 	var ctx = context.TODO()
 	pc, file, line, _ := runtime.Caller(1)
 	name := runtime.FuncForPC(pc).Name()
 	s := "[" + path.Base(file) + ":" + strconv.Itoa(line) + " " + path.Base(name) + "]"
 
-	g.Log().Debugf(ctx, s+fmt, v...)
+	g.Log().Debugf(ctx, s+f, v...)
 }
-
-func Print(v ...any) {
-	var ctx = context.TODO()
-	pc, file, line, _ := runtime.Caller(1)
-	name := runtime.FuncForPC(pc).Name()
-	s := "[" + path.Base(file) + ":" + strconv.Itoa(line) + " " + path.Base(name) + "]"
-	v = append(v, s)
-	v = reverse(v)
-	g.Log().Print(ctx, v...)
-}
-
-func Printf(fmt string, v ...any) {
-	var ctx = context.TODO()
-	// pc, file, line, _ := runtime.Caller(1)
-	// name := runtime.FuncForPC(pc).Name()
-	// s := "[" + path.Base(file) + ":" + strconv.Itoa(line) + " " + path.Base(name) + "]"
-	// v = append(v, s)
-	// v = reverse(v)
-	g.Log().Printf(ctx, fmt, v...)
-}
-
 func Warning(v ...any) {
 	var ctx = context.TODO()
 	pc, file, line, _ := runtime.Caller(1)
@@ -88,13 +66,13 @@ func Warning(v ...any) {
 	g.Log().Warning(ctx, v...)
 }
 
-func Warningf(fmt string, v ...any) {
+func Warningf(f string, v ...any) {
 	var ctx = context.TODO()
 	pc, file, line, _ := runtime.Caller(1)
 	name := runtime.FuncForPC(pc).Name()
 	s := "[" + path.Base(file) + ":" + strconv.Itoa(line) + " " + path.Base(name) + "]"
 
-	g.Log().Warningf(ctx, s+fmt, v...)
+	g.Log().Warningf(ctx, s+f, v...)
 }
 
 func Error(v ...any) {
@@ -107,13 +85,13 @@ func Error(v ...any) {
 	g.Log().Error(ctx, v...)
 }
 
-func Errorf(fmt string, v ...any) {
+func Errorf(f string, v ...any) {
 	var ctx = context.TODO()
 	pc, file, line, _ := runtime.Caller(1)
 	name := runtime.FuncForPC(pc).Name()
 	s := "[" + path.Base(file) + ":" + strconv.Itoa(line) + " " + path.Base(name) + "]"
 
-	g.Log().Errorf(ctx, s+fmt, v...)
+	g.Log().Errorf(ctx, s+f, v...)
 }
 
 func Panic(v ...any) {
@@ -126,13 +104,13 @@ func Panic(v ...any) {
 	g.Log().Panic(ctx, v...)
 }
 
-func Panicf(fmt string, v ...any) {
+func Panicf(f string, v ...any) {
 	var ctx = context.TODO()
 	pc, file, line, _ := runtime.Caller(1)
 	name := runtime.FuncForPC(pc).Name()
 	s := "[" + path.Base(file) + ":" + strconv.Itoa(line) + " " + path.Base(name) + "]"
 
-	g.Log().Panicf(ctx, s+fmt, v...)
+	g.Log().Panicf(ctx, s+f, v...)
 }
 
 func Fatal(v ...any) {
@@ -145,11 +123,11 @@ func Fatal(v ...any) {
 	g.Log().Fatal(ctx, v...)
 }
 
-func Fatalf(fmt string, v ...any) {
+func Fatalf(f string, v ...any) {
 	var ctx = context.TODO()
 	pc, file, line, _ := runtime.Caller(1)
 	name := runtime.FuncForPC(pc).Name()
 	s := "[" + path.Base(file) + ":" + strconv.Itoa(line) + " " + path.Base(name) + "]"
 
-	g.Log().Fatalf(ctx, s+fmt, v...)
+	g.Log().Fatalf(ctx, s+f, v...)
 }
