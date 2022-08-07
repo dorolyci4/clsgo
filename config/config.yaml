@@ -1,6 +1,6 @@
 project:
   name: clsgo
-
+# sync with GF
 database:
   default:
     - link: "mysql:root:12345678@tcp(127.0.0.1:3306)/test"
@@ -16,7 +16,21 @@ rabbitmq:
   reconnect: 3 # Seconds When reconnecting to the server after connection failure
   reinit: 1 # Seconds When setting up the channel after a channel exception
   resend: 1 # Seconds When resending messages the server didn't confirm
+redis:
+  # Singleton 1
+  default:
+    address: 192.168.3.207:6379
+    db: 1
+    pass: lovelacelee
+    idleTimeout: 600
 
+  # Singleton 2
+  cache:
+    address: 192.168.3.207:6379
+    db: 1
+    pass: lovelacelee
+    idleTimeout: 600
+# sync with GF
 logger:
   path: "logs/" # Log file path. The default value is null, indicating that the device is disabled and output to the terminal only.
   file: "{Y-m-d}.log" # Log file format. The default is"{Y-m-d}.log"

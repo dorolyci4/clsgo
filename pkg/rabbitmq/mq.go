@@ -17,18 +17,42 @@ import (
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
+// Params for ExchangeDeclare
+type Exchange struct {
+	Durable      bool
+	ExchangeName string
+	ExchangeType string // The common types are "direct", "fanout", "topic" and "headers".
+	Internal     bool
+	AutoDelete   bool
+	Nowait       bool
+}
+
+type Queue struct {
+	QueueName  string
+	Exclusive  bool
+	Durable    bool
+	AutoDelete bool
+	Nowait     bool
+}
+
 // Rabbit MQ client
 type Client struct {
 	host            string
-	queueName       string
+	routingKey      string
+	consumerTag     string
+	exchange        Exchange
+	queue           Queue
 	connection      *amqp.Connection
 	channel         *amqp.Channel
-	done            chan bool
 	notifyConnClose chan *amqp.Error
 	notifyChanClose chan *amqp.Error
 	notifyConfirm   chan amqp.Confirmation
+	// When client closed, <-done will receive false
+	done chan bool
 	// When IsReady is true, everything is ok for push and consume
 	IsReady bool
+	// Notify client is ready
+	Connected chan bool
 }
 
 // Default retry params
@@ -44,9 +68,11 @@ var (
 )
 
 var (
-	errNotConnected  = errors.New("not connected to a server")
-	errAlreadyClosed = errors.New("already closed: not connected to the server")
-	errShutdown      = errors.New("client is shutting down")
+	errNotConnected    = errors.New("not connected to a server")
+	errAlreadyClosed   = errors.New("already closed: not connected to the server")
+	errShutdown        = errors.New("client is shutting down")
+	errExchangeDeclare = errors.New("exchange declare failed")
+	errQueueDeclare    = errors.New("queue declare failed")
 )
 
 func init() {
@@ -67,15 +93,19 @@ func init() {
 
 // New creates a new consumer state instance, and automatically
 // attempts to connect to the server.
-func New(queueName, addr string) *Client {
+func New(addr string, exchange Exchange, queue Queue, routingKey string, consumerTag string) *Client {
 	if !strings.Contains(addr, "@") {
 		log.Error("MQ address invalid, use right formmat: amqp://test:test@localhost:5672/")
 		return nil
 	}
 	client := Client{
-		host:      strings.SplitAfter(addr, "@")[1],
-		queueName: queueName,
-		done:      make(chan bool),
+		host:        strings.SplitAfter(addr, "@")[1],
+		queue:       queue,
+		exchange:    exchange,
+		routingKey:  routingKey,
+		consumerTag: consumerTag,
+		done:        make(chan bool),
+		Connected:   make(chan bool),
 	}
 	go client.handleReconnect(addr)
 	return &client
@@ -86,7 +116,7 @@ func New(queueName, addr string) *Client {
 func (client *Client) handleReconnect(addr string) {
 	for {
 		client.IsReady = false
-		log.Info("Attempting to connect: ", client.host)
+		log.Info("AMQP attempting to connect: ", client.host)
 
 		conn, err := client.connect(addr)
 
@@ -101,7 +131,7 @@ func (client *Client) handleReconnect(addr string) {
 			continue
 		}
 
-		if done := client.handleReInit(conn); done {
+		if initialized := client.handleReInit(conn); initialized {
 			break
 		}
 	}
@@ -151,7 +181,8 @@ func (client *Client) handleReInit(conn *amqp.Connection) bool {
 	}
 }
 
-// init will initialize channel & declare queue
+// init will initialize channel & declare exchange and queue
+// then bind exchange and queue
 func (client *Client) init(conn *amqp.Connection) error {
 	ch, err := conn.Channel()
 
@@ -159,26 +190,53 @@ func (client *Client) init(conn *amqp.Connection) error {
 		return err
 	}
 
+	// When noWait is true, the client will not wait for a response.
+	// A channel exception could occur if the server does not support this method.
+	// When ch.Confirm(false), the client will wait for a response.
 	err = ch.Confirm(false)
-
 	if err != nil {
 		return err
 	}
-	_, err = ch.QueueDeclare(
-		client.queueName,
-		false, // Durable
-		false, // Delete when unused
-		false, // Exclusive
-		false, // No-wait
-		nil,   // Arguments
+	// Set client channel first
+	client.changeChannel(ch)
+
+	// Exchange declare
+	if err = client.channel.ExchangeDeclare(
+		client.exchange.ExchangeName, // name of the exchange
+		client.exchange.ExchangeType, // type
+		client.exchange.Durable,      // durable
+		client.exchange.AutoDelete,   // delete when complete
+		client.exchange.Internal,     // internal
+		client.exchange.Nowait,       // noWait
+		nil,                          // arguments
+	); err != nil {
+		return errExchangeDeclare
+	}
+
+	queue, err := client.channel.QueueDeclare(
+		client.queue.QueueName,
+		client.queue.Durable,    // Durable
+		client.queue.AutoDelete, // AutoDelete when unused
+		client.queue.Exclusive,  // Exclusive
+		client.queue.Nowait,     // No-wait
+		nil,                     // Arguments
 	)
 
 	if err != nil {
+		return errQueueDeclare
+	}
+	// Queue bind exchange
+	if err = client.channel.QueueBind(
+		queue.Name,                   // name of the queue
+		client.routingKey,            // bindingKey
+		client.exchange.ExchangeName, // sourceExchange
+		client.queue.Nowait,          // noWait
+		nil,                          // arguments
+	); err != nil {
 		return err
 	}
-
-	client.changeChannel(ch)
 	client.IsReady = true
+	client.Connected <- client.IsReady
 
 	return nil
 }
@@ -247,10 +305,10 @@ func (client *Client) UnsafePush(data []byte) error {
 
 	return client.channel.PublishWithContext(
 		ctx,
-		"",               // Exchange
-		client.queueName, // Routing key
-		false,            // Mandatory
-		false,            // Immediate
+		client.exchange.ExchangeName, // Exchange
+		client.routingKey,            // Routing key
+		false,                        // Mandatory
+		false,                        // Immediate
 		amqp.Publishing{
 			ContentType: "text/plain",
 			Body:        data,
@@ -262,24 +320,25 @@ func (client *Client) UnsafePush(data []byte) error {
 // It is required to call delivery.Ack when it has been
 // successfully processed, or delivery.Nack when it fails.
 // Ignoring this will cause data to build up on the server.
-func (client *Client) Consume(consumer string) (<-chan amqp.Delivery, error) {
+func (client *Client) Consume(autoAck bool) (<-chan amqp.Delivery, error) {
 	if !client.IsReady {
 		return nil, errNotConnected
 	}
+
 	return client.channel.Consume(
-		client.queueName,
-		consumer, // Consumer
-		false,    // Auto-Ack
-		false,    // Exclusive
-		false,    // No-local
-		false,    // No-Wait
-		nil,      // Args
+		client.queue.QueueName,
+		client.consumerTag,     // Consumer
+		autoAck,                // Auto-Ack
+		client.queue.Exclusive, // Exclusive
+		false,                  // No-local, not supported by RabbitMQ
+		client.queue.Nowait,    // No-Wait
+		nil,                    // Args
 	)
 }
 
-func (client *Client) CancelConsume(consumer string) error {
+func (client *Client) CancelConsume() error {
 	// will close() the deliveries channel
-	return client.channel.Cancel(consumer, true)
+	return client.channel.Cancel(client.consumerTag, true)
 }
 
 // Close will cleanly shutdown the channel and connection.
@@ -287,7 +346,9 @@ func (client *Client) Close() error {
 	if !client.IsReady {
 		return errAlreadyClosed
 	}
+	client.IsReady = false
 	close(client.done)
+	close(client.Connected)
 	err := client.channel.Close()
 	if err != nil {
 		return err
@@ -297,6 +358,5 @@ func (client *Client) Close() error {
 		return err
 	}
 
-	client.IsReady = false
 	return nil
 }
