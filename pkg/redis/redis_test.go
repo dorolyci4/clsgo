@@ -18,7 +18,7 @@ func Test(t *testing.T) {
 }
 
 func ExampleNew() {
-	c := redis.New()
+	c := redis.New("default")
 	defer c.Close()
 
 	v, err := c.SET("test", "test")

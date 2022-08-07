@@ -20,7 +20,7 @@ redis:
   # Singleton 1
   default:
     address: 192.168.3.207:6379
-    db: 1
+    db: 0
     pass: lovelacelee
     idleTimeout: 600
 
@@ -30,6 +30,9 @@ redis:
     db: 1
     pass: lovelacelee
     idleTimeout: 600
+  group:	
+    address: 192.168.3.207:6379
+    db:      2
 # sync with GF
 logger:
   path: "logs/" # Log file path. The default value is null, indicating that the device is disabled and output to the terminal only.
