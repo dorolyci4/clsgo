@@ -7,10 +7,10 @@ import (
 
 // Exmaple
 func Example() {
-	log.Importi("Internal important info.")
+	log.Debugi("Internal important info.")
 	log.Errori("Internal error info.")
 	log.Infoi("Internal info.")
-	log.Warni("Internal warning info.")
+	log.Warningi("Internal warning info.")
 	log.Print("Print message")
 	log.Printf("%s\n", "Print message")
 	log.Info(1, 2, 3)

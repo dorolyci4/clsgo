@@ -2,11 +2,13 @@ package main
 
 import (
 	"context"
+	"time"
 
 	"github.com/lovelacelee/clsgo/pkg"
 	"github.com/lovelacelee/clsgo/pkg/http"
 	"github.com/lovelacelee/clsgo/pkg/log"
 	"github.com/lovelacelee/clsgo/pkg/net"
+	"github.com/lovelacelee/clsgo/pkg/redis"
 )
 
 var Cfg = clsgo.Cfg
@@ -25,7 +27,7 @@ type VersionResourceRes struct {
 }
 
 func (VersionResource) Version(context.Context, *VersionResourceReq) (res *VersionResourceRes, err error) {
-	log.Debugf(`Server version: %+v`, clsgo.Version)
+	log.Debugfi(`Server version: %+v`, clsgo.Version)
 	res = &VersionResourceRes{
 		Version: clsgo.Version,
 	}
@@ -33,8 +35,8 @@ func (VersionResource) Version(context.Context, *VersionResourceReq) (res *Versi
 }
 
 func simpleHTTPServer() {
-	log.Info("ClsGO application ", clsgo.Version)
-	log.Info(Cfg.Get("database.default.0.link"))
+	log.Infoi("ClsGO application ", clsgo.Version)
+	log.Infoi(Cfg.Get("database.default.0.link"))
 
 	// HTTP simple web server
 	apis := make(http.APIS)
@@ -53,8 +55,18 @@ func simpleHTTPServer() {
 func tcpServer() {
 	net.TcpServer("0.0.0.0", 8081, &HMProtocol{})
 }
-
+func forever() {
+	redis := redis.New("default")
+	defer redis.Close()
+	for {
+		log.Infoi("Server running")
+		time.Sleep(time.Second)
+		redis.Do("HSET", "hash", "init", "1")
+		redis.Do("HSET", "hash", "key", "v")
+	}
+}
 func App() {
 	go simpleHTTPServer()
 	go tcpServer()
+	go forever()
 }

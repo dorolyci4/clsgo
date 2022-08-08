@@ -7,23 +7,24 @@ import (
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/lovelacelee/clsgo/pkg"
 	"github.com/lovelacelee/clsgo/pkg/log"
+	"sync"
 )
 
+// Redis Client wrappers
 type Client struct {
-	Instance   *gredis.Redis
-	Connection *gredis.RedisConn
+	instance *gredis.Redis
+	conn     *gredis.RedisConn
+	// Is Subscriber loop running or not
+	subscriberAlive bool
+	// Subscriber receive g.Var and output
+	subscriberNotify chan *g.Var
+	wg               sync.WaitGroup
 }
 
 func init() {
-	// Note that g.Redis() return nil, before SetConfig called.
-
+	// Note that g.Redis() return nil in test mode, before SetConfig called.
 	gredis.SetConfig(loadRedisConfig("redis.default"), "default")
 	gredis.SetConfig(loadRedisConfig("redis.cache"), "cache")
-	gredis.SetConfig(loadRedisConfig("redis.group"), "group")
-
-	// log.Info(gredis.GetConfig("default"))
-	// log.Info(gredis.GetConfig("cache"))
-	// log.Info(gredis.GetConfig("group"))
 }
 
 func loadRedisConfig(configpath string) *gredis.Config {
@@ -47,33 +48,67 @@ func loadRedisConfig(configpath string) *gredis.Config {
 	return &c
 }
 
-// name valid in [default/cache/group]
+// Name valid in [default/cache], initialized with config.yaml
 func New(name string) *Client {
 	var (
 		ctx = context.Background()
 	)
 	client := Client{
-		Instance: gredis.Instance(name),
+		instance:         gredis.Instance(name),
+		subscriberAlive:  false,
+		subscriberNotify: make(chan *g.Var),
+		wg:               sync.WaitGroup{},
 	}
 
-	// r, err := gredis.New()
-	// log.Info(r, err)
-	conn, err := client.Instance.Conn(ctx)
+	conn, err := client.instance.Conn(ctx)
 	if err != nil {
-		log.Error(err)
-		return nil
+		log.Errori(err)
 	}
-	client.Connection = conn
-	log.Info(client)
+	client.conn = conn
+	go subscriberRoutine(&client)
 	return &client
 }
 
-func (client *Client) Close() {
-	ctx := context.Background()
-	client.Connection.Close(ctx)
+func subscriberRoutine(client *Client) {
+	client.subscriberAlive = true
+	client.wg.Add(1)
+	for client.subscriberAlive {
+		reply, err := client.Receive()
+		if err != nil {
+			break
+		}
+		if reply != nil {
+			client.subscriberNotify <- reply
+		}
+	}
+	client.wg.Done()
 }
 
-func (client *Client) SET(args ...any) (*g.Var, error) {
+func (client *Client) Close() {
+	client.subscriberAlive = false
+	client.wg.Wait()
+	close(client.subscriberNotify)
 	ctx := context.Background()
-	return client.Connection.Do(ctx, "SET", args...)
+	client.conn.Close(ctx)
+	// When instance closed, subscriber do not work any more
+	// client.instance.Close(ctx)
+}
+
+func (client *Client) Do(command string, args ...any) (*g.Var, error) {
+	ctx := context.Background()
+	return client.conn.Do(ctx, command, args...)
+}
+
+func (client *Client) Receive() (*g.Var, error) {
+	ctx := context.Background()
+	return client.conn.Receive(ctx)
+}
+
+// Redis subscribe, return a go chan for receive message notification
+func (client *Client) Subscribe(channel string) chan *g.Var {
+	_, err := client.Do("SUBSCRIBE", channel)
+	if err != nil {
+		log.Errori(err)
+	}
+	return client.subscriberNotify
 }

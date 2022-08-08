@@ -88,14 +88,14 @@ func init() {
 	if resend > 0 {
 		resendDelay = time.Duration(resend) * time.Second
 	}
-	log.Infof("MQ reconnect:%v reinit:%v resend:%v", reconnect, reinit, resend)
+	log.Infofi("MQ reconnect:%v reinit:%v resend:%v", reconnect, reinit, resend)
 }
 
 // New creates a new consumer state instance, and automatically
 // attempts to connect to the server.
 func New(addr string, exchange Exchange, queue Queue, routingKey string, consumerTag string) *Client {
 	if !strings.Contains(addr, "@") {
-		log.Error("MQ address invalid, use right formmat: amqp://test:test@localhost:5672/")
+		log.Errori("MQ address invalid, use right formmat: amqp://test:test@localhost:5672/")
 		return nil
 	}
 	client := Client{
@@ -116,12 +116,12 @@ func New(addr string, exchange Exchange, queue Queue, routingKey string, consume
 func (client *Client) handleReconnect(addr string) {
 	for {
 		client.IsReady = false
-		log.Info("AMQP attempting to connect: ", client.host)
+		log.Infoi("AMQP attempting to connect: ", client.host)
 
 		conn, err := client.connect(addr)
 
 		if err != nil {
-			log.Error("Failed to connect. Retrying...")
+			log.Errori("Failed to connect. Retrying...")
 
 			select {
 			case <-client.done:
@@ -146,7 +146,7 @@ func (client *Client) connect(addr string) (*amqp.Connection, error) {
 	}
 
 	client.changeConnection(conn)
-	log.Info("Connected!")
+	log.Infoi("Connected!")
 	return conn, nil
 }
 
@@ -159,7 +159,7 @@ func (client *Client) handleReInit(conn *amqp.Connection) bool {
 		err := client.init(conn)
 
 		if err != nil {
-			log.Error("Failed to initialize channel. Retrying...")
+			log.Errori("Failed to initialize channel. Retrying...")
 
 			select {
 			case <-client.done:
@@ -173,10 +173,10 @@ func (client *Client) handleReInit(conn *amqp.Connection) bool {
 		case <-client.done:
 			return true
 		case <-client.notifyConnClose:
-			log.Info("Connection closed. Reconnecting...")
+			log.Infoi("Connection closed. Reconnecting...")
 			return false
 		case <-client.notifyChanClose:
-			log.Info("Channel closed. Re-running init...")
+			log.Infoi("Channel closed. Re-running init...")
 		}
 	}
 }
@@ -271,7 +271,7 @@ func (client *Client) Push(data []byte) error {
 	for {
 		err := client.UnsafePush(data)
 		if err != nil {
-			log.Error("Push failed. Retrying...")
+			log.Errori("Push failed. Retrying...")
 			select {
 			case <-client.done:
 				return errShutdown
@@ -282,12 +282,12 @@ func (client *Client) Push(data []byte) error {
 		select {
 		case confirm := <-client.notifyConfirm:
 			if confirm.Ack {
-				// log.Info("Push confirmed!")
+				// log.Infoi("Push confirmed!")
 				return nil
 			}
 		case <-time.After(resendDelay):
 		}
-		log.Info("Push didn't confirm. Retrying...")
+		log.Infoi("Push didn't confirm. Retrying...")
 	}
 }
 

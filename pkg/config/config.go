@@ -17,6 +17,17 @@ import (
 
 type Config = *viper.Viper
 
+var Cfg Config
+
+func init() {
+	var err error
+	// Load global config file
+	Cfg, err = ClsConfig("config", "clsgo", true)
+	if err != nil {
+		log.Println("Config load failed!")
+	}
+}
+
 // viper.ConfigWatch is not reliable
 func monitor(cfg *viper.Viper) {
 	for {

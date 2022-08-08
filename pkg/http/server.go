@@ -3,10 +3,9 @@
 package http
 
 import (
-	"github.com/gogf/gf"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/net/ghttp"
-	"github.com/lovelacelee/clsgo/pkg/log"
+	// "github.com/lovelacelee/clsgo/pkg/log"
 )
 
 type Request = ghttp.Request
@@ -59,7 +58,6 @@ type APIS map[string]interface{}
 type APIG map[string]ResourceHandle
 
 func init() {
-	log.Info(gf.VERSION)
 }
 
 // Default Middleware
