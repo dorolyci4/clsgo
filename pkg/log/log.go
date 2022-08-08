@@ -8,9 +8,36 @@ import (
 	"strconv"
 
 	"github.com/gogf/gf/v2/frame/g"
+	"github.com/gogf/gf/v2/os/gfile"
 	"github.com/gogf/gf/v2/os/glog"
+	"github.com/gogf/gf/v2/util/gconv"
+
+	// "github.com/gogf/gf/v2/util/gutil"
+	// "github.com/gogf/gf/v2/errors/gcode"
+	// "github.com/gogf/gf/v2/errors/gerror"
+	"strings"
+
 	"github.com/lovelacelee/clsgo/pkg/config"
 )
+
+var levelStringMap = map[string]int{
+	"ALL":      glog.LEVEL_DEBU | glog.LEVEL_INFO | glog.LEVEL_NOTI | glog.LEVEL_WARN | glog.LEVEL_ERRO | glog.LEVEL_CRIT,
+	"DEV":      glog.LEVEL_DEBU | glog.LEVEL_INFO | glog.LEVEL_NOTI | glog.LEVEL_WARN | glog.LEVEL_ERRO | glog.LEVEL_CRIT,
+	"DEVELOP":  glog.LEVEL_DEBU | glog.LEVEL_INFO | glog.LEVEL_NOTI | glog.LEVEL_WARN | glog.LEVEL_ERRO | glog.LEVEL_CRIT,
+	"PROD":     glog.LEVEL_WARN | glog.LEVEL_ERRO | glog.LEVEL_CRIT,
+	"PRODUCT":  glog.LEVEL_WARN | glog.LEVEL_ERRO | glog.LEVEL_CRIT,
+	"DEBU":     glog.LEVEL_DEBU | glog.LEVEL_INFO | glog.LEVEL_NOTI | glog.LEVEL_WARN | glog.LEVEL_ERRO | glog.LEVEL_CRIT,
+	"DEBUG":    glog.LEVEL_DEBU | glog.LEVEL_INFO | glog.LEVEL_NOTI | glog.LEVEL_WARN | glog.LEVEL_ERRO | glog.LEVEL_CRIT,
+	"INFO":     glog.LEVEL_INFO | glog.LEVEL_NOTI | glog.LEVEL_WARN | glog.LEVEL_ERRO | glog.LEVEL_CRIT,
+	"NOTI":     glog.LEVEL_NOTI | glog.LEVEL_WARN | glog.LEVEL_ERRO | glog.LEVEL_CRIT,
+	"NOTICE":   glog.LEVEL_NOTI | glog.LEVEL_WARN | glog.LEVEL_ERRO | glog.LEVEL_CRIT,
+	"WARN":     glog.LEVEL_WARN | glog.LEVEL_ERRO | glog.LEVEL_CRIT,
+	"WARNING":  glog.LEVEL_WARN | glog.LEVEL_ERRO | glog.LEVEL_CRIT,
+	"ERRO":     glog.LEVEL_ERRO | glog.LEVEL_CRIT,
+	"ERROR":    glog.LEVEL_ERRO | glog.LEVEL_CRIT,
+	"CRIT":     glog.LEVEL_CRIT,
+	"CRITICAL": glog.LEVEL_CRIT,
+}
 
 func init() {
 	// glog functions could not follow my heart
@@ -27,9 +54,24 @@ func init() {
 }
 
 func loadLogConfig(logger string) *glog.Config {
+	var logLevel int
+	if level, ok := levelStringMap[strings.ToUpper(config.Cfg.GetString(logger+".level"))]; ok {
+		logLevel = level
+	} else {
+		logLevel = levelStringMap["ALL"]
+	}
+
+	// TODO: load to map, then convert to struct because of the map can use non-case-sensitive
 	c := glog.Config{
-		Path: config.Cfg.GetString(logger + ".path"),
-		File: config.Cfg.GetString(logger + ".file"),
+		Path:         config.Cfg.GetString(logger + ".path"),
+		File:         config.Cfg.GetString(logger + ".file"),
+		Level:        logLevel,
+		Prefix:       config.Cfg.GetString(logger + ".prefix"),
+		StSkip:       config.Cfg.GetInt(logger + ".StSkip"),
+		StStatus:     config.Cfg.GetInt(logger + ".StStatus"),
+		StFilter:     config.Cfg.GetString(logger + ".StFilter"),
+		RotateSize:   gfile.StrToSize(gconv.String(config.Cfg.GetString(logger + ".rotateSize"))),
+		RotateExpire: gconv.Duration(config.Cfg.GetString(logger + ".rotateExpire")),
 		// Db:              g.Cfg().GetInt(configpath + ".db"),
 		// Pass:            g.Cfg().GetString(configpath + ".pass"),
 		// MinIdle:         g.Cfg().GetInt(configpath + ".minIdle"),

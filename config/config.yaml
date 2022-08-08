@@ -53,6 +53,7 @@ logger:
   RotateBackupExpire: "1d"
   clsgo:
     StStatus: 1
+    rotateExpire: "1h"
     prefix: "[CLSGO]"
     level: "all"
     writerColorEnable: true
