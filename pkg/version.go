@@ -1,3 +1,3 @@
 package clsgo
 
-var Version string = "v0.0.9"
+var Version string = "v0.1.0"

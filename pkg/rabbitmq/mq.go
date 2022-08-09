@@ -47,6 +47,7 @@ type Client struct {
 	notifyConnClose chan *amqp.Error
 	notifyChanClose chan *amqp.Error
 	notifyConfirm   chan amqp.Confirmation
+	reconnectCount  int
 	// When client closed, <-done will receive false
 	done chan bool
 	// When IsReady is true, everything is ok for push and consume
@@ -65,6 +66,8 @@ var (
 
 	// When resending messages the server didn't confirm
 	resendDelay = 5 * time.Second
+
+	reconnectLimit = -1
 )
 
 var (
@@ -79,6 +82,10 @@ func init() {
 	reconnect := clsgo.Cfg.GetInt("rabbitmq.reconnect")
 	reinit := clsgo.Cfg.GetInt("rabbitmq.reinit")
 	resend := clsgo.Cfg.GetInt("rabbitmq.resend")
+	reconnect_limit := clsgo.Cfg.GetInt("rabbitmq.reconnectLimit")
+	if reconnectLimit != reconnect_limit && reconnect_limit >= 1 {
+		reconnectLimit = reconnect_limit
+	}
 	if reconnect > 0 {
 		reconnectDelay = time.Duration(reconnect) * time.Second
 	}
@@ -99,13 +106,14 @@ func New(addr string, exchange Exchange, queue Queue, routingKey string, consume
 		return nil
 	}
 	client := Client{
-		host:        strings.SplitAfter(addr, "@")[1],
-		queue:       queue,
-		exchange:    exchange,
-		routingKey:  routingKey,
-		consumerTag: consumerTag,
-		done:        make(chan bool),
-		Connected:   make(chan bool),
+		reconnectCount: 0,
+		host:           strings.SplitAfter(addr, "@")[1],
+		queue:          queue,
+		exchange:       exchange,
+		routingKey:     routingKey,
+		consumerTag:    consumerTag,
+		done:           make(chan bool),
+		Connected:      make(chan bool),
 	}
 	go client.handleReconnect(addr)
 	return &client
@@ -117,7 +125,12 @@ func (client *Client) handleReconnect(addr string) {
 	for {
 		client.IsReady = false
 		log.Infoi("AMQP attempting to connect: ", client.host)
-
+		client.reconnectCount++
+		if client.reconnectCount > reconnectLimit {
+			client.Close()
+			client.Connected <- client.IsReady
+			return
+		}
 		conn, err := client.connect(addr)
 
 		if err != nil {
@@ -266,7 +279,7 @@ func (client *Client) changeChannel(channel *amqp.Channel) {
 // only returned if the push action itself fails, see UnsafePush.
 func (client *Client) Push(data []byte) error {
 	if !client.IsReady {
-		return errors.New("failed to push: not connected")
+		return errNotConnected
 	}
 	for {
 		err := client.UnsafePush(data)

@@ -2,6 +2,7 @@ package redis_test
 
 import (
 	"fmt"
+	"github.com/lovelacelee/clsgo/pkg"
 	"github.com/lovelacelee/clsgo/pkg/redis"
 	"sync"
 	"testing"
@@ -29,8 +30,8 @@ func ExampleClient_Do() {
 	c := redis.New("default")
 	defer c.Close()
 
-	c.Do("SET", "test", "test")
-	rv, _ := c.Do("GET", "test")
+	c.Do("SET", "clsgo", clsgo.Version)
+	rv, _ := c.Do("GET", "clsgo")
 	fmt.Println(rv.String())
 }
 
@@ -47,7 +48,7 @@ func ExampleClient_Subscribe() {
 	c := redis.New("default")
 	defer c.Close()
 	notify := c.Subscribe("channel")
-	fmt.Println("wait chan")
+	var payload string
 	for i := 0; i < messageCount; i++ {
 		resp := <-notify
 		channelRes := struct {
@@ -57,7 +58,11 @@ func ExampleClient_Subscribe() {
 			PayloadSlice string
 		}{}
 		resp.Struct(&channelRes)
-		fmt.Println(channelRes.Payload)
+		payload = channelRes.Payload
 	}
+	fmt.Printf("Receive %v %v times\n", payload, messageCount)
 	workGroup.Done()
+	// Output
+	// v0.0.9
+	// Receive test 1000 times
 }

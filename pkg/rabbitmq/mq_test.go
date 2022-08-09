@@ -41,10 +41,7 @@ func ExampleClient_Push() {
 	queueClient := mq.New(addr, exchange, queue, "clsgo", "clsgo")
 	if <-queueClient.Connected {
 		defer queueClient.Close()
-		// Make sure the client is ready
-		for queueClient.IsReady == false {
-			time.Sleep(time.Microsecond * 50)
-		}
+
 		message := []byte("message")
 		// Attempt to push 10 message, one every 10 microseconds
 		for i := 0; i < messageCount; i++ {
@@ -77,10 +74,7 @@ func ExampleClient_Consume_cancel() {
 	queueClient := mq.New(addr, exchange, queue, "clsgo", "clsgo")
 	if <-queueClient.Connected {
 		defer queueClient.Close()
-		// Make sure the client is ready
-		for queueClient.IsReady == false {
-			time.Sleep(time.Microsecond * 50)
-		}
+
 		msgChan, err := queueClient.Consume(false)
 		defer queueClient.CancelConsume()
 		if err != nil {

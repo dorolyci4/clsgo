@@ -18,6 +18,7 @@ func getCurrentAbPathByCaller() string {
 	return abPath
 }
 
+// Get current project's absolute path
 func GetCurrentAbPath() string {
 	dir := getCurrentAbPathByExecutable()
 	if strings.Contains(dir, getTmpDir()) {
@@ -42,4 +43,14 @@ func getCurrentAbPathByExecutable() string {
 	}
 	res, _ := filepath.EvalSymlinks(filepath.Dir(exePath))
 	return res
+}
+
+// Chdir to the real application exist path
+func ChdirToPos() (err error) {
+	dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
+	if err != nil {
+		return
+	}
+	err = os.Chdir(dir)
+	return
 }

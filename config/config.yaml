@@ -17,14 +17,15 @@ rabbitmq:
   reconnect: 3 # Seconds When reconnecting to the server after connection failure
   reinit: 1 # Seconds When setting up the channel after a channel exception
   resend: 1 # Seconds When resending messages the server didn't confirm
+  reconnectLimit: 1 # Close connection after reconnectLimit try
 redis.cache:
   address: 192.168.3.207:6379
-  db: 1
+  db: 15
   pass: lovelacelee
   idleTimeout: 600
 redis.default:
-  address: 192.168.137.100:6379
-  db: 0
+  Address: 192.168.137.100:6379
+  Db: 15
   pass: lovelacelee
   idleTimeout: 600
 # Sync with GF
@@ -37,7 +38,7 @@ logger:
   # Log file format. The default is"{Y-m-d}.log"
   file: "{Y-m-d}.log"
   # Error stack
-  StStatus: 1
+  stStatus: 0
   # Log output Level [dev/prod/none/debu/info/noti/warn/erro/crit/pani/fata]
   level: "all"
   # Scrolling split files by log file size. The default value is 0,
@@ -52,8 +53,6 @@ logger:
   rotateCheckInterval: "1m"
   RotateBackupExpire: "1d"
   clsgo:
-    StStatus: 1
-    rotateExpire: "1h"
+    stStatus: 1
     prefix: "[CLSGO]"
     level: "all"
-    writerColorEnable: true

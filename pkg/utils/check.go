@@ -1,34 +1,68 @@
 package utils
 
 import (
-	"fmt"
 	"os"
-	"strings"
+	"path"
+	"runtime"
+	"strconv"
 )
 
-// CheckArgs should be used to ensure the right command line arguments are
-// passed before executing an app.
-func ExitIfCheckArgsFailed(arg ...string) {
-	if len(os.Args) < len(arg)+1 {
-		fmt.Printf("Usage: %s %s", os.Args[0], strings.Join(arg, " "))
-		os.Exit(1)
-	}
-}
-
 // CheckIfError should be used to naively panics if an error is not nil.
-func ExitIfError(err error) {
+func ExitIfError(err error, fn ...any) {
 	if err == nil {
 		return
 	}
-
-	fmt.Printf("%s\n", fmt.Sprintf("error: %s", err))
+	if len(fn) >= 2 {
+		checker(fn...)
+	} else {
+		Error("%s", err)
+	}
 	os.Exit(1)
 }
 
-func WarnIfError(err error) {
+func checker(fn ...any) {
+	pc, file, line, _ := runtime.Caller(2)
+	name := runtime.FuncForPC(pc).Name()
+	s := "[CLSGO[" + path.Base(file) + ":" + strconv.Itoa(line) + " " + path.Base(name) + "]"
+
+	switch fn[0].(type) {
+	case Loggerf:
+		fn[0].(Loggerf)(s+fn[1].(string), fn[2:]...)
+	}
+}
+
+// Only output in terminal in [WARN] message
+func WarnIfError(err error, fn ...any) {
 	if err == nil {
 		return
 	}
+	if len(fn) >= 2 {
+		checker(fn...)
+	} else {
+		Warn("%s", err)
+	}
+}
 
-	fmt.Printf("%s", err)
+// Only output in terminal in [INFO] message
+func InfoIfError(err error, fn ...any) {
+	if err == nil {
+		return
+	}
+	if len(fn) >= 2 {
+		checker(fn...)
+	} else {
+		Info("%s", err)
+	}
+}
+
+// Only output in terminal in [IMPT] message
+func ImptIfError(err error, fn ...any) {
+	if err == nil {
+		return
+	}
+	if len(fn) >= 2 {
+		checker(fn...)
+	} else {
+		Impt("%s", err)
+	}
 }

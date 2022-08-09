@@ -1,8 +1,7 @@
 package utils
 
 import (
-	"errors"
-	"fmt"
+	"io/fs"
 	"io/ioutil"
 	"os"
 	"os/exec"
@@ -76,28 +75,25 @@ func ListDirFiles(dir, suffix string) (files []string, err error) {
 	return files, nil
 }
 
+// Copy directory deeply
 func CopyDir(srcPath, desPath string) error {
-
 	if srcInfo, err := os.Stat(srcPath); err != nil {
 		return err
 	} else {
 		if !srcInfo.IsDir() {
-			return errors.New("srcPath is not a valid directory path")
+			return ErrSrcPathInvalid
 		}
 	}
-
 	if desInfo, err := os.Stat(desPath); err != nil {
 		return err
 	} else {
 		if !desInfo.IsDir() {
-			return errors.New("destPath is not a valid directory path")
+			return ErrDstPathInvalid
 		}
 	}
-
 	if strings.TrimSpace(srcPath) == strings.TrimSpace(desPath) {
-		return errors.New("destPath must be different from srcPath")
+		return ErrSrcSameAsDst
 	}
-
 	err := filepath.Walk(srcPath, func(path string, f os.FileInfo, err error) error {
 		if f == nil {
 			return err
@@ -106,69 +102,28 @@ func CopyDir(srcPath, desPath string) error {
 		if path == srcPath {
 			return nil
 		}
-
 		destNewPath := strings.Replace(path, srcPath, desPath, -1)
-
 		if !f.IsDir() {
 			CopyFile(path, destNewPath)
 		} else {
 			if !FileIsExisted(destNewPath) {
-				return MakeDir(destNewPath)
+				return MakeDir(destNewPath, 0777)
 			}
 		}
-
 		return nil
 	})
 
 	return err
 }
 
-func CopyFile(src, des string) (written int64, err error) {
-
-	srcFile, err := os.Open(src)
-	if err != nil {
-		return 0, err
-	}
-	fi, _ := srcFile.Stat()
-	perm := fi.Mode()
-	srcFile.Close()
-
-	input, err := ioutil.ReadFile(src)
-	if err != nil {
-		return 0, err
-	}
-
-	err = ioutil.WriteFile(des, input, perm)
-	if err != nil {
-		return 0, err
-	}
-
-	return int64(len(input)), nil
-}
-
-func MakeDir(dir string) error {
+func MakeDir(dir string, perm fs.FileMode) error {
 	if !FileIsExisted(dir) {
-		if err := os.MkdirAll(dir, 0777); err != nil { //os.ModePerm
-			fmt.Println("MakeDir failed:", err)
+		if err := os.MkdirAll(dir, perm); err != nil { //os.ModePerm
+			Error("MakeDir failed: %v", err)
 			return err
 		}
 	}
 	return nil
-}
-
-func FileIsExisted(filename string) bool {
-	existed := true
-	if _, err := os.Stat(filename); os.IsNotExist(err) {
-		existed = false
-	}
-	return existed
-}
-
-func IsDir(name string) bool {
-	if info, err := os.Stat(name); err == nil {
-		return info.IsDir()
-	}
-	return false
 }
 
 func RunInDir(dir string, cmd *exec.Cmd) (err error) {
@@ -188,4 +143,11 @@ func DeleteThingsInDir(targetDir string) error {
 		os.RemoveAll(path.Join([]string{targetDir, d.Name()}...))
 	}
 	return err
+}
+
+func IsDir(name string) bool {
+	if info, err := os.Stat(name); err == nil {
+		return info.IsDir()
+	}
+	return false
 }
