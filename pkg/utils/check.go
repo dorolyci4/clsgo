@@ -7,7 +7,8 @@ import (
 	"strconv"
 )
 
-// CheckIfError should be used to naively panics if an error is not nil.
+// CheckIfError should be used to naively panics if an error is not nil. Eg:
+// utils.ExitIfError(errTest, log.Warningf, "%s %s", "warning", "message")
 func ExitIfError(err error, fn ...any) {
 	if err == nil {
 		return
@@ -31,7 +32,8 @@ func checker(fn ...any) {
 	}
 }
 
-// Only output in terminal in [WARN] message
+// Only output in terminal in [WARN] message, Eg:
+// utils.WarnIfError(errTest, log.Warningf, "%s %s", "warning", "message")
 func WarnIfError(err error, fn ...any) {
 	if err == nil {
 		return
@@ -43,7 +45,8 @@ func WarnIfError(err error, fn ...any) {
 	}
 }
 
-// Only output in terminal in [INFO] message
+// Only output in terminal in [INFO] message, Eg:
+// utils.InfoIfError(errTest, log.Infof, "%s %s", "warning", "message")
 func InfoIfError(err error, fn ...any) {
 	if err == nil {
 		return
@@ -52,17 +55,5 @@ func InfoIfError(err error, fn ...any) {
 		checker(fn...)
 	} else {
 		Info("%s", err)
-	}
-}
-
-// Only output in terminal in [IMPT] message
-func ImptIfError(err error, fn ...any) {
-	if err == nil {
-		return
-	}
-	if len(fn) >= 2 {
-		checker(fn...)
-	} else {
-		Impt("%s", err)
 	}
 }

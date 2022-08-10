@@ -21,6 +21,5 @@ func ExampleWarnIfError() {
 
 func Example() {
 	utils.InfoIfError(errTest, log.Infof, "%s %s", "warning", "message")
-	utils.ImptIfError(errTest, log.Infof, "%s %s", "warning", "message")
 	// utils.ExitIfError(errTest, log.Infof, "%s %s", "error", "message")
 }

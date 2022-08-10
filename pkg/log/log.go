@@ -12,6 +12,7 @@ import (
 	"github.com/gogf/gf/v2/os/glog"
 
 	"github.com/lovelacelee/clsgo/pkg/config"
+	"github.com/lovelacelee/clsgo/pkg/internal"
 )
 
 func init() {
@@ -28,14 +29,6 @@ func init() {
 	}
 }
 
-func loadNoNil(cfg string, def any) any {
-	r := config.Cfg.Get(cfg)
-	if r != nil {
-		return r
-	}
-	return def
-}
-
 func loadLogConfig(logger string) map[string]any {
 	m := map[string]any{
 		"flags":                glog.F_TIME_STD,
@@ -46,8 +39,8 @@ func loadLogConfig(logger string) map[string]any {
 		"stSkip":               config.Cfg.GetInt(logger + ".StSkip"),
 		"stStatus":             config.Cfg.GetInt(logger + ".StStatus"),
 		"stFilter":             config.Cfg.GetString(logger + ".StFilter"),
-		"header":               loadNoNil(logger+".header", true),
-		"stdout":               loadNoNil(logger+".stdout", true),
+		"header":               internal.LoadWithDefault(config.Cfg, logger+".header", true),
+		"stdout":               internal.LoadWithDefault(config.Cfg, logger+".stdout", true),
 		"rotateSize":           config.Cfg.GetString(logger + ".rotateSize"),
 		"rotateExpire":         config.Cfg.GetString(logger + ".rotateExpire"),
 		"rotateBackupLimit":    config.Cfg.GetString(logger + ".rotateBackupLimit"),

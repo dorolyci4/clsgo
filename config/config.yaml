@@ -13,11 +13,10 @@ server:
   swaggerPath: "/api"
 
 rabbitmq:
-  server: amqp://test:test@localhost:5672/
+  server: amqp://test:test@192.168.137.100:5672/
   reconnect: 3 # Seconds When reconnecting to the server after connection failure
   reinit: 1 # Seconds When setting up the channel after a channel exception
   resend: 1 # Seconds When resending messages the server didn't confirm
-  reconnectLimit: 1 # Close connection after reconnectLimit try
 redis.cache:
   address: 192.168.3.207:6379
   db: 15
@@ -53,6 +52,6 @@ logger:
   rotateCheckInterval: "1m"
   RotateBackupExpire: "1d"
   clsgo:
-    stStatus: 1
+    stStatus: 0
     prefix: "[CLSGO]"
-    level: "all"
+    level: "dev"

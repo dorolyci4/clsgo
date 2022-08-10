@@ -1,18 +1,19 @@
-// Package mq exports a RabbitMQ Client object that wraps the official go library. It
+// Package rabbitmq exports a RabbitMQ Client object that wraps the official go library. It
 // automatically reconnects when the connection fails, and
 // blocks all pushes until the connection succeeds. It also
 // confirms every outgoing message, so none are lost.
 // It doesn't automatically ack each message, but leaves that
 // to the parent process, since it is usage-dependent.
-package mq
+package rabbitmq
 
 import (
 	"context"
 	"errors"
-	"strings"
+	"strconv"
 	"time"
 
 	clsgo "github.com/lovelacelee/clsgo/pkg"
+	"github.com/lovelacelee/clsgo/pkg/internal"
 	"github.com/lovelacelee/clsgo/pkg/log"
 	amqp "github.com/rabbitmq/amqp091-go"
 )
@@ -35,9 +36,18 @@ type Queue struct {
 	Nowait     bool
 }
 
+const (
+	MQCONN_INIT = iota
+	MQCONN_READY
+	MQCONN_RECONNCTING
+	MQCONN_CLOSED
+)
+
+type PubStruct = amqp.Publishing
+
 // Rabbit MQ client
 type Client struct {
-	host            string
+	info            string
 	routingKey      string
 	consumerTag     string
 	exchange        Exchange
@@ -47,13 +57,16 @@ type Client struct {
 	notifyConnClose chan *amqp.Error
 	notifyChanClose chan *amqp.Error
 	notifyConfirm   chan amqp.Confirmation
-	reconnectCount  int
+	ctx             context.Context
+	reconnectTimes  int
 	// When client closed, <-done will receive false
 	done chan bool
-	// When IsReady is true, everything is ok for push and consume
-	IsReady bool
+	// Client status
+	Status int
 	// Notify client is ready
-	Connected chan bool
+	NotifyStatus chan int
+	// Consumer delivery
+	NotifyMessage chan amqp.Delivery
 }
 
 // Default retry params
@@ -66,26 +79,22 @@ var (
 
 	// When resending messages the server didn't confirm
 	resendDelay = 5 * time.Second
-
-	reconnectLimit = -1
 )
 
 var (
-	errNotConnected    = errors.New("not connected to a server")
-	errAlreadyClosed   = errors.New("already closed: not connected to the server")
-	errShutdown        = errors.New("client is shutting down")
-	errExchangeDeclare = errors.New("exchange declare failed")
-	errQueueDeclare    = errors.New("queue declare failed")
+	errNotConnected     = errors.New("not connected to a server")
+	errAlreadyClosed    = errors.New("already closed: not connected to the server")
+	errShutdown         = errors.New("client is shutting down")
+	errExchangeDeclare  = errors.New("exchange declare failed")
+	errQueueDeclare     = errors.New("queue declare failed")
+	errTooManyPushFails = errors.New("too many push retry times")
 )
 
 func init() {
-	reconnect := clsgo.Cfg.GetInt("rabbitmq.reconnect")
-	reinit := clsgo.Cfg.GetInt("rabbitmq.reinit")
-	resend := clsgo.Cfg.GetInt("rabbitmq.resend")
-	reconnect_limit := clsgo.Cfg.GetInt("rabbitmq.reconnectLimit")
-	if reconnectLimit != reconnect_limit && reconnect_limit >= 1 {
-		reconnectLimit = reconnect_limit
-	}
+	reconnect := internal.LoadWithDefault(clsgo.Cfg, "rabbitmq.reconnect", 3).(int)
+	reinit := internal.LoadWithDefault(clsgo.Cfg, "rabbitmq.reinit", 1).(int)
+	resend := internal.LoadWithDefault(clsgo.Cfg, "rabbitmq.resend", 1).(int)
+
 	if reconnect > 0 {
 		reconnectDelay = time.Duration(reconnect) * time.Second
 	}
@@ -98,22 +107,32 @@ func init() {
 	log.Infofi("MQ reconnect:%v reinit:%v resend:%v", reconnect, reinit, resend)
 }
 
-// New creates a new consumer state instance, and automatically
+// New creates a new consumer state instance, and automatically,
 // attempts to connect to the server.
-func New(addr string, exchange Exchange, queue Queue, routingKey string, consumerTag string) *Client {
-	if !strings.Contains(addr, "@") {
-		log.Errori("MQ address invalid, use right formmat: amqp://test:test@localhost:5672/")
-		return nil
+// consumerTag unused when client as a publisher
+func New(addr string, exchange Exchange, queue Queue, routingKey string, consumerTag ...string) *Client {
+	uri, _ := amqp.ParseURI(addr)
+	consumer := ""
+	if len(consumerTag) > 0 {
+		consumer = consumerTag[0]
+	}
+	cinfo := ""
+	if consumer != "" {
+		cinfo += "Consumer:" + consumer + ":" + uri.Host + ":" + strconv.Itoa(uri.Port)
+	} else {
+		cinfo += "Publisher:" + uri.Host + ":" + strconv.Itoa(uri.Port)
 	}
 	client := Client{
-		reconnectCount: 0,
-		host:           strings.SplitAfter(addr, "@")[1],
+		reconnectTimes: 0,
+		info:           cinfo,
 		queue:          queue,
 		exchange:       exchange,
 		routingKey:     routingKey,
-		consumerTag:    consumerTag,
+		consumerTag:    consumer,
+		Status:         MQCONN_INIT,
 		done:           make(chan bool),
-		Connected:      make(chan bool),
+		NotifyStatus:   make(chan int),
+		ctx:            context.Background(),
 	}
 	go client.handleReconnect(addr)
 	return &client
@@ -123,25 +142,21 @@ func New(addr string, exchange Exchange, queue Queue, routingKey string, consume
 // notifyConnClose, and then continuously attempt to reconnect.
 func (client *Client) handleReconnect(addr string) {
 	for {
-		client.IsReady = false
-		log.Infoi("AMQP attempting to connect: ", client.host)
-		client.reconnectCount++
-		if client.reconnectCount > reconnectLimit {
-			client.Close()
-			client.Connected <- client.IsReady
-			return
-		}
+		client.Status = MQCONN_RECONNCTING
+		internal.WriteChanWithTimeout(client.ctx, client.NotifyStatus, client.Status)
 		conn, err := client.connect(addr)
 
 		if err != nil {
-			log.Errori("Failed to connect. Retrying...")
-
+			client.reconnectTimes++
+			log.Debugfi("%s connecting %d...", client.info, client.reconnectTimes)
 			select {
 			case <-client.done:
 				return
 			case <-time.After(reconnectDelay):
 			}
 			continue
+		} else {
+			client.reconnectTimes = 0
 		}
 
 		if initialized := client.handleReInit(conn); initialized {
@@ -159,20 +174,21 @@ func (client *Client) connect(addr string) (*amqp.Connection, error) {
 	}
 
 	client.changeConnection(conn)
-	log.Infoi("Connected!")
+
 	return conn, nil
 }
 
 // handleReconnect will wait for a channel error
 // and then continuously attempt to re-initialize both channels
 func (client *Client) handleReInit(conn *amqp.Connection) bool {
+	var n uint = 0
 	for {
-		client.IsReady = false
-
+		client.Status = MQCONN_INIT
+		// Exchange,Queue declare and binding
 		err := client.init(conn)
-
+		n++
 		if err != nil {
-			log.Errori("Failed to initialize channel. Retrying...")
+			log.Debugfi("%s failed to initialize channel. Retrying %d...", client.info, n)
 
 			select {
 			case <-client.done:
@@ -186,10 +202,10 @@ func (client *Client) handleReInit(conn *amqp.Connection) bool {
 		case <-client.done:
 			return true
 		case <-client.notifyConnClose:
-			log.Infoi("Connection closed. Reconnecting...")
+			log.Debugfi("%s connection closed. Reconnecting...", client.info)
 			return false
 		case <-client.notifyChanClose:
-			log.Infoi("Channel closed. Re-running init...")
+			log.Debugfi("%s channel closed. Reinit-running %d...", client.info, n)
 		}
 	}
 }
@@ -248,8 +264,9 @@ func (client *Client) init(conn *amqp.Connection) error {
 	); err != nil {
 		return err
 	}
-	client.IsReady = true
-	client.Connected <- client.IsReady
+
+	client.Status = MQCONN_READY
+	internal.WriteChanWithTimeout(client.ctx, client.NotifyStatus, client.Status)
 
 	return nil
 }
@@ -272,19 +289,22 @@ func (client *Client) changeChannel(channel *amqp.Channel) {
 	client.channel.NotifyPublish(client.notifyConfirm)
 }
 
-// Push will push data onto the queue, and wait for a confirm.
+// Publish will push data onto the queue, and wait for a confirm.
 // If no confirms are received until within the resendTimeout,
 // it continuously re-sends messages until a confirm is received.
 // This will block until the server sends a confirm. Errors are
-// only returned if the push action itself fails, see UnsafePush.
-func (client *Client) Push(data []byte) error {
-	if !client.IsReady {
-		return errNotConnected
-	}
+// only returned if the push action itself fails, see UnsafePublish.
+// If retryTimes set, wait loop breaks after retryTimes check.
+func (client *Client) Publish(data PubStruct, retryTimes ...uint) error {
+	var n uint = 0
 	for {
-		err := client.UnsafePush(data)
+		n++
+		if len(retryTimes) > 0 && n > retryTimes[0] && retryTimes[0] > 0 {
+			break
+		}
+		err := client.UnsafePublish(data)
 		if err != nil {
-			log.Errori("Push failed. Retrying...")
+			log.Debugfi("%s push failed. Retrying %d...", client.info, n)
 			select {
 			case <-client.done:
 				return errShutdown
@@ -300,16 +320,17 @@ func (client *Client) Push(data []byte) error {
 			}
 		case <-time.After(resendDelay):
 		}
-		log.Infoi("Push didn't confirm. Retrying...")
+		log.Debugfi("%s push didn't confirm. Retrying %d...", client.info, n)
 	}
+	return errTooManyPushFails
 }
 
-// UnsafePush will push to the queue without checking for
+// UnsafePublish will push to the queue without checking for
 // confirmation. It returns an error if it fails to connect.
 // No guarantees are provided for whether the server will
 // receive the message.
-func (client *Client) UnsafePush(data []byte) error {
-	if !client.IsReady {
+func (client *Client) UnsafePublish(data PubStruct) error {
+	if client.Status != MQCONN_READY {
 		return errNotConnected
 	}
 
@@ -322,10 +343,7 @@ func (client *Client) UnsafePush(data []byte) error {
 		client.routingKey,            // Routing key
 		false,                        // Mandatory
 		false,                        // Immediate
-		amqp.Publishing{
-			ContentType: "text/plain",
-			Body:        data,
-		},
+		data,
 	)
 }
 
@@ -333,8 +351,10 @@ func (client *Client) UnsafePush(data []byte) error {
 // It is required to call delivery.Ack when it has been
 // successfully processed, or delivery.Nack when it fails.
 // Ignoring this will cause data to build up on the server.
+// amqp.Delivery invalid after any Channel.Cancel,
+// Connection.Close, Channel.Close, or an AMQP exception occurs.
 func (client *Client) Consume(autoAck bool) (<-chan amqp.Delivery, error) {
-	if !client.IsReady {
+	if client.Status != MQCONN_READY {
 		return nil, errNotConnected
 	}
 
@@ -350,25 +370,34 @@ func (client *Client) Consume(autoAck bool) (<-chan amqp.Delivery, error) {
 }
 
 func (client *Client) CancelConsume() error {
+	if client.Status != MQCONN_READY {
+		return errNotConnected
+	}
 	// will close() the deliveries channel
 	return client.channel.Cancel(client.consumerTag, true)
 }
 
 // Close will cleanly shutdown the channel and connection.
 func (client *Client) Close() error {
-	if !client.IsReady {
+	if client.Status == MQCONN_CLOSED {
 		return errAlreadyClosed
 	}
-	client.IsReady = false
+	client.Status = MQCONN_CLOSED
+	client.ctx.Done()
 	close(client.done)
-	close(client.Connected)
-	err := client.channel.Close()
-	if err != nil {
-		return err
+	close(client.NotifyStatus)
+	log.Debugfi("Client %v closed", client.info)
+	if client.channel != nil {
+		err := client.channel.Close()
+		if err != nil {
+			return err
+		}
 	}
-	err = client.connection.Close()
-	if err != nil {
-		return err
+	if client.connection != nil {
+		err := client.connection.Close()
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil
