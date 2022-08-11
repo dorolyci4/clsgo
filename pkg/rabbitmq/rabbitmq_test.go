@@ -1,12 +1,14 @@
 package rabbitmq_test
 
 import (
+	"context"
+	"sync"
+	"testing"
+
 	"github.com/lovelacelee/clsgo/pkg"
 	"github.com/lovelacelee/clsgo/pkg/log"
 	mq "github.com/lovelacelee/clsgo/pkg/rabbitmq"
 	"github.com/lovelacelee/clsgo/pkg/utils"
-	"sync"
-	"testing"
 )
 
 var workGroup sync.WaitGroup
@@ -17,6 +19,7 @@ const retryTimes = 100
 func Test(t *testing.T) {
 	workGroup.Add(1)
 	go ExampleClient_Publish()
+	workGroup.Wait()
 	workGroup.Add(1)
 	go ExampleClient_Consume_cancel()
 	workGroup.Wait()
@@ -80,18 +83,23 @@ func ExampleClient_Consume_cancel() {
 	defer queueClient.Close()
 
 	count := 0
+	lastMessage := ""
 	for {
 		select {
+		// If MQ connection or channel closed, client will reconnect automatically,
+		// Here we just wait it be ready for consume
 		case status := <-queueClient.NotifyStatus:
 			if status == mq.MQCONN_READY {
 				log.Info("Start consume")
 				msgChan, err := queueClient.Consume(false)
-			NEXT:
+			NEXT: //Continous consume
 				if queueClient.Status != mq.MQCONN_READY {
 					continue
 				}
-				message := <-msgChan
-				log.Info(message.Body)
+				// message := <-msgChan
+				message, err := utils.ReadChanWithTimeout(context.Background(), msgChan)
+				utils.InfoIfError(err)
+				lastMessage = string(message.Body)
 				err = message.Ack(false)
 				utils.InfoIfError(err)
 				count++
@@ -107,6 +115,6 @@ func ExampleClient_Consume_cancel() {
 	}
 
 Exit:
-	log.Info("Consumer routine done")
+	log.Infof("Consumer routine done: %d %s", count, lastMessage)
 	workGroup.Done()
 }

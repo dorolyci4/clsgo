@@ -1,0 +1,9 @@
+import os
+
+# go test ./... -v
+# go test ./... -v --bench=./...
+# -run=none means only benchmark test executed
+# -benchtime=10s means time to running benchmark
+# go test ./... -v -bench=./... -memprofile memprofile.out -cpuprofile profile.out
+
+os.system("go test ./... -v --bench=./...")

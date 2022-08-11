@@ -15,6 +15,7 @@ import (
 	clsgo "github.com/lovelacelee/clsgo/pkg"
 	"github.com/lovelacelee/clsgo/pkg/internal"
 	"github.com/lovelacelee/clsgo/pkg/log"
+	"github.com/lovelacelee/clsgo/pkg/utils"
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
@@ -47,6 +48,7 @@ type PubStruct = amqp.Publishing
 
 // Rabbit MQ client
 type Client struct {
+	sessionId       string
 	info            string
 	routingKey      string
 	consumerTag     string
@@ -104,7 +106,7 @@ func init() {
 	if resend > 0 {
 		resendDelay = time.Duration(resend) * time.Second
 	}
-	log.Infofi("MQ reconnect:%v reinit:%v resend:%v", reconnect, reinit, resend)
+	log.Debugfi("MQ reconnect:%v reinit:%v resend:%v", reconnect, reinit, resend)
 }
 
 // New creates a new consumer state instance, and automatically,
@@ -117,13 +119,15 @@ func New(addr string, exchange Exchange, queue Queue, routingKey string, consume
 		consumer = consumerTag[0]
 	}
 	cinfo := ""
+	sid := utils.SessionId(8)
 	if consumer != "" {
-		cinfo += "Consumer:" + consumer + ":" + uri.Host + ":" + strconv.Itoa(uri.Port)
+		cinfo += "[C:" + sid + "]:" + consumer + ":" + uri.Host + ":" + strconv.Itoa(uri.Port)
 	} else {
-		cinfo += "Publisher:" + uri.Host + ":" + strconv.Itoa(uri.Port)
+		cinfo += "[P:" + sid + "]:" + uri.Host + ":" + strconv.Itoa(uri.Port)
 	}
 	client := Client{
 		reconnectTimes: 0,
+		sessionId:      sid,
 		info:           cinfo,
 		queue:          queue,
 		exchange:       exchange,
@@ -143,7 +147,7 @@ func New(addr string, exchange Exchange, queue Queue, routingKey string, consume
 func (client *Client) handleReconnect(addr string) {
 	for {
 		client.Status = MQCONN_RECONNCTING
-		internal.WriteChanWithTimeout(client.ctx, client.NotifyStatus, client.Status)
+		utils.WriteChanWithTimeout(client.ctx, client.NotifyStatus, client.Status)
 		conn, err := client.connect(addr)
 
 		if err != nil {
@@ -266,8 +270,8 @@ func (client *Client) init(conn *amqp.Connection) error {
 	}
 
 	client.Status = MQCONN_READY
-	internal.WriteChanWithTimeout(client.ctx, client.NotifyStatus, client.Status)
-
+	utils.WriteChanWithTimeout(client.ctx, client.NotifyStatus, client.Status)
+	log.Debugfi("%s is ready", client.info)
 	return nil
 }
 
@@ -304,7 +308,7 @@ func (client *Client) Publish(data PubStruct, retryTimes ...uint) error {
 		}
 		err := client.UnsafePublish(data)
 		if err != nil {
-			log.Debugfi("%s push failed. Retrying %d...", client.info, n)
+			// log.Debugfi("%s push failed. Retrying %d...", client.info, n)
 			select {
 			case <-client.done:
 				return errShutdown
@@ -320,7 +324,7 @@ func (client *Client) Publish(data PubStruct, retryTimes ...uint) error {
 			}
 		case <-time.After(resendDelay):
 		}
-		log.Debugfi("%s push didn't confirm. Retrying %d...", client.info, n)
+		// log.Debugfi("%s push didn't confirm. Retrying %d...", client.info, n)
 	}
 	return errTooManyPushFails
 }
@@ -369,6 +373,10 @@ func (client *Client) Consume(autoAck bool) (<-chan amqp.Delivery, error) {
 	)
 }
 
+func (client *Client) DeliveryReadWithTimeout(chan amqp.Delivery) {
+
+}
+
 func (client *Client) CancelConsume() error {
 	if client.Status != MQCONN_READY {
 		return errNotConnected
@@ -386,7 +394,7 @@ func (client *Client) Close() error {
 	client.ctx.Done()
 	close(client.done)
 	close(client.NotifyStatus)
-	log.Debugfi("Client %v closed", client.info)
+	log.Debugfi("%v is closed", client.info)
 	if client.channel != nil {
 		err := client.channel.Close()
 		if err != nil {

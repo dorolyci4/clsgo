@@ -18,3 +18,17 @@ CLS packages
 * ✅Json config loader
 * ✅Viper config support
 
+## Quick start
+
+### Running examples
+
+```shell
+python example
+```
+
+### Running tests
+
+```shell
+python test
+```
+

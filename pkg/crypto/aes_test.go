@@ -1,4 +1,4 @@
-package clsgo_test
+package crypto_test
 
 import (
 	"testing"

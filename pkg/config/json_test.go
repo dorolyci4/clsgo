@@ -1,4 +1,4 @@
-package clsgo_test
+package config_test
 
 import (
 	"reflect"
