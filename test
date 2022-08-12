@@ -1,3 +1,4 @@
+#coding=utf8
 import os
 
 # go test ./... -v
@@ -6,4 +7,4 @@ import os
 # -benchtime=10s means time to running benchmark
 # go test ./... -v -bench=./... -memprofile memprofile.out -cpuprofile profile.out
 
-os.system("go test ./... -v --bench=./...")
+os.system("go test ./... -v")

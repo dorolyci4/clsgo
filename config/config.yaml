@@ -1,13 +1,15 @@
 project:
   name: clsgo
   version: v1
-# sync with GF
+# Sync with GF
 database:
   default:
-    - link: "mysql:root:12345678@tcp(127.0.0.1:3306)/test"
+    - link: "mysql:lee:lovelace@tcp(192.168.137.100:3306)/test"
       role: "master"
-    - link: "mysql:root:12345678@tcp(127.0.0.1:3306)/test"
+    - link: "mysql:lee:lovelace@tcp(192.168.137.100:3306)/test"
       role: "slave"
+  test:
+    - link: "mysql:lee:lovelace@tcp(192.168.137.100:3306)/test"
 server:
   openapiPath: "/api.json"
   swaggerPath: "/api"
@@ -17,6 +19,7 @@ rabbitmq:
   reconnect: 3 # Seconds When reconnecting to the server after connection failure
   reinit: 1 # Seconds When setting up the channel after a channel exception
   resend: 1 # Seconds When resending messages the server didn't confirm
+# Sync with GF
 redis.cache:
   address: 192.168.3.207:6379
   db: 15

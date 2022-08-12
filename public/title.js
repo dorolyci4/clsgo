@@ -7,7 +7,7 @@ var canvas = document.querySelector("#scene"),
 
 // var colors = ["#D4DFE6", "#CADBE9", "#6AAFE6", "#8EC0E4", "#45d9fd"];
 var colors = [ "#0288D1", "#FF4081", "#03A9F4", "#512DA8", "#673AB7", "#212121"]
-var showText = "Lovelace Lee"
+var showText = "CLSGO"
 
 var ww = canvas.width = window.innerWidth;
 var wh = canvas.height = window.innerHeight;

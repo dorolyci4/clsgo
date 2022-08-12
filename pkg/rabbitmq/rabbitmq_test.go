@@ -4,6 +4,7 @@ import (
 	"context"
 	"sync"
 	"testing"
+	"time"
 
 	"github.com/lovelacelee/clsgo/pkg"
 	"github.com/lovelacelee/clsgo/pkg/log"
@@ -17,9 +18,9 @@ const messageCount = 10000
 const retryTimes = 100
 
 func Test(t *testing.T) {
-	workGroup.Add(1)
-	go ExampleClient_Publish()
-	workGroup.Wait()
+	// workGroup.Add(1)
+	// go ExampleClient_Publish()
+	// workGroup.Wait()
 	workGroup.Add(1)
 	go ExampleClient_Consume_cancel()
 	workGroup.Wait()
@@ -84,6 +85,7 @@ func ExampleClient_Consume_cancel() {
 
 	count := 0
 	lastMessage := ""
+	timeoutTimes := 0
 	for {
 		select {
 		// If MQ connection or channel closed, client will reconnect automatically,
@@ -92,16 +94,21 @@ func ExampleClient_Consume_cancel() {
 			if status == mq.MQCONN_READY {
 				log.Info("Start consume")
 				msgChan, err := queueClient.Consume(false)
+				utils.InfoIfError(err, log.Errorf)
 			NEXT: //Continous consume
 				if queueClient.Status != mq.MQCONN_READY {
 					continue
 				}
 				// message := <-msgChan
-				message, err := utils.ReadChanWithTimeout(context.Background(), msgChan)
-				utils.InfoIfError(err)
+				message, err := utils.ReadChanWithTimeout(context.Background(), msgChan, 2*time.Second)
+				if utils.InfoIfError(err, log.Errorf) != nil {
+					timeoutTimes++
+					if timeoutTimes > 5 {
+						goto Exit
+					}
+				}
 				lastMessage = string(message.Body)
-				err = message.Ack(false)
-				utils.InfoIfError(err)
+				message.Ack(false)
 				count++
 				if count > (messageCount - 1) {
 					goto Exit

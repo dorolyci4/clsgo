@@ -43,26 +43,26 @@ func color(c string) string {
 	}
 }
 
-func Info(format string, args ...interface{}) {
-	pc, file, line, _ := runtime.Caller(1)
+func Info(layer int, format string, args ...interface{}) {
+	pc, file, line, _ := runtime.Caller(layer)
 	name := runtime.FuncForPC(pc).Name()
 	fmt.Printf("%s[INFO][%v:%v %v] %s%s\n", color(ANSI_GREEN), path.Base(file), line, path.Base(name), fmt.Sprintf(format, args...), color(ANSI_RESET))
 }
 
-func Warn(format string, args ...interface{}) {
-	pc, file, line, _ := runtime.Caller(1)
+func Warn(layer int, format string, args ...interface{}) {
+	pc, file, line, _ := runtime.Caller(layer)
 	name := runtime.FuncForPC(pc).Name()
 	fmt.Printf("%s[WARN][%v:%v %v] %s%s\n", color(ANSI_MAGENTA), path.Base(file), line, path.Base(name), fmt.Sprintf(format, args...), color(ANSI_RESET))
 }
 
-func Error(format string, args ...interface{}) {
-	pc, file, line, _ := runtime.Caller(1)
+func Error(layer int, format string, args ...interface{}) {
+	pc, file, line, _ := runtime.Caller(layer)
 	name := runtime.FuncForPC(pc).Name()
 	fmt.Printf("%s[ERRO][%v:%v %v] %s%s\n", color(ANSI_RED), path.Base(file), line, path.Base(name), fmt.Sprintf(format, args...), color(ANSI_RESET))
 }
 
-func Impt(format string, args ...interface{}) {
-	pc, file, line, _ := runtime.Caller(1)
+func Impt(layer int, format string, args ...interface{}) {
+	pc, file, line, _ := runtime.Caller(layer)
 	name := runtime.FuncForPC(pc).Name()
 	fmt.Printf("%s[IMPO][%v:%v %v] %s%s\n", color(ANSI_BLUE), path.Base(file), line, path.Base(name), fmt.Sprintf(format, args...), color(ANSI_RESET))
 }

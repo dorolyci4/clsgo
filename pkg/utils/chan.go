@@ -29,7 +29,7 @@ func ReadChanWithTimeout[T any](ctx context.Context, c <-chan T, timeouts ...tim
 		ms = timeouts[0]
 	}
 	var empty T
-	timeout := time.NewTimer(time.Microsecond * time.Duration(ms))
+	timeout := time.NewTimer(ms)
 	select {
 	case <-ctx.Done():
 		// ... exit

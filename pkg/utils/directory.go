@@ -119,7 +119,7 @@ func CopyDir(srcPath, desPath string) error {
 func MakeDir(dir string, perm fs.FileMode) error {
 	if !FileIsExisted(dir) {
 		if err := os.MkdirAll(dir, perm); err != nil { //os.ModePerm
-			Error("MakeDir failed: %v", err)
+			Error(1, "MakeDir failed: %v", err)
 			return err
 		}
 	}

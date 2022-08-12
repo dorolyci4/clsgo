@@ -23,8 +23,10 @@ type Client struct {
 
 func init() {
 	// Note that g.Redis() return nil in test mode, before SetConfig called.
+
 	gredis.SetConfig(loadRedisConfig("redis.default"), "default")
 	gredis.SetConfig(loadRedisConfig("redis.cache"), "cache")
+
 }
 
 func loadRedisConfig(configpath string) *gredis.Config {
