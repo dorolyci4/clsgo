@@ -4,11 +4,6 @@ go 1.18
 
 require (
 	github.com/gogf/gf v1.16.9
-	github.com/gogf/gf/contrib/drivers/clickhouse/v2 v2.1.2
-	github.com/gogf/gf/contrib/drivers/mssql/v2 v2.1.2
-	github.com/gogf/gf/contrib/drivers/mysql/v2 v2.1.2
-	github.com/gogf/gf/contrib/drivers/oracle/v2 v2.1.2
-	github.com/gogf/gf/contrib/drivers/pgsql/v2 v2.1.2
 	github.com/gogf/gf/v2 v2.1.1
 	github.com/google/uuid v1.3.0
 	github.com/rabbitmq/amqp091-go v1.4.0
@@ -63,7 +58,6 @@ require (
 	github.com/pelletier/go-toml/v2 v2.0.1 // indirect
 	github.com/pierrec/lz4/v4 v4.1.15 // indirect
 	github.com/shopspring/decimal v1.3.1 // indirect
-	github.com/sijms/go-ora/v2 v2.4.20 // indirect
 	github.com/spf13/afero v1.8.2 // indirect
 	github.com/spf13/cast v1.5.0 // indirect
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect

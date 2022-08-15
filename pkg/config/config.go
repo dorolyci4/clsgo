@@ -28,6 +28,10 @@ func init() {
 	}
 }
 
+// viper.WatchConfig()
+// viper.OnConfigChange(func(e fsnotify.Event) {
+// 	  fmt.Println("Config file changed:", e.Name)
+// })
 // viper.ConfigWatch is not reliable
 func monitor(cfg *viper.Viper) {
 	for {

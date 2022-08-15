@@ -3,9 +3,9 @@ package db_test
 import (
 	"testing"
 
-	"github.com/lovelacelee/clsgo/pkg"
 	"github.com/lovelacelee/clsgo/pkg/db"
 	"github.com/lovelacelee/clsgo/pkg/log"
+	// "github.com/lovelacelee/clsgo/pkg/utils"
 )
 
 func Test(t *testing.T) {
@@ -13,9 +13,7 @@ func Test(t *testing.T) {
 }
 
 func Example() {
-
 	ExampleNew()
-	ExampleNewSqlite()
 }
 
 type User struct {
@@ -25,17 +23,14 @@ type User struct {
 
 func ExampleNew() {
 	db := db.New()
-	m := db.Model(User{})
-	log.Infoi(m.Data(clsgo.Map{"name": "john"}).Insert())
-}
-
-func ExampleNewSqlite() {
-	db := db.NewSqlite("file::memory:?cache=shared")
-	db.Instance.AutoMigrate(&User{})
-	user := User{
-		Name: "Lee",
+	if db != nil {
+		defer db.Close()
+		db.Orm.AutoMigrate(&User{})
+		user := User{
+			Name: "Lee",
+		}
+		db.Orm.Create(&user)
+		db.Orm.Find(&user, "id = ?", 10)
+		log.Info(user)
 	}
-	db.Instance.Create(&user)
-	db.Instance.Find(&user, "id = ?", 10)
-	log.Info(user)
 }
