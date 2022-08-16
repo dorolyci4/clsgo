@@ -50,7 +50,8 @@ func loadRedisConfig(configpath string) *gredis.Config {
 	return &c
 }
 
-// Name valid in [default/cache], initialized with config.yaml
+// Name valid in [default/cache], initialized with config.yaml,
+// See order for more https://www.redis.net.cn/order/
 func New(name string) *Client {
 	var (
 		ctx = context.Background()

@@ -1,10 +1,12 @@
 #coding=utf8
 import os
 
-# go test ./... -v
-# go test ./... -v -bench="Bench*"
 # -run=none means only benchmark test executed
 # -benchtime=10s means time to running benchmark
+# -count=1 Do not cache
+
+# go test ./... -v
+# go test ./... -v -bench="Bench*"
 # go test ./... -v -bench="Bench*" -memprofile memprofile.out -cpuprofile profile.out
 
-os.system("go test ./... -v -bench=\"Bench*\"")
+os.system("go test ./... -v -bench=\"Bench*\" -count=1")

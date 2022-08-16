@@ -6,7 +6,7 @@ database:
   default:
     dsn: "lee:lovelace@tcp(192.168.137.100:3306)/test?charset=utf8&parseTime=True&loc=Local"
     type: "mysql"
-    cache: "redis.default"
+    redis: "cache"
   test:
     dsn: "lee:lovelace@tcp(192.168.137.100:3306)/test"
     type: "mysql"

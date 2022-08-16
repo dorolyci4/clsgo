@@ -1,17 +1,22 @@
-package db
+package database
 
 import (
+	"encoding/json"
 	"strings"
 	"time"
 
 	"github.com/lovelacelee/clsgo/pkg/log"
+	"github.com/lovelacelee/clsgo/pkg/redis"
 	"github.com/lovelacelee/clsgo/pkg/utils"
+
+	"github.com/lovelacelee/clsgo/pkg/crypto"
 	"gorm.io/gorm"
 )
 
 type Db struct {
 	Orm    *gorm.DB
 	Config DbConfig
+	RDB    *redis.Client
 }
 
 // See more https://gorm.io/zh_CN/docs/models.html
@@ -39,7 +44,10 @@ func ConnPoolSetting(db *gorm.DB) error {
 }
 
 func (db *Db) open(dsn string) *gorm.DB {
-	_db, err := gorm.Open(GormDriver[strings.ToUpper(db.Config.Type)](dsn), &gorm.Config{})
+	_db, err := gorm.Open(GormDriver[strings.ToUpper(db.Config.Type)](dsn), &gorm.Config{
+		// Creating and caching precompiled statements while executing any SQL improves the speed of subsequent calls
+		PrepareStmt: true,
+	})
 	if err != nil {
 		log.Errori("failed to connect database")
 	}
@@ -56,6 +64,35 @@ func (db *Db) Close() {
 	if sqlDB != nil {
 		sqlDB.Close()
 	}
+	if db.RDB != nil {
+		db.RDB.Close()
+	}
+}
+
+// User compose cache key which must be unique in the lifetime of application
+func (db *Db) CacheFind(cacheKeyPrefix string, dest interface{}, conds ...interface{}) {
+	key := crypto.Md5Any(conds)
+	cacheKeyPrefix += "_" + key
+	if db.RDB != nil {
+		r, err := db.RDB.Do("EXISTS", cacheKeyPrefix)
+		if err != nil || !r.Bool() {
+			goto DBFIND
+		} else {
+			r, err := db.RDB.Do("GET", cacheKeyPrefix)
+			if err != nil {
+				goto DBFIND
+			}
+			json.Unmarshal(r.Bytes(), dest)
+			return
+		}
+	}
+DBFIND:
+	db.Orm.Find(dest, conds...)
+	// Write cache
+	if db.RDB != nil {
+		// expired 2 seconds
+		db.RDB.Do("SETEX", cacheKeyPrefix, 10, dest)
+	}
 }
 
 // New return the instance of open gorm instance,
@@ -70,6 +107,7 @@ func New(group ...string) *Db {
 		g = group[0]
 	}
 	c = GetConfig(g)
+	// log.Infoi(c)
 	db := Db{Config: c}
 	if !utils.CaseFoldIn(c.Type, dbsupported) {
 		log.Errorfi("Unsupported database %s\n", c.Type)
@@ -79,7 +117,9 @@ func New(group ...string) *Db {
 		log.Errorfi("Error database dns: %s\n", c.Dsn)
 		return nil
 	}
-	log.Info(db.Config.Dsn)
+	if !utils.IsEmpty(db.Config.Redis) {
+		db.RDB = redis.New("default")
+	}
 	db.open(db.Config.Dsn)
 	return &db
 }

@@ -1,3 +1,5 @@
+// Package net provides basic network functions,
+// TCP/UDP/WebSocket quick implements.
 package net
 
 import (
