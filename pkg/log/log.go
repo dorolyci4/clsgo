@@ -12,7 +12,6 @@ import (
 	"github.com/gogf/gf/v2/os/glog"
 
 	"github.com/lovelacelee/clsgo/pkg/config"
-	"github.com/lovelacelee/clsgo/pkg/internal"
 )
 
 func init() {
@@ -39,8 +38,8 @@ func loadLogConfig(logger string) map[string]any {
 		"stSkip":               config.Cfg.GetInt(logger + ".StSkip"),
 		"stStatus":             config.Cfg.GetInt(logger + ".StStatus"),
 		"stFilter":             config.Cfg.GetString(logger + ".StFilter"),
-		"header":               internal.LoadWithDefault(config.Cfg, logger+".header", true),
-		"stdout":               internal.LoadWithDefault(config.Cfg, logger+".stdout", true),
+		"header":               config.GetBoolWithDefault(logger+".header", true),
+		"stdout":               config.GetBoolWithDefault(logger+".stdout", true),
 		"rotateSize":           config.Cfg.GetString(logger + ".rotateSize"),
 		"rotateExpire":         config.Cfg.GetString(logger + ".rotateExpire"),
 		"rotateBackupLimit":    config.Cfg.GetString(logger + ".rotateBackupLimit"),

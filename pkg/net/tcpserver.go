@@ -9,14 +9,7 @@ import (
 	"github.com/lovelacelee/clsgo/pkg/log"
 )
 
-type Conn = gtcp.Conn
-type Retry = gtcp.Retry
-
-type TcpProtocol interface {
-	HandleMessage(conn *Conn) ([]byte, error)
-	Instance() TcpProtocol
-}
-
+// Close the TCP connection if any error occurred or the connection lifetime ends.
 func connectionClose(conn *gtcp.Conn) {
 	err := conn.Close()
 	if err != nil {
@@ -24,6 +17,10 @@ func connectionClose(conn *gtcp.Conn) {
 	}
 }
 
+// TcpServer provides RECV-HANDLE-SENDBACK routine of TCP server module,
+// Keepalive message must be handled carefully, because all communication
+// data packets are walk on the single connection instance.
+// TcpServer will be block runing.
 func TcpServer(host string, port int, proto TcpProtocol) {
 	log.Warningfi("TCP server listen %s:%d", host, port)
 	gtcp.NewServer(host+":"+strconv.Itoa(port), func(conn *gtcp.Conn) {

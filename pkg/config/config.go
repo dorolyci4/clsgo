@@ -3,16 +3,19 @@
 package config
 
 import (
+	"log"
+	"os"
+	"path"
+	"time"
+
 	"github.com/gogf/gf/v2/container/gvar"
 	"github.com/gogf/gf/v2/os/gcfg"
 	"github.com/gogf/gf/v2/os/gctx"
 
 	"github.com/lovelacelee/clsgo/pkg/utils"
+
+	"github.com/spf13/cast"
 	"github.com/spf13/viper"
-	"log"
-	"os"
-	"path"
-	"time"
 )
 
 type Config = *viper.Viper
@@ -78,6 +81,87 @@ func ClsConfig(filename string /*Config file name*/, projectname string, monitor
 		go monitor(ViperInstance)
 	}
 	return ViperInstance, err
+}
+
+// GetWithDefault return the match result form config file,
+// Retrun default value(def) if not found
+func GetIntWithDefault(cfg string, def int) int {
+	if !Cfg.InConfig(cfg) {
+		return def
+	}
+	return cast.ToInt(Cfg.Get(cfg))
+}
+
+// GetWithDefault return the match result form config file,
+// Retrun default value(def) if not found
+func GetStringWithDefault(cfg string, def string) string {
+	if !Cfg.InConfig(cfg) {
+		return def
+	}
+	return cast.ToString(Cfg.Get(cfg))
+}
+
+// GetWithDefault return the match result form config file,
+// Retrun default value(def) if not found
+func GetDurationWithDefault(cfg string, def time.Duration) time.Duration {
+	if !Cfg.InConfig(cfg) {
+		return def
+	}
+	return cast.ToDuration(Cfg.Get(cfg))
+}
+
+// GetWithDefault return the match result form config file,
+// Retrun default value(def) if not found
+func GetBoolWithDefault(cfg string, def bool) bool {
+	if !Cfg.InConfig(cfg) {
+		return def
+	}
+	return cast.ToBool(Cfg.Get(cfg))
+}
+
+// GetWithDefault return the match result form config file,
+// Retrun default value(def) if not found
+func GetFloat32WithDefault(cfg string, def float32) float32 {
+	if !Cfg.InConfig(cfg) {
+		return def
+	}
+	return cast.ToFloat32(Cfg.Get(cfg))
+}
+
+// GetWithDefault return the match result form config file,
+// Retrun default value(def) if not found
+func GetFloat64WithDefault(cfg string, def float64) float64 {
+	if !Cfg.InConfig(cfg) {
+		return def
+	}
+	return cast.ToFloat64(Cfg.Get(cfg))
+}
+
+// GetWithDefault return the match result form config file,
+// Retrun default value(def) if not found
+func GetIntSliceWithDefault(cfg string, def []int) []int {
+	if !Cfg.InConfig(cfg) {
+		return def
+	}
+	return cast.ToIntSlice(Cfg.Get(cfg))
+}
+
+// GetWithDefault return the match result form config file,
+// Retrun default value(def) if not found
+func GetStringSliceWithDefault(cfg string, def []string) []string {
+	if !Cfg.InConfig(cfg) {
+		return def
+	}
+	return cast.ToStringSlice(Cfg.Get(cfg))
+}
+
+// GetWithDefault return the match result form config file,
+// Retrun default value(def) if not found
+func GetInt64WithDefault(cfg string, def int64) int64 {
+	if !Cfg.InConfig(cfg) {
+		return def
+	}
+	return cast.ToInt64(Cfg.Get(cfg))
 }
 
 // Functions implemented using goframe

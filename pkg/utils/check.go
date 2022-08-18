@@ -40,6 +40,20 @@ func checker(err error, fn ...any) {
 	}
 }
 
+// Only output in terminal in [Error] message, Eg:
+// utils.IfError(errTest, log.Errorf, "%s %s", "error", "error message")
+func IfError(err error, fn ...any) error {
+	if err == nil {
+		return nil
+	}
+	if len(fn) >= 1 {
+		checker(err, fn...)
+	} else {
+		Error(2, "%s", err)
+	}
+	return err
+}
+
 // Only output in terminal in [WARN] message, Eg:
 // utils.WarnIfError(errTest, log.Warningf, "%s %s", "warning", "message")
 func WarnIfError(err error, fn ...any) error {

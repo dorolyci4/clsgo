@@ -12,7 +12,7 @@ CLS packages
 * ✅HTTP static file server
 * ✅HTTP RESTFUL API server
 * ✅TCP protocol plugin
-* ✅Simple TCP server
+* ✅TCP client/server
 * ✅File logger
 * ✅Terminal logger
 * ✅Json config loader

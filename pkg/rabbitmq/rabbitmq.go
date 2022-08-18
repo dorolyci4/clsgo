@@ -12,8 +12,7 @@ import (
 	"strconv"
 	"time"
 
-	clsgo "github.com/lovelacelee/clsgo/pkg"
-	"github.com/lovelacelee/clsgo/pkg/internal"
+	"github.com/lovelacelee/clsgo/pkg/config"
 	"github.com/lovelacelee/clsgo/pkg/log"
 	"github.com/lovelacelee/clsgo/pkg/utils"
 	amqp "github.com/rabbitmq/amqp091-go"
@@ -93,9 +92,9 @@ var (
 )
 
 func init() {
-	reconnect := internal.LoadWithDefault(clsgo.Cfg, "rabbitmq.reconnect", 3).(int)
-	reinit := internal.LoadWithDefault(clsgo.Cfg, "rabbitmq.reinit", 1).(int)
-	resend := internal.LoadWithDefault(clsgo.Cfg, "rabbitmq.resend", 1).(int)
+	reconnect := config.GetIntWithDefault("rabbitmq.reconnect", 3)
+	reinit := config.GetIntWithDefault("rabbitmq.reinit", 1)
+	resend := config.GetIntWithDefault("rabbitmq.resend", 1)
 
 	if reconnect > 0 {
 		reconnectDelay = time.Duration(reconnect) * time.Second

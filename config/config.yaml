@@ -17,6 +17,8 @@ database:
 server:
   openapiPath: "/api.json"
   swaggerPath: "/api"
+  tcpTimeout: 5
+  tcpKeepAlive: 5
 
 rabbitmq:
   server: amqp://test:test@192.168.137.100:5672/
@@ -46,7 +48,7 @@ logger:
   # Error stack
   stStatus: 0
   # Log output Level [dev/prod/none/debu/info/noti/warn/erro/crit/pani/fata]
-  level: "all"
+  level: "dev"
   # Scrolling split files by log file size. The default value is 0,
   # which indicates that the rolling shard feature is disabled
   rotateSize: "5MB"

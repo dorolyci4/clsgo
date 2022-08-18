@@ -58,11 +58,23 @@ func tcpServer() {
 func forever() {
 	redis := redis.New("default")
 	defer redis.Close()
+	tcpClient, err := net.TcpClient("0.0.0.0:8081", &HMProtocol{})
+	if err != nil {
+		defer tcpClient.Close()
+	}
+	var logon bool = false
+	var e error
 	for {
-		log.Infoi("Server running")
-		time.Sleep(time.Second)
+		time.Sleep(time.Second * 3)
 		redis.Do("HSET", "hash", "init", "1")
 		redis.Do("HSET", "hash", "key", "v")
+		if !logon {
+			e = tcpClient.Proto.Login(tcpClient.Conn)
+			logon = (e == nil)
+			tcpClient.ReconnectIfError(e)
+		}
+		e = tcpClient.Proto.KeepAlive(tcpClient.Conn)
+		tcpClient.ReconnectIfError(e)
 	}
 }
 func App() {
