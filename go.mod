@@ -3,10 +3,12 @@ module github.com/lovelacelee/clsgo
 go 1.18
 
 require (
+	github.com/eclipse/paho.mqtt.golang v1.4.1
 	github.com/gogf/gf v1.16.9
 	github.com/gogf/gf/v2 v2.1.1
 	github.com/google/uuid v1.3.0
 	github.com/rabbitmq/amqp091-go v1.4.0
+	github.com/spf13/cast v1.5.0
 	github.com/spf13/viper v1.12.0
 	gorm.io/driver/clickhouse v0.4.2
 	gorm.io/driver/mysql v1.3.5
@@ -59,7 +61,6 @@ require (
 	github.com/pierrec/lz4/v4 v4.1.15 // indirect
 	github.com/shopspring/decimal v1.3.1 // indirect
 	github.com/spf13/afero v1.8.2 // indirect
-	github.com/spf13/cast v1.5.0 // indirect
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/subosito/gotenv v1.3.0 // indirect
@@ -68,6 +69,7 @@ require (
 	go.opentelemetry.io/otel/trace v1.7.0 // indirect
 	golang.org/x/crypto v0.0.0-20220411220226-7b82a4e95df4 // indirect
 	golang.org/x/net v0.0.0-20220722155237-a158d28d115b // indirect
+	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c // indirect
 	golang.org/x/sys v0.0.0-20220722155257-8c9f86f7a55f // indirect
 	golang.org/x/text v0.3.8-0.20211105212822-18b340fc7af2 // indirect
 	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect

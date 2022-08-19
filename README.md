@@ -9,6 +9,8 @@ CLS packages
 
 ## Todo list
 
+* MQTT client/server support
+* Protobuf support
 * ✅HTTP static file server
 * ✅HTTP RESTFUL API server
 * ✅TCP protocol plugin
