@@ -14,6 +14,8 @@ func TailToHead(a []any) []any {
 	return a
 }
 
+// CaseFoldIn check if str_array contains target case insensitively,
+// return true if contains, otherwise false.
 func CaseFoldIn(target string, str_array []string) bool {
 	for _, element := range str_array {
 		if strings.EqualFold(target, element) {
@@ -23,7 +25,9 @@ func CaseFoldIn(target string, str_array []string) bool {
 	return false
 }
 
-func In(target string, str_array []string) bool {
+// CaseIn check if str_array contains target case sensitively,
+// return true if contains, otherwise false.
+func CaseIn(target string, str_array []string) bool {
 	sort.Strings(str_array)
 	index := sort.SearchStrings(str_array, target)
 

@@ -26,3 +26,17 @@ func TestClsgo(t *testing.T) {
 	log.Info(md5.Upper())
 	log.Info(md5.Upper16())
 }
+
+func Test(t *testing.T) {
+	ExampleVersionInit()
+}
+
+func ExampleVersionInit() {
+	// utils.VersionInit("0.1.0", "clsgo")
+	// utils.VersionIncrement("patch")
+	// utils.VersionIncrement("minor")
+	// utils.VersionIncrement("major")
+
+	v, _ := utils.VersionLoad()
+	log.Info(v.String())
+}

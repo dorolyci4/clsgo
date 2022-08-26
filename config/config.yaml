@@ -19,7 +19,13 @@ server:
   swaggerPath: "/api"
   tcpTimeout: 5
   tcpKeepAlive: 5
-
+mqtt:
+  server: "tcp://192.168.137.100:1883"
+  user: "lee"
+  password: "lovelace"
+  timeout: 10
+  retryInterval: 5
+  keepAlive: 5
 rabbitmq:
   server: amqp://test:test@192.168.137.100:5672/
   reconnect: 3 # Seconds When reconnecting to the server after connection failure

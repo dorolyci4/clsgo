@@ -372,10 +372,6 @@ func (client *Client) Consume(autoAck bool) (<-chan amqp.Delivery, error) {
 	)
 }
 
-func (client *Client) DeliveryReadWithTimeout(chan amqp.Delivery) {
-
-}
-
 func (client *Client) CancelConsume() error {
 	if client.Status != MQCONN_READY {
 		return errNotConnected
