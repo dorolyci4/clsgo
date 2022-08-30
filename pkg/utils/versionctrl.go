@@ -8,9 +8,12 @@ import (
 	"html/template"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 )
+
+const version_filename = "Version.go"
 
 const (
 	tmpl = `package {{ .PackageName }}
@@ -29,6 +32,7 @@ const (
 
 // Version encapsulates a semantic version as well as a package name.
 type Version struct {
+	filepath    string
 	PackageName string
 	Major       uint64
 	Minor       uint64
@@ -77,8 +81,8 @@ func (v *Version) update() error {
 	if err != nil {
 		return err
 	}
-
-	f, err := os.Create("Version.go")
+	file := filepath.Join(filepath.Base(v.filepath), version_filename)
+	f, err := os.Create(file)
 	if err != nil {
 		return err
 	}
@@ -97,8 +101,8 @@ func (v *Version) String() string {
 
 // Init initializes a `Version.go` file with the specified version string
 // and package name.
-func VersionInit(vs, pn string) error {
-	v := &Version{}
+func VersionInit(vs, pn string, path ...string) error {
+	v := &Version{filepath: Param(path, "")}
 	if err := v.unmarshalSemVer(vs); err != nil {
 		return err
 	}
@@ -109,8 +113,10 @@ func VersionInit(vs, pn string) error {
 
 // Load reads `Version.go` in the current directory and loads it into a
 // `*Version` instance.
-func VersionLoad() (*Version, error) {
-	bs, err := ioutil.ReadFile("Version.go")
+func VersionLoad(path ...string) (*Version, error) {
+	p := Param(path, "")
+	file := filepath.Join(filepath.Base(p), version_filename)
+	bs, err := ioutil.ReadFile(file)
 	if err != nil {
 		return nil, err
 	}
@@ -141,8 +147,8 @@ func VersionLoad() (*Version, error) {
 
 // Increment loads the version from the current directory and updates the
 // appropriate component of the semantic version (major, minor or patch).
-func VersionIncrement(op string) error {
-	v, err := VersionLoad()
+func VersionIncrement(op string, path ...string) error {
+	v, err := VersionLoad(path...)
 	if err != nil {
 		return err
 	}
@@ -150,13 +156,10 @@ func VersionIncrement(op string) error {
 	switch op {
 	case "major":
 		v.incrMajor()
-		fmt.Printf("Major incremented.\n")
 	case "minor":
 		v.incrMinor()
-		fmt.Printf("Minor incremented.\n")
 	case "patch":
 		v.incrPatch()
-		fmt.Printf("Patch incremented.\n")
 	default:
 		return fmt.Errorf("cannot increment %s", op)
 	}

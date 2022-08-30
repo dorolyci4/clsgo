@@ -36,3 +36,10 @@ func CaseIn(target string, str_array []string) bool {
 	}
 	return false
 }
+
+func Param[T any](p []T, def T) T {
+	if !IsEmpty(p) {
+		return p[0]
+	}
+	return def
+}

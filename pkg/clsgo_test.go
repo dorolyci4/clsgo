@@ -2,6 +2,7 @@
 package clsgo_test
 
 import (
+	"os"
 	"reflect"
 	"testing"
 
@@ -32,11 +33,12 @@ func Test(t *testing.T) {
 }
 
 func ExampleVersionInit() {
-	// utils.VersionInit("0.1.0", "clsgo")
-	// utils.VersionIncrement("patch")
-	// utils.VersionIncrement("minor")
-	// utils.VersionIncrement("major")
+	utils.VersionInit("0.1.0", "clsgo", "../")
+	utils.VersionIncrement("patch", "../")
+	utils.VersionIncrement("minor", "../")
+	utils.VersionIncrement("major", "../")
 
-	v, _ := utils.VersionLoad()
+	v, _ := utils.VersionLoad("../")
 	log.Info(v.String())
+	os.Remove("../Version.go")
 }
