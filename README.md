@@ -6,25 +6,21 @@
     <a href="https://github.com/lovelacelee/clsgo/actions/workflows/static_analysis.yml"><img src="https://github.com/lovelacelee/clsgo/actions/workflows/static_analysis.yml/badge.svg" alt="Static Analysis"/></a>
 </p>
 
-CLS packages
-
-## Requirments
-
-* [Viper](https://github.com/spf13/viper) [Doc](https://pkg.go.dev/github.com/spf13/viper)
-* [GFrame](https://github.com/gogf/gf) [Doc](https://pkg.go.dev/github.com/gogf/gf/v2)
+clsgo packages is a collection of excellent open source components for Golang learning and development, a step-by-step sample library for the learning phase, and a project template for rapid development for engineering development. Most implement ideas comes from [Viper](https://github.com/spf13/viper), [GFrame](https://github.com/gogf/gf) etc.
 
 ## Todo list
 
-* MQTT client/server support
-* Protobuf support
+* 🟩Protobuf support
+* ✅MQ support, MQTT client/server, rabbitmq publish and consume routine
 * ✅HTTP static file server
 * ✅HTTP RESTFUL API server
 * ✅TCP protocol plugin
 * ✅TCP client/server
-* ✅File logger
+* ✅File rotate logger
 * ✅Terminal logger
-* ✅Json config loader
-* ✅Viper config support
+* ✅Storage, Cache support, such as gorm, gredis
+* ✅Utils library package
+* ✅Viper config support, config manager
 
 ## Quick start
 

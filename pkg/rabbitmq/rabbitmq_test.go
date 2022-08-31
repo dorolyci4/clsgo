@@ -14,16 +14,16 @@ import (
 
 var workGroup sync.WaitGroup
 
-const messageCount = 10000
-const retryTimes = 100
+const messageCount = 10
+const retryTimes = 3
 
 func Test(t *testing.T) {
 	// workGroup.Add(1)
 	// go ExampleClient_Publish()
 	// workGroup.Wait()
-	workGroup.Add(1)
-	go ExampleClient_Consume_cancel()
-	workGroup.Wait()
+	// workGroup.Add(1)
+	// go ExampleClient_Consume_cancel()
+	// workGroup.Wait()
 }
 
 func ExampleClient_Publish() {

@@ -3,11 +3,13 @@ package redis
 
 import (
 	"context"
+	"errors"
+	"sync"
+
 	"github.com/gogf/gf/v2/database/gredis"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/lovelacelee/clsgo/pkg"
 	"github.com/lovelacelee/clsgo/pkg/log"
-	"sync"
 )
 
 // Redis Client wrappers
@@ -62,7 +64,6 @@ func New(name string) *Client {
 		subscriberNotify: make(chan *g.Var),
 		wg:               sync.WaitGroup{},
 	}
-
 	conn, err := client.instance.Conn(ctx)
 	if err != nil {
 		log.Errori(err)
@@ -98,11 +99,17 @@ func (client *Client) Close() {
 }
 
 func (client *Client) Do(command string, args ...any) (*g.Var, error) {
+	if client.conn == nil {
+		return nil, errors.New("redis not connected")
+	}
 	ctx := context.Background()
 	return client.conn.Do(ctx, command, args...)
 }
 
 func (client *Client) Receive() (*g.Var, error) {
+	if client.conn == nil {
+		return nil, errors.New("redis not connected")
+	}
 	ctx := context.Background()
 	return client.conn.Receive(ctx)
 }

@@ -25,19 +25,20 @@ func ExampleNew() {
 	db := database.New()
 	if db != nil {
 		defer db.Close()
-
-		// db.Orm.Use(database.TracePlugin)
-		db.Orm.AutoMigrate(&User{})
-		user := User{
-			Name: "Lee",
+		if db.Valid() {
+			// db.Orm.Use(database.TracePlugin)
+			db.Orm.AutoMigrate(&User{})
+			user := User{
+				Name: "Lee",
+			}
+			db.Orm.Create(&user)
+			quser := User{}
+			var count int64 = 0
+			// db.Orm.Find(&quser, "id = ?", 2)
+			db.CacheFind("", &quser, "id = ?", 2)
+			db.Orm.Model(&User{}).Count(&count)
+			log.Info(quser)
+			log.Info(count)
 		}
-		db.Orm.Create(&user)
-		quser := User{}
-		var count int64 = 0
-		// db.Orm.Find(&quser, "id = ?", 2)
-		db.CacheFind("", &quser, "id = ?", 2)
-		db.Orm.Model(&User{}).Count(&count)
-		log.Info(quser)
-		log.Info(count)
 	}
 }

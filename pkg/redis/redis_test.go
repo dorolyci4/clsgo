@@ -15,10 +15,10 @@ const messageCount = 1000
 func Test(t *testing.T) {
 	ExampleNew()
 	ExampleClient_Do()
-	workGroup.Add(2)
-	go ExampleClient_Subscribe()
-	go ExampleClient_publish()
-	workGroup.Wait()
+	// workGroup.Add(2)
+	// go ExampleClient_Subscribe()
+	// go ExampleClient_publish()
+	// workGroup.Wait()
 }
 
 func ExampleNew() {

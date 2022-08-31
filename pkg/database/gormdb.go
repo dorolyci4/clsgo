@@ -49,20 +49,24 @@ func (db *Db) open(dsn string) *gorm.DB {
 		PrepareStmt: true,
 	})
 	if err != nil {
-		log.Errori("failed to connect database")
+		log.Errorfi("failed to connect database: %v", err)
+		return nil
 	}
 	ConnPoolSetting(_db)
 	db.Orm = _db
 	return _db
 }
 
+func (db *Db) Valid() bool {
+	return db.Orm != nil
+}
+
 func (db *Db) Close() {
-	sqlDB, err := db.Orm.DB()
-	if err != nil {
-		log.Errori(err)
-	}
-	if sqlDB != nil {
-		sqlDB.Close()
+	if db.Valid() {
+		sqlDB, _ := db.Orm.DB()
+		if sqlDB != nil {
+			sqlDB.Close()
+		}
 	}
 	if db.RDB != nil {
 		db.RDB.Close()
@@ -71,6 +75,9 @@ func (db *Db) Close() {
 
 // User compose cache key which must be unique in the lifetime of application
 func (db *Db) CacheFind(cacheKeyPrefix string, dest interface{}, conds ...interface{}) {
+	if !db.Valid() {
+		return
+	}
 	key := crypto.Md5Any(conds)
 	cacheKeyPrefix += "_" + key
 	if db.RDB != nil {
