@@ -20,7 +20,7 @@ func connectionClose(conn *gtcp.Conn) {
 // TcpServer provides RECV-HANDLE-SENDBACK routine of TCP server module,
 // Keepalive message must be handled carefully, because all communication
 // data packets are walk on the single connection instance.
-// TcpServer will be block runing.
+// TcpServer will be block running.
 func TcpServer(host string, port int, proto TcpProtocol) {
 	log.Warningfi("TCP server listen %s:%d", host, port)
 	gtcp.NewServer(host+":"+strconv.Itoa(port), func(conn *gtcp.Conn) {

@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-// Exmaple
+// Example
 func Example() {
 	log.Debugi("Internal important info.")
 	log.Errori("Internal error info.")

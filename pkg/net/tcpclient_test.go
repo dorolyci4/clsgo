@@ -7,7 +7,7 @@ import (
 	"testing"
 )
 
-// Exmaple
+// Example
 func Example() {
 	c1, err := net.DomainTcpClient("lovelacelee.com:8080")
 	utils.IfError(err)

@@ -33,9 +33,14 @@ jobs:
       -
         name: clsgo_test
         run: |
+          mkdir -p /etc/clsgo
+          cp -rvf config/* /etc/clsgo
+          pwd -P
+          ls -alh 
+          ls /etc/clsgo -alh
           go test -v ./... -covermode=count -coverprofile=coverage.out
           go tool cover -func=coverage.out -o=coverage.out
-          
+
       - name: Go Coverage Badge  # Pass the `coverage.out` output to this action
         uses: tj-actions/coverage-badge-go@v2
         with:
