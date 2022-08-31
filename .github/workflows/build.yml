@@ -34,7 +34,7 @@ jobs:
         name: clsmt
         run: |
           go mod tidy
-          go test -v ./...
+          go test ./... -v -bench=\"Bench*\" -count=1
 
       -
         name: Run GoReleaser
