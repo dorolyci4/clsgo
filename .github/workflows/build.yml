@@ -34,8 +34,9 @@ jobs:
         name: clsgo_test
         run: |
           pwd -P
-          ls -alh 
-          ls /etc/clsgo -alh
+          ls -alh
+          cp -vf config/* . 
+          ls config/* -alh
           go test -v ./... -covermode=count -coverprofile=coverage.out
           go tool cover -func=coverage.out -o=coverage.out
 
