@@ -31,8 +31,9 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-go-
       -
-        name: clsmt
+        name: clsgo_test
         run: |
+          ls -alh
           go mod tidy
           go test ./... -v -bench=\"Bench*\" -count=1
 
