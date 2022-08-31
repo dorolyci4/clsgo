@@ -33,7 +33,8 @@ jobs:
       -
         name: clsgo_test
         run: |
-          cp -vf config/* pkg/
+          mkdir -p /tmp/config
+          cp -vf config/* /tmp/config/
           go test -v ./... -covermode=count -coverprofile=coverage.out
           go tool cover -func=coverage.out -o=coverage.out
 
