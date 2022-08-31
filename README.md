@@ -6,7 +6,6 @@
     <a href="https://github.com/lovelacelee/clsgo/actions/workflows/static_analysis.yml"><img src="https://github.com/lovelacelee/clsgo/actions/workflows/static_analysis.yml/badge.svg" alt="Static Analysis"/></a>
 </p>
 
-[![Star History Chart](https://api.star-history.com/svg?repos=lovelacelee/clsgo&type=Date)](https://star-history.com/#lovelacelee/clsgo&Date)
 CLS packages
 
 ## Requirments
@@ -38,6 +37,14 @@ python example
 ### Running tests
 
 ```shell
-python test
+
+go install github.com/fzipp/gocyclo/cmd/gocyclo@latest
+go install honnef.co/go/tools/cmd/staticcheck@latest
+
+go test ./... -v -bench=\"Bench*\" -count=1
+staticcheck ./...
+gocyclo -over 50 .
 ```
+
+[![Star History Chart](https://api.star-history.com/svg?repos=lovelacelee/clsgo&type=Date)](https://star-history.com/#lovelacelee/clsgo&Date)
 

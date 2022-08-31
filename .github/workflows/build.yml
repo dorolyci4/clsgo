@@ -33,10 +33,7 @@ jobs:
       -
         name: clsgo_test
         run: |
-          pwd -P
-          ls -alh
-          cp -vf config/* . 
-          ls config/* -alh
+          cp -vf config/* pkg/
           go test -v ./... -covermode=count -coverprofile=coverage.out
           go tool cover -func=coverage.out -o=coverage.out
 
