@@ -5,8 +5,10 @@ permissions:
 
 jobs:
   static_analysis:
-    runs-on: ubuntu-latest
+    runs-on: ${{matrix.os}}
     strategy:
+      matrix: 
+        os: [ubuntu-latest]
       fail-fast: false
 
     steps:
@@ -29,8 +31,8 @@ jobs:
     - name: Vet
       run: go vet -tags ci ./...
 
-    - name: Goimports
-      run: test -z $(goimports -e -d . | tee /dev/stderr)
+    # - name: Goimports
+    #   run: test -z $(goimports -e -d . | tee /dev/stderr)
 
     - name: Gocyclo
       run: gocyclo -over 30 .
