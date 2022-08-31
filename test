@@ -10,3 +10,5 @@ import os
 # go test ./... -v -bench="Bench*" -memprofile memprofile.out -cpuprofile profile.out
 
 os.system("go test ./... -v -bench=\"Bench*\" -count=1")
+os.system("staticcheck ./...")
+os.system("gocyclo -over 50 .")
