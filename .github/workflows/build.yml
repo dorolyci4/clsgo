@@ -33,8 +33,6 @@ jobs:
       -
         name: clsgo_test
         run: |
-          mkdir -p /etc/clsgo
-          cp -rvf config/* /etc/clsgo
           pwd -P
           ls -alh 
           ls /etc/clsgo -alh
