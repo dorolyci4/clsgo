@@ -1,5 +1,9 @@
 # clsgo
 
+[![Star History Chart](https://api.star-history.com/svg?repos=lovelacelee/clsgo&type=Date)](https://star-history.com/#lovelacelee/clsgo&Date)
+<a href="https://goreportcard.com/report/github.com/lovelacelee/clsgo"><img src="https://goreportcard.com/badge/github.com/lovelacelee/clsgo" alt="Code Status" /></a>
+[![Static Analysis](https://github.com/lovelacelee/clsgo/actions/workflows/static_analysis.yml/badge.svg)](https://github.com/lovelacelee/clsgo/actions/workflows/static_analysis.yml)
+
 CLS packages
 
 ## Requirments
