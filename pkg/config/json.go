@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"github.com/gogf/gf/v2/encoding/gjson"
-	"io/ioutil"
+	"io"
 	"log"
 	"os"
 )
@@ -25,7 +25,7 @@ func (obj *JsonFile) Load(path string) error {
 		log.Fatalf("Open %s error %v\n", obj.path, err)
 	}
 	defer f.Close()
-	content, err := ioutil.ReadAll(f)
+	content, err := io.ReadAll(f)
 	if err != nil {
 		log.Fatalf("Read %s error %v\n", obj.path, err)
 	}

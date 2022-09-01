@@ -2,7 +2,6 @@ package utils
 
 import (
 	"io/fs"
-	"io/ioutil"
 	"os"
 	"os/exec"
 	"path"
@@ -10,11 +9,11 @@ import (
 	"strings"
 )
 
-//Return all files and dirs in [dirPath], optional matching suffix
+// Return all files and dirs in [dirPath], optional matching suffix
 func ListDir(dirPth string, suffix string) (dirs []string, files []string, err error) {
 	files = make([]string, 0, 10)
 	dirs = make([]string, 0, 10)
-	dir, err := ioutil.ReadDir(dirPth)
+	dir, err := os.ReadDir(dirPth)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -32,7 +31,7 @@ func ListDir(dirPth string, suffix string) (dirs []string, files []string, err e
 	return dirs, files, nil
 }
 
-//Get all files in the specified directory and all subdirectories, matching suffix filtering.
+// Get all files in the specified directory and all subdirectories, matching suffix filtering.
 func WalkDir(dirPth, suffix string) (dirs []string, files []string, err error) {
 	files = make([]string, 0, 30)
 	dirs = make([]string, 0, 30)
@@ -55,7 +54,7 @@ func WalkDir(dirPth, suffix string) (dirs []string, files []string, err error) {
 func ListDirFiles(dir, suffix string) (files []string, err error) {
 	files = []string{}
 
-	_dir, err := ioutil.ReadDir(dir)
+	_dir, err := os.ReadDir(dir)
 	if err != nil {
 		return nil, err
 	}
@@ -135,7 +134,7 @@ func RunInDir(dir string, cmd *exec.Cmd) (err error) {
 }
 
 func DeleteThingsInDir(targetDir string) error {
-	dir, err := ioutil.ReadDir(targetDir)
+	dir, err := os.ReadDir(targetDir)
 	if err != nil {
 		return err
 	}

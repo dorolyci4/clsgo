@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"github.com/lovelacelee/clsgo/pkg/log"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"time"
 )
@@ -21,7 +21,7 @@ func Get(url string, timeout ...int) (string, error) {
 		return "{}", err
 	}
 	defer resp.Body.Close()
-	s, _ := ioutil.ReadAll(resp.Body)
+	s, _ := io.ReadAll(resp.Body)
 	return string(s), nil
 }
 
@@ -39,6 +39,6 @@ func Post(url string, data interface{}, contentType string, timeout ...int) (str
 	}
 	defer resp.Body.Close()
 
-	result, _ := ioutil.ReadAll(resp.Body)
+	result, _ := io.ReadAll(resp.Body)
 	return string(result), nil
 }

@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"html/template"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -117,7 +116,7 @@ func VersionInit(vs, pn string, path ...string) error {
 func VersionLoad(path ...string) (*Version, error) {
 	p := Param(path, "")
 	file := filepath.Join(filepath.Base(p), version_filename)
-	bs, err := ioutil.ReadFile(file)
+	bs, err := os.ReadFile(file)
 	if err != nil {
 		return nil, err
 	}

@@ -1,7 +1,6 @@
 package utils
 
 import (
-	"io/ioutil"
 	"os"
 )
 
@@ -14,12 +13,12 @@ func CopyFile(src, des string) (written int64, err error) {
 	perm := fi.Mode()
 	srcFile.Close()
 
-	input, err := ioutil.ReadFile(src)
+	input, err := os.ReadFile(src)
 	if err != nil {
 		return 0, err
 	}
 
-	err = ioutil.WriteFile(des, input, perm)
+	err = os.WriteFile(des, input, perm)
 	if err != nil {
 		return 0, err
 	}
