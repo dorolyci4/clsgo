@@ -1,6 +1,7 @@
 package config_test
 
 import (
+	"os"
 	"reflect"
 	"testing"
 
@@ -31,6 +32,7 @@ func TestJson(t *testing.T) {
 	m.Author = "Lovelace"
 	json.Save(m, "test.json")
 	log.Info(json.String())
+	os.Remove("test.json")
 }
 
 func BenchmarkJson(b *testing.B) {
