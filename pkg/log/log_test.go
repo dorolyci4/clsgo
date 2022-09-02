@@ -1,8 +1,10 @@
 package log_test
 
 import (
-	"github.com/lovelacelee/clsgo/pkg/log"
+	"fmt"
 	"testing"
+
+	"github.com/lovelacelee/clsgo/pkg/log"
 )
 
 // Example
@@ -15,6 +17,9 @@ func Example() {
 	log.Printf("%s\n", "Print message")
 	log.Info(1, 2, 3)
 	log.Warning(1, 2, 3, 4)
+	log.Red("red")
+	log.Blue("blue")
+	fmt.Println(log.BlueString("test"))
 }
 
 func Test(t *testing.T) {

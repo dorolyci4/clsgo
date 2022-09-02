@@ -2,6 +2,7 @@ package config_test
 
 import (
 	"fmt"
+	"os"
 	"testing"
 	"time"
 
@@ -15,12 +16,11 @@ func Test(t *testing.T) {
 }
 
 func ExampleClsConfig() {
-	cfg, err := config.ClsConfig("config", "clsgo", true)
-	if err != nil {
-		log.Error("Config load failed!")
-	}
+	cfg := config.ClsConfig("config", "clsgo", true)
+
 	fmt.Print(cfg.Get("project.name"))
 
+	os.Remove("config.yaml")
 	// Output:
 	// clsgo
 }

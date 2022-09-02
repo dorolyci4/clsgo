@@ -5,7 +5,7 @@ package config
 import (
 	"log"
 	"os"
-	"path"
+	// "path"
 	"time"
 
 	"github.com/gogf/gf/v2/container/gvar"
@@ -23,18 +23,11 @@ type Config = *viper.Viper
 var Cfg Config
 
 func init() {
-	var err error
+	var generateDeafult = false
 	// Load global config file
-	Cfg, err = ClsConfig("config", "clsgo", true)
-	if err != nil {
-		log.Println("Config load failed!")
-	}
+	Cfg = ClsConfig("config", "clsgo", generateDeafult)
 }
 
-// viper.WatchConfig()
-// viper.OnConfigChange(func(e fsnotify.Event) {
-// 	  fmt.Println("Config file changed:", e.Name)
-// })
 // viper.ConfigWatch is not reliable
 func monitor(cfg *viper.Viper) {
 	for {
@@ -51,36 +44,48 @@ func clsDefConfigSearchPath(v *viper.Viper, paths []string, path string) []strin
 	return append(paths, path)
 }
 
-// Param: monitoring will use go routine to watch file changes, and reload it.
-// the goroutine never ends.
-func ClsConfig(filename string /*Config file name*/, projectname string, monitoring bool) (cfg *viper.Viper, err error) {
+// Param: <monitoring> will start a routine to watch file changes, and reload it. and the goroutine never ends.
+// If <monitoring> is true and <filename> config file not exist, it will be create by default.
+// <filename> does not include extension.
+func ClsConfig(filename string /*Config file name without extension*/, projectname string, monitoring bool) (cfg *viper.Viper) {
 	ViperInstance := viper.New()
-	// viper could guess the extension of filename
-	extension := path.Ext(filename)
-	if extension != "" {
-		ViperInstance.SetConfigType(extension[1:]) // REQUIRED if the config file does not have the extension in the name
-	}
-	var paths = make([]string, 0)
-	ViperInstance.SetConfigName(filename)                                       // name of config file (without extension)
-	paths = clsDefConfigSearchPath(ViperInstance, paths, "/etc/"+projectname)   // path to look for the config file in
-	paths = clsDefConfigSearchPath(ViperInstance, paths, "$HOME/."+projectname) // call multiple times to add many search paths
-	paths = clsDefConfigSearchPath(ViperInstance, paths, ".")                   // optionally look for config in the working directory
-	paths = clsDefConfigSearchPath(ViperInstance, paths, "./config")            // optionally look for config in the working directory
-	paths = clsDefConfigSearchPath(ViperInstance, paths, utils.GetCurrentAbPath()+"/../../config")
 
-	err = ViperInstance.ReadInConfig() // Find and read the config file
-	if err != nil {                    // Handle errors reading the config file
-		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
-			log.Printf("Make sure config file(%v) exist in %v", filename, paths)
-		}
-		log.Fatalf("%v", err)
-		os.Exit(1)
-	}
 	// open a goroutine to watch remote changes forever
 	if monitoring {
 		go monitor(ViperInstance)
 	}
-	return ViperInstance, err
+	// viper could guess the extension of filename
+	// extension := path.Ext(filename)
+	// if extension != "" {
+	// 	ViperInstance.SetConfigType(extension[1:]) // REQUIRED if the config file does not have the extension in the name
+	// }
+	var paths = make([]string, 0)
+	ViperInstance.SetConfigName(filename)                                       // name of config file (without extension)
+	paths = clsDefConfigSearchPath(ViperInstance, paths, ".")                   // path to look for the config file in
+	paths = clsDefConfigSearchPath(ViperInstance, paths, "./config")            // call multiple times to add many search paths
+	paths = clsDefConfigSearchPath(ViperInstance, paths, "/etc/"+projectname)   // optionally look for config in the working directory
+	paths = clsDefConfigSearchPath(ViperInstance, paths, "$HOME/."+projectname) // optionally look for config in the working directory
+	// Test cases
+	paths = clsDefConfigSearchPath(ViperInstance, paths, utils.GetCurrentAbPath()+"/../../config")
+
+	err := ViperInstance.ReadInConfig() // Find and read the config file
+	if err != nil {                     // Handle errors reading the config file
+		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
+			if monitoring {
+				log.Printf("Config file not found in %v, default generated and used.\n", paths)
+				ViperInstance.SetConfigType("yaml")
+			}
+			// Use default
+			if errDef := ClsConfigDefault(ViperInstance, monitoring); errDef != nil {
+				log.Println(errDef)
+			}
+			return ViperInstance
+		} else {
+			log.Fatalf("%v", err)
+			os.Exit(1)
+		}
+	}
+	return ViperInstance
 }
 
 // GetWithDefault return the match result form config file,
