@@ -4,9 +4,15 @@
     <a href="https://pkg.go.dev/github.com/lovelacelee/clsgo" title="Go API Reference" rel="nofollow"><img src="https://img.shields.io/badge/go-documentation-blue.svg?style=flat" alt="Go API Reference"></a>
     <a href="https://goreportcard.com/report/github.com/lovelacelee/clsgo"><img src="https://goreportcard.com/badge/github.com/lovelacelee/clsgo" alt="Code Status" /></a>
     <a href="https://github.com/lovelacelee/clsgo/actions/workflows/static_analysis.yml"><img src="https://github.com/lovelacelee/clsgo/actions/workflows/static_analysis.yml/badge.svg" alt="Static Analysis"/></a>
+    <a href="https://github.com/lovelacelee/clsgo/actions/workflows/build.yml"><img src="https://github.com/lovelacelee/clsgo/actions/workflows/build.yml/badge.svg" alt="Build Result"/></a>
 </p>
 
 clsgo packages is a collection of excellent open source components for Golang learning and development, a step-by-step sample library for the learning phase, and a project template for rapid development for engineering development. Most implement ideas comes from [Viper](https://github.com/spf13/viper), [GFrame](https://github.com/gogf/gf) etc.
+
+
+[![Ubuntu](https://img.shields.io/badge/Ubuntu-E95420?logo=ubuntu\&logoColor=white)](https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobsjob_idruns-on)
+[![Mac OS](https://img.shields.io/badge/mac%20os-000000?logo=macos\&logoColor=F0F0F0)](https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobsjob_idruns-on)
+[![Windows](https://img.shields.io/badge/Windows-0078D6?logo=windows\&logoColor=white)](https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobsjob_idruns-on)
 
 ## Todo list
 
