@@ -66,3 +66,19 @@ func Impt(layer int, format string, args ...interface{}) {
 	name := runtime.FuncForPC(pc).Name()
 	fmt.Printf("%s[IMPO][%v:%v %v] %s%s\n", color(ANSI_BLUE), path.Base(file), line, path.Base(name), fmt.Sprintf(format, args...), color(ANSI_RESET))
 }
+
+func InfoWithoutHeader(format string, args ...interface{}) {
+	fmt.Printf("%s%s%s\n", color(ANSI_GREEN), fmt.Sprintf(format, args...), color(ANSI_RESET))
+}
+
+func WarnWithoutHeader(format string, args ...interface{}) {
+	fmt.Printf("%s%s%s\n", color(ANSI_MAGENTA), fmt.Sprintf(format, args...), color(ANSI_RESET))
+}
+
+func ErrorWithoutHeader(format string, args ...interface{}) {
+	fmt.Printf("%s%s%s\n", color(ANSI_RED), fmt.Sprintf(format, args...), color(ANSI_RESET))
+}
+
+func ImptWithoutHeader(format string, args ...interface{}) {
+	fmt.Printf("%s%s%s\n", color(ANSI_BLUE), fmt.Sprintf(format, args...), color(ANSI_RESET))
+}

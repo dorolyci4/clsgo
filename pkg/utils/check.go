@@ -61,7 +61,7 @@ func ExitIfErrorWithoutHeader(err error, fn ...any) error {
 	if len(fn) >= 1 {
 		checkerWithoutHeader(err, fn...)
 	} else {
-		Error(2, "%s", err)
+		ErrorWithoutHeader("%s", err)
 	}
 	os.Exit(1)
 	return os.ErrClosed
@@ -88,7 +88,7 @@ func IfErrorWithoutHeader(err error, fn ...any) error {
 	if len(fn) >= 1 {
 		checkerWithoutHeader(err, fn...)
 	} else {
-		Error(2, "%s", err)
+		ErrorWithoutHeader("%s", err)
 	}
 	return err
 }
@@ -114,7 +114,7 @@ func WarnIfErrorWithoutHeader(err error, fn ...any) error {
 	if len(fn) >= 1 {
 		checkerWithoutHeader(err, fn...)
 	} else {
-		Warn(2, "%s", err)
+		WarnWithoutHeader("%s", err)
 	}
 	return err
 }
@@ -140,7 +140,7 @@ func InfoIfErrorWithoutHeader(err error, fn ...any) error {
 	if len(fn) >= 1 {
 		checkerWithoutHeader(err, fn...)
 	} else {
-		Info(2, "%s", err)
+		InfoWithoutHeader("%s", err)
 	}
 	return err
 }

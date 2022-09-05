@@ -27,6 +27,7 @@ func GetCurrentAbPath() string {
 	return dir
 }
 
+// Unix-like system temp environment
 func getTmpDir() string {
 	dir := os.Getenv("TEMP")
 	if dir == "" {
@@ -47,10 +48,6 @@ func getCurrentAbPathByExecutable() string {
 
 // Chdir to the real application exist path
 func ChdirToPos() (err error) {
-	dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
-	if err != nil {
-		return
-	}
-	err = os.Chdir(dir)
+	err = os.Chdir(GetCurrentAbPath())
 	return
 }
