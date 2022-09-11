@@ -9,7 +9,7 @@ import (
 )
 
 func Test(t *testing.T) {
-	Example()
+	// Example()
 }
 
 func Example() {
