@@ -6,6 +6,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/gogf/gf/v2/test/gtest"
 	"github.com/lovelacelee/clsgo/pkg"
 	"github.com/lovelacelee/clsgo/pkg/log"
 	mq "github.com/lovelacelee/clsgo/pkg/rabbitmq"
@@ -18,6 +19,11 @@ const messageCount = 10
 const retryTimes = 3
 
 func Test(t *testing.T) {
+	gtest.C(t, func(t *gtest.T) {
+		t.Run("TestRabbitMQ", func(to *testing.T) {
+
+		})
+	})
 	// workGroup.Add(1)
 	// go ExampleClient_Publish()
 	// workGroup.Wait()

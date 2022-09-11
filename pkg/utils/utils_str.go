@@ -2,6 +2,7 @@ package utils
 
 import (
 	"bytes"
+	"fmt"
 	"strings"
 )
 
@@ -159,4 +160,8 @@ func StripSlashes(str string) string {
 		buf.WriteRune(char)
 	}
 	return buf.String()
+}
+
+func NumberToString[T any](n T) string {
+	return fmt.Sprint(n)
 }

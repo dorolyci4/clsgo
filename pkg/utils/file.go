@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"io/fs"
 	"os"
 )
 
@@ -32,4 +33,9 @@ func FileIsExisted(filename string) bool {
 		existed = false
 	}
 	return existed
+}
+
+func CreateFile(path string, data string, mode fs.FileMode) error {
+	MakeDir(path, 0755, true)
+	return os.WriteFile(path, []byte(data), mode)
 }

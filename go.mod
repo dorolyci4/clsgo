@@ -4,7 +4,6 @@ go 1.18
 
 require (
 	github.com/eclipse/paho.mqtt.golang v1.4.1
-	github.com/gogf/gf v1.16.9
 	github.com/gogf/gf/v2 v2.1.1
 	github.com/google/uuid v1.3.0
 	github.com/mattn/go-colorable v0.1.12
@@ -12,6 +11,8 @@ require (
 	github.com/rabbitmq/amqp091-go v1.4.0
 	github.com/spf13/cast v1.5.0
 	github.com/spf13/viper v1.12.0
+	golang.org/x/net v0.0.0-20220722155237-a158d28d115b
+	golang.org/x/text v0.3.8-0.20211105212822-18b340fc7af2
 	gorm.io/driver/clickhouse v0.4.2
 	gorm.io/driver/mysql v1.3.5
 	gorm.io/driver/postgres v1.3.8
@@ -68,10 +69,8 @@ require (
 	go.opentelemetry.io/otel/sdk v1.7.0 // indirect
 	go.opentelemetry.io/otel/trace v1.7.0 // indirect
 	golang.org/x/crypto v0.0.0-20220411220226-7b82a4e95df4 // indirect
-	golang.org/x/net v0.0.0-20220722155237-a158d28d115b // indirect
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c // indirect
 	golang.org/x/sys v0.0.0-20220722155257-8c9f86f7a55f // indirect
-	golang.org/x/text v0.3.8-0.20211105212822-18b340fc7af2 // indirect
 	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect
 	gopkg.in/ini.v1 v1.66.4 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect

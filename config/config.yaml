@@ -17,7 +17,7 @@ database:
 server:
   openapiPath: "/api.json"
   swaggerPath: "/api"
-  tcpTimeout: 5
+  tcpTimeout: 1
   tcpKeepAlive: 5
 mqtt:
   server: "tcp://192.168.137.100:1883"

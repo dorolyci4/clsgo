@@ -8,6 +8,7 @@ import (
 
 	"github.com/lovelacelee/clsgo/pkg/config"
 
+	"github.com/gogf/gf/v2/test/gtest"
 	"github.com/lovelacelee/clsgo/pkg/log"
 	"github.com/lovelacelee/clsgo/pkg/mqtt"
 )
@@ -15,7 +16,9 @@ import (
 const PublishCount = 5
 
 func Test(t *testing.T) {
-	Example()
+	gtest.C(t, func(t *gtest.T) {
+
+	})
 }
 
 func Example() {

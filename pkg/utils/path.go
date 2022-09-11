@@ -51,3 +51,20 @@ func ChdirToPos() (err error) {
 	err = os.Chdir(GetCurrentAbPath())
 	return
 }
+
+func PathFix(p string) string {
+	return strings.ReplaceAll(p, "\\", "/")
+}
+
+func PathJoin(elem ...string) string {
+	for i, e := range elem {
+		if e != "" {
+			return path.Clean(PathFix(strings.Join(elem[i:], "/")))
+		}
+	}
+	return ""
+}
+
+func PathReplace(path string, from string, to string) string {
+	return strings.Replace(PathFix(path), from, to, 1)
+}

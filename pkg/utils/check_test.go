@@ -2,23 +2,40 @@ package utils_test
 
 import (
 	"errors"
+	"github.com/gogf/gf/v2/test/gtest"
 	"github.com/lovelacelee/clsgo/pkg/log"
 	"github.com/lovelacelee/clsgo/pkg/utils"
 	"testing"
 )
 
-var errTest = errors.New("some error")
+var errMessage = "ok"
+var errTest = errors.New(errMessage)
 
 func Test_check(t *testing.T) {
-	ExampleWarnIfError()
+	log.Green("Running check test cases")
+	gtest.C(t, func(tc *gtest.T) {
+		t.Run("Info", func(t *testing.T) {
+			tc.Assert(utils.InfoIfErrorWithoutHeader(errTest, log.Green, "%s %s", "INFO", errMessage), errTest)
+			tc.Assert(utils.InfoIfError(errTest, log.White, "%s %s", "INFO", errMessage), errTest)
+		})
+	})
 }
 
 func ExampleWarnIfError() {
 	utils.WarnIfError(errTest)
 	utils.WarnIfError(errTest, log.Warningf, "%s %s", "warning", "message")
+
 }
 
 func ExampleInfoIfError() {
-	utils.InfoIfError(errTest, log.Infof, "%s %s", "warning", "message")
-	// utils.ExitIfError(errTest, log.Infof, "%s %s", "error", "message")
+	utils.InfoIfErrorWithoutHeader(errTest, log.Green, "%s %s", "INFO", "message")
+	utils.InfoIfError(errTest, log.Infof, "%s %s", "INFO", "message")
+}
+
+func ExampleExitIfError() {
+	utils.ExitIfError(errTest, log.Infof, "%s %s", "ERROR", "message")
+}
+
+func ExampleExitIfErrorWithoutHeader() {
+	utils.ExitIfErrorWithoutHeader(errTest)
 }

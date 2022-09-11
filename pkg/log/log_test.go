@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/gogf/gf/v2/test/gtest"
 	"github.com/lovelacelee/clsgo/pkg/log"
 )
 
@@ -23,5 +24,7 @@ func Example() {
 }
 
 func Test(t *testing.T) {
-	Example()
+	gtest.C(t, func(t *gtest.T) {
+
+	})
 }

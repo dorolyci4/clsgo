@@ -9,8 +9,30 @@ import (
 	"strings"
 )
 
-// Return all files and dirs in [dirPath], optional matching suffix
-func ListDir(dirPth string, suffix string) (dirs []string, files []string, err error) {
+func sufixes(suffix ...string) []string {
+	result := make([]string, 0)
+	if !IsEmpty(suffix) {
+		for _, s := range suffix {
+			//Ignore case for suffix matches
+			result = append(result, strings.ToUpper(s))
+		}
+		return result
+	}
+	return nil
+}
+
+func inSuffixes(s string, slist []string) bool {
+	for _, suf := range slist {
+		if strings.HasSuffix(strings.ToUpper(s), suf) { //file matches
+			return true
+		}
+	}
+	return false
+}
+
+// Return all files and dirs in [dirPath], optional matching suffix, sub directories ignored
+func ListDir(dirPth string, suffix ...string) (dirs []string, files []string, err error) {
+	dirPth = PathFix(dirPth)
 	files = make([]string, 0, 10)
 	dirs = make([]string, 0, 10)
 	dir, err := os.ReadDir(dirPth)
@@ -18,13 +40,16 @@ func ListDir(dirPth string, suffix string) (dirs []string, files []string, err e
 		return nil, nil, err
 	}
 	PthSep := string(os.PathSeparator)
-	//Ignore case for suffix matches
-	suffix = strings.ToUpper(suffix)
+	sufList := sufixes(suffix...)
 	for _, fi := range dir {
 		if fi.IsDir() { // directory
 			dirs = append(dirs, dirPth+PthSep+fi.Name())
 		}
-		if strings.HasSuffix(strings.ToUpper(fi.Name()), suffix) { //file matches
+		if !IsEmpty(sufList) { //file matches
+			if inSuffixes(fi.Name(), sufList) {
+				files = append(files, dirPth+PthSep+fi.Name())
+			}
+		} else {
 			files = append(files, dirPth+PthSep+fi.Name())
 		}
 	}
@@ -32,15 +57,20 @@ func ListDir(dirPth string, suffix string) (dirs []string, files []string, err e
 }
 
 // Get all files in the specified directory and all subdirectories, matching suffix filtering.
-func WalkDir(dirPth, suffix string) (dirs []string, files []string, err error) {
-	files = make([]string, 0, 30)
-	dirs = make([]string, 0, 30)
-	suffix = strings.ToUpper(suffix) //Ignore case for suffix matches
+func WalkDir(dirPth string, suffix ...string) (dirs []string, files []string, err error) {
+	dirPth = PathFix(dirPth)
+	files = make([]string, 0)
+	dirs = make([]string, 0)
+	suffixes := sufixes(suffix...)
 	err = filepath.Walk(dirPth, func(filename string, fi os.FileInfo, err error) error {
 		if fi.IsDir() {
 			dirs = append(dirs, filename)
 		}
-		if strings.HasSuffix(strings.ToUpper(fi.Name()), suffix) {
+		if !IsEmpty(suffix) {
+			if inSuffixes(fi.Name(), suffixes) {
+				files = append(files, filename)
+			}
+		} else {
 			files = append(files, filename)
 		}
 		return err
@@ -48,34 +78,15 @@ func WalkDir(dirPth, suffix string) (dirs []string, files []string, err error) {
 	return dirs, files, err
 }
 
-// Get all files under the specified path, search only the current path,
-// do not enter the next level of directory, support suffix filtering (suffix
-// is empty, not filtered)
-func ListDirFiles(dir, suffix string) (files []string, err error) {
-	files = []string{}
-
-	_dir, err := os.ReadDir(dir)
-	if err != nil {
-		return nil, err
-	}
-
-	suffix = strings.ToLower(suffix) //suffix filtering
-
-	for _, _file := range _dir {
-		if _file.IsDir() {
-			continue //
-		}
-		if len(suffix) == 0 || strings.HasSuffix(strings.ToLower(_file.Name()), suffix) {
-			//
-			files = append(files, path.Join(dir, _file.Name()))
-		}
-	}
-
-	return files, nil
-}
-
-// Copy directory deeply
+// Only the contents of the source directory are recursively copied to the destination path，
+// source directory itself not copied. Returns error if source/destination path does not exist.
+// And srcPath must be different from desPath.
 func CopyDir(srcPath, desPath string) error {
+	srcPath = PathFix(srcPath)
+	desPath = PathFix(desPath)
+	if strings.TrimSpace(srcPath) == strings.TrimSpace(desPath) {
+		return ErrSrcSameAsDst
+	}
 	if srcInfo, err := os.Stat(srcPath); err != nil {
 		return err
 	} else {
@@ -90,18 +101,14 @@ func CopyDir(srcPath, desPath string) error {
 			return ErrDstPathInvalid
 		}
 	}
-	if strings.TrimSpace(srcPath) == strings.TrimSpace(desPath) {
-		return ErrSrcSameAsDst
-	}
 	err := filepath.Walk(srcPath, func(path string, f os.FileInfo, err error) error {
 		if f == nil {
 			return err
 		}
-
 		if path == srcPath {
 			return nil
 		}
-		destNewPath := strings.Replace(path, srcPath, desPath, -1)
+		destNewPath := PathReplace(path, srcPath, desPath)
 		if !f.IsDir() {
 			CopyFile(path, destNewPath)
 		} else {
@@ -115,17 +122,39 @@ func CopyDir(srcPath, desPath string) error {
 	return err
 }
 
-func MakeDir(dir string, perm fs.FileMode) error {
+// desPath is not exist
+func CopyToNewDir(srcPath, desPath string) error {
+	srcPath = PathFix(srcPath)
+	desPath = PathFix(desPath)
+	target := filepath.Join(desPath, filepath.Base(srcPath))
+	if !FileIsExisted(target) {
+		MakeDir(target, 0777)
+	}
+	return CopyDir(srcPath, target)
+}
+
+// Create directory: The path parameter can be a directory or a file.
+// If it is a file path, it will be truncated by the Dir function
+func MakeDir(path string, perm fs.FileMode, isfile ...bool) error {
+	var dir string
+	if Param(isfile, false) {
+		dir = PathFix(filepath.Dir(path))
+	} else {
+		dir = PathFix(path)
+	}
 	if !FileIsExisted(dir) {
 		if err := os.MkdirAll(dir, perm); err != nil { //os.ModePerm
-			Error(1, "MakeDir failed: %v", err)
+			// Error(1, "err: %v", err)
 			return err
 		}
 	}
 	return nil
 }
 
+// cmd := exec.Command("git", "push", remote, "--tags", "--force")
+// utils.RunInDir(w.Filesystem.Root(), cmd)
 func RunInDir(dir string, cmd *exec.Cmd) (err error) {
+	dir = PathFix(dir)
 	os.Chdir(dir)
 	if err := cmd.Run(); err != nil {
 		return err
@@ -133,15 +162,34 @@ func RunInDir(dir string, cmd *exec.Cmd) (err error) {
 	return nil
 }
 
+func RunIn(dir string, c string, args ...string) error {
+	dir = PathFix(dir)
+	cmd := exec.Command(c, args...)
+	return RunInDir(dir, cmd)
+}
+
+// Delete all files in the directory, left an empty directory(targetDir)
 func DeleteThingsInDir(targetDir string) error {
+	targetDir = PathFix(targetDir)
 	dir, err := os.ReadDir(targetDir)
-	if err != nil {
-		return err
+	if err == nil {
+		for _, d := range dir {
+			os.RemoveAll(path.Join([]string{targetDir, d.Name()}...))
+		}
 	}
-	for _, d := range dir {
-		os.RemoveAll(path.Join([]string{targetDir, d.Name()}...))
+	if os.IsNotExist(err) {
+		return nil
 	}
 	return err
+}
+
+// Delete the directory
+func DeletePath(path string) error {
+	path = PathFix(path)
+	if FileIsExisted(path) && IsDir(path) {
+		DeleteThingsInDir(path)
+	}
+	return os.RemoveAll(path)
 }
 
 func IsDir(name string) bool {
@@ -150,3 +198,7 @@ func IsDir(name string) bool {
 	}
 	return false
 }
+
+// TODOs:
+// TODO: 1. Listall directories and files with callback
+// TODO: 2. Copy directory --force

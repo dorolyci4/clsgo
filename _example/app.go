@@ -9,6 +9,7 @@ import (
 	"github.com/lovelacelee/clsgo/pkg/log"
 	"github.com/lovelacelee/clsgo/pkg/net"
 	"github.com/lovelacelee/clsgo/pkg/redis"
+	"github.com/lovelacelee/clsgo/pkg/version"
 )
 
 var Cfg = clsgo.Cfg
@@ -27,15 +28,15 @@ type VersionResourceRes struct {
 }
 
 func (VersionResource) Version(context.Context, *VersionResourceReq) (res *VersionResourceRes, err error) {
-	log.Debugfi(`Server version: %+v`, clsgo.Version)
+	log.Debugfi(`Server version: %+v`, version.Version)
 	res = &VersionResourceRes{
-		Version: clsgo.Version,
+		Version: version.Version,
 	}
 	return
 }
 
 func simpleHTTPServer() {
-	log.Infoi("ClsGO application ", clsgo.Version)
+	log.Infoi("ClsGO application ", version.Version)
 	log.Infoi(Cfg.Get("database.default.0.link"))
 
 	// HTTP simple web server

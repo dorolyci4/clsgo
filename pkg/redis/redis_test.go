@@ -2,8 +2,9 @@ package redis_test
 
 import (
 	"fmt"
-	"github.com/lovelacelee/clsgo/pkg"
+	"github.com/gogf/gf/v2/test/gtest"
 	"github.com/lovelacelee/clsgo/pkg/redis"
+	"github.com/lovelacelee/clsgo/pkg/version"
 	"sync"
 	"testing"
 )
@@ -13,8 +14,14 @@ var workGroup sync.WaitGroup
 const messageCount = 1000
 
 func Test(t *testing.T) {
-	ExampleNew()
-	ExampleClient_Do()
+	gtest.C(t, func(t *gtest.T) {
+		t.Run("New-Close", func(to *testing.T) {
+			c := redis.New("default")
+			defer c.Close()
+			t.AssertNE(c, nil)
+		})
+	})
+
 	// workGroup.Add(2)
 	// go ExampleClient_Subscribe()
 	// go ExampleClient_publish()
@@ -30,7 +37,7 @@ func ExampleClient_Do() {
 	c := redis.New("default")
 	defer c.Close()
 
-	c.Do("SET", "clsgo", clsgo.Version)
+	c.Do("SET", "clsgo", version.Version)
 	rv, _ := c.Do("GET", "clsgo")
 	fmt.Println(rv.String())
 }

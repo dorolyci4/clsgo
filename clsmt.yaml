@@ -1,0 +1,22 @@
+
+clsmt:
+  test: 
+    go test ./... -v -count=1 -bench="Bench*"
+  bench:
+    go test ./... -v -run=none -bench="Bench*" -count=1
+  bench10s:
+    go test ./... -v -run=none -bench="Bench*" -count=1 -benchtime=10s
+  static:
+    staticcheck ./...
+  comp:
+    gocyclo -over 50 .
+  profile:
+    go test ./... -v -bench="Bench*" -memprofile memprofile.out -cpuprofile profile.out
+  build:
+    go build -o clsmt.exe main.go
+  snapshot:
+    goreleaser release --snapshot --rm-dist
+  release:
+    goreleaser release -f .goreleaser.gitea.yaml --rm-dist --skip-publish 
+  example:
+    go run _example/app.go _example/hmprotocol.go _example/main.go

@@ -1,11 +1,11 @@
 package utils_test
 
 import (
-	"fmt"
 	"os"
 	"testing"
 	"time"
 
+	"github.com/gogf/gf/v2/test/gtest"
 	"github.com/lovelacelee/clsgo/pkg/utils"
 )
 
@@ -14,12 +14,14 @@ func Test_exit(t *testing.T) {
 }
 
 func ExampleSetupExitNotify() {
-	exit := make(chan os.Signal, 1)
-	utils.SetupExitNotify(exit)
-	go func(x chan os.Signal) {
-		time.Sleep(time.Second * 2)
-		x <- os.Interrupt
-	}(exit)
-	e := <-exit
-	fmt.Println(e)
+	gtest.C(&testing.T{}, func(t *gtest.T) {
+		exit := make(chan os.Signal, 1)
+		utils.SetupExitNotify(exit)
+		go func(x chan os.Signal) {
+			time.Sleep(time.Second * 2)
+			x <- os.Interrupt
+		}(exit)
+		e := <-exit
+		t.Assert(e, os.Interrupt)
+	})
 }
