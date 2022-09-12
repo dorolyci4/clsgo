@@ -47,9 +47,12 @@ func getCurrentAbPathByExecutable() string {
 }
 
 // Chdir to the real application exist path
-func ChdirToPos() (err error) {
-	err = os.Chdir(GetCurrentAbPath())
-	return
+func ChdirToPos(p ...string) (err error) {
+	if dir := Param(p, ""); dir != "" {
+		return os.Chdir(dir)
+	} else {
+		return os.Chdir(GetCurrentAbPath())
+	}
 }
 
 func PathFix(p string) string {

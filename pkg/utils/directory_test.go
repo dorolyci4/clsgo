@@ -56,8 +56,9 @@ func TestDirectoryCases(t *testing.T) {
 			t.Assert(utils.CopyToNewDir(dir+"/from", dir+"/to"), nil)
 		})
 		t.Run("RunIn", func(to *testing.T) {
+			c := utils.Cwd()
 			t.Assert(utils.RunIn(dir+"/from", "go", "version"), nil)
-			utils.ChdirToPos()
+			utils.ChdirToPos(c)
 		})
 		t.Run("DeletePath", func(to *testing.T) {
 			t.Assert(utils.DeletePath(dir), nil)
