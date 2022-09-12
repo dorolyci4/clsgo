@@ -4,5 +4,5 @@ commands:
   check:
     - staticcheck ./...
     - gocyclo -over 50 .
+    - go test ./... -cover
   profile: go test ./... -v -bench="Bench*" -memprofile memprofile.out -cpuprofile profile.out
-  demo: go run _example/app.go _example/hmprotocol.go _example/main.go

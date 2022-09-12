@@ -7,14 +7,13 @@
     <a href="https://github.com/lovelacelee/clsgo/actions/workflows/build.yml"><img src="https://github.com/lovelacelee/clsgo/actions/workflows/build.yml/badge.svg" alt="Build Result"/></a>
 </p>
 
-clsgo packages is a collection of excellent open source components for Golang learning and development, a step-by-step sample library for the learning phase, and a project template for rapid development for engineering development. Most implement ideas comes from [Viper](https://github.com/spf13/viper), [GFrame](https://github.com/gogf/gf) etc.
+[CLSGO](https://pkg.go.dev/github.com/lovelacelee/clsgo) packages is a collection of excellent open source components for Golang learning and development, a step-by-step sample library for the learning phase, and a project template for rapid development for engineering development. Most implement ideas comes from [Viper](https://github.com/spf13/viper), [GFrame](https://github.com/gogf/gf) etc.
 
+## Multi-Platform
 
-[![Ubuntu](https://img.shields.io/badge/Ubuntu-E95420?logo=ubuntu\&logoColor=white)](https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobsjob_idruns-on)
-[![Mac OS](https://img.shields.io/badge/mac%20os-000000?logo=macos\&logoColor=F0F0F0)](https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobsjob_idruns-on)
-[![Windows](https://img.shields.io/badge/Windows-0078D6?logo=windows\&logoColor=white)](https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobsjob_idruns-on)
+[![Ubuntu](https://img.shields.io/badge/Ubuntu-E95420?logo=ubuntu\&logoColor=white)](https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobsjob_idruns-on) [![Mac OS](https://img.shields.io/badge/mac%20os-000000?logo=macos\&logoColor=F0F0F0)](https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobsjob_idruns-on) [![Windows](https://img.shields.io/badge/Windows-0078D6?logo=windows\&logoColor=white)](https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobsjob_idruns-on)
 
-## Todo list
+## Fetures
 
 * 🟩Protobuf support
 * ✅MQ support, MQTT client/server, rabbitmq publish and consume routine
@@ -30,23 +29,36 @@ clsgo packages is a collection of excellent open source components for Golang le
 
 ## Quick start
 
-### Running examples
-
-```shell
-python example
-```
-
-### Running tests
-
 ```shell
 
+# Install latest clsmt from https://github.com/lovelacelee/mirror-tools/releases/latest
 go install github.com/fzipp/gocyclo/cmd/gocyclo@latest
 go install honnef.co/go/tools/cmd/staticcheck@latest
-
-go test ./... -v -bench=\"Bench*\" -count=1
-staticcheck ./...
-gocyclo -over 50 .
+# Test
+clsmt run check test
+# Import 
+go get github.com/lovelacelee/clsgo
 ```
 
-[![Star History Chart](https://api.star-history.com/svg?repos=lovelacelee/clsgo&type=Date)](https://star-history.com/#lovelacelee/clsgo&Date)
+## Usage
+```go
 
+import (
+    "github.com/lovelacelee/clsgo/pkg"
+    "github.com/lovelacelee/clsgo/pkg/log"
+    "github.com/lovelacelee/clsgo/pkg/config"
+    ...
+)
+
+```
+
+<!-- [![Star History Chart](https://api.star-history.com/svg?repos=lovelacelee/clsgo&type=Date)](https://star-history.com/#lovelacelee/clsgo&Date) -->
+
+
+## Credits
+
+ * [Connard](https://github.com/lovelacelee)
+
+## License
+
+The MIT License (MIT) - see [`LICENSE`](https://github.com/lovelacelee/clsgo/blob/master/LICENSE) for more details.

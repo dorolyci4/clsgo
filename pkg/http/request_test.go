@@ -14,5 +14,5 @@ func ExampleGet() {
 }
 
 func TestGet(t *testing.T) {
-	ExampleGet()
+	// ExampleGet()
 }
