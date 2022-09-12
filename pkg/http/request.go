@@ -3,10 +3,13 @@ package http
 import (
 	"bytes"
 	"encoding/json"
-	"github.com/lovelacelee/clsgo/pkg/log"
 	"io"
 	"net/http"
+	"os"
 	"time"
+
+	"github.com/lovelacelee/clsgo/pkg/log"
+	"github.com/lovelacelee/clsgo/pkg/utils"
 )
 
 func Get(url string, timeout ...int) (string, error) {
@@ -41,4 +44,25 @@ func Post(url string, data interface{}, contentType string, timeout ...int) (str
 
 	result, _ := io.ReadAll(resp.Body)
 	return string(result), nil
+}
+
+// descPrefix used for progressbar, format is like
+// "[cyan][1/3][reset]", "Downloading..."
+func Download(url string, filepath string, descPrefix ...string) (int64, error) {
+	out, err := os.Create(filepath)
+	if err != nil {
+		return 0, err
+	}
+	defer out.Close()
+	resp, err := http.Get(url)
+	if err != nil {
+		return 0, err
+	}
+	if resp.StatusCode != 200 {
+		return 0, utils.ErrNotFound
+	}
+	defer resp.Body.Close()
+	bar := utils.ProgressBar(resp.ContentLength, 0, "█", descPrefix...)
+	n, err := io.Copy(io.MultiWriter(out, bar), resp.Body)
+	return n, err
 }

@@ -1,6 +1,10 @@
 package utils
 
 import (
+	"bufio"
+	"bytes"
+	"errors"
+	"fmt"
 	"io/fs"
 	"os"
 	"os/exec"
@@ -168,6 +172,36 @@ func RunIn(dir string, c string, args ...string) error {
 	return RunInDir(dir, cmd)
 }
 
+func Exec(name string, args ...string) error {
+	cmd := exec.Command(name, args...)
+	stderr, _ := cmd.StderrPipe()
+	stdout, _ := cmd.StdoutPipe()
+	if err := cmd.Start(); err != nil {
+		return err
+	}
+	// stdout
+	logScan := bufio.NewScanner(stdout)
+	go func() {
+		for logScan.Scan() {
+			fmt.Println(logScan.Text())
+		}
+	}()
+	// stderr
+	errBuf := bytes.NewBufferString("")
+	scan := bufio.NewScanner(stderr)
+	for scan.Scan() {
+		s := scan.Text()
+		errBuf.WriteString(s)
+		errBuf.WriteString("\n")
+	}
+
+	cmd.Wait()
+	if !cmd.ProcessState.Success() {
+		return errors.New(errBuf.String())
+	}
+	return nil
+}
+
 // Delete all files in the directory, left an empty directory(targetDir)
 func DeleteThingsInDir(targetDir string) error {
 	targetDir = PathFix(targetDir)
@@ -198,7 +232,3 @@ func IsDir(name string) bool {
 	}
 	return false
 }
-
-// TODOs:
-// TODO: 1. Listall directories and files with callback
-// TODO: 2. Copy directory --force

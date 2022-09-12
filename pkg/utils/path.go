@@ -56,6 +56,10 @@ func PathFix(p string) string {
 	return strings.ReplaceAll(p, "\\", "/")
 }
 
+func PatchClean(p string) string {
+	return path.Clean(PathFix(p))
+}
+
 func PathJoin(elem ...string) string {
 	for i, e := range elem {
 		if e != "" {
@@ -67,4 +71,26 @@ func PathJoin(elem ...string) string {
 
 func PathReplace(path string, from string, to string) string {
 	return strings.Replace(PathFix(path), from, to, 1)
+}
+
+func HomePath() string {
+	if runtime.GOOS == "windows" {
+		home := os.Getenv("HOMEDRIVE") + os.Getenv("HOMEPATH")
+		if home == "" {
+			home = os.Getenv("USERPROFILE")
+		}
+		return home
+	}
+	return os.Getenv("HOME")
+}
+
+func TempPath(p string) string {
+	path := filepath.Join(os.TempDir(), p)
+	MakeDir(path, 0755)
+	return path
+}
+
+func Cwd() string {
+	cwd, _ := os.Getwd()
+	return cwd
 }

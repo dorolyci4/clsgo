@@ -14,4 +14,5 @@ var (
 	ErrChanWriteTimeout = errors.New("write chan time out")
 	ErrChanReadTimeout  = errors.New("read chan time out")
 	ErrChanOptCanceled  = errors.New("chan operation canceled")
+	ErrNotFound         = errors.New("404")
 )
