@@ -3,6 +3,7 @@ module github.com/lovelacelee/clsgo
 go 1.18
 
 require (
+	github.com/beevik/etree v1.1.0
 	github.com/eclipse/paho.mqtt.golang v1.4.1
 	github.com/gogf/gf/v2 v2.1.1
 	github.com/google/uuid v1.3.0

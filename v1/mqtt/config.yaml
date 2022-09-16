@@ -1,0 +1,20 @@
+logger:
+    clsgo:
+        level: all
+        prefix: '[CLSGO]'
+        stdoutcolordisabled: false
+        ststatus: 0
+        writercolorenable: true
+    file: '{Y-m-d}.log'
+    level: all
+    path: logs/
+    rotatebackupexpire: 1d
+    rotatebackuplimit: 1
+    rotatecheckinterval: 1m
+    rotatesize: 1MB
+    stdoutcolordisabled: false
+    ststatus: 0
+    writercolorenable: true
+project:
+    name: ""
+    seemore: https://pkg.go.dev/github.com/lovelacelee/clsgo

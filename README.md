@@ -40,17 +40,6 @@ clsmt run check test
 go get github.com/lovelacelee/clsgo
 ```
 
-## Usage
-```go
-
-import (
-    "github.com/lovelacelee/clsgo/pkg"
-    "github.com/lovelacelee/clsgo/pkg/log"
-    "github.com/lovelacelee/clsgo/pkg/config"
-    ...
-)
-
-```
 
 <!-- [![Star History Chart](https://api.star-history.com/svg?repos=lovelacelee/clsgo&type=Date)](https://star-history.com/#lovelacelee/clsgo&Date) -->
 
