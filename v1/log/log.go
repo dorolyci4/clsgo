@@ -22,7 +22,10 @@ func init() {
 	// IMPORTANT: g.Cfg() config load only after main called, not valid in go test.
 	// so here load them use viper manually
 	if g.Log("clsgo").GetConfig().Path == "" {
-		g.Log().SetConfigWithMap(loadLogConfig("logger"))
+		// Will generate logs path by default, sometimes you don't want this happen
+		// such as in test cases, or used in command tool like clsmt.
+		// g.Log().SetConfigWithMap(loadLogConfig("logger"))
+
 		// Internal logger instance
 		g.Log("clsgo").SetConfigWithMap(loadLogConfig("logger.clsgo"))
 	}

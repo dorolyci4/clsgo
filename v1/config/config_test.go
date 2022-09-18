@@ -45,7 +45,7 @@ func TestConfig(t *testing.T) {
 			config.GetInt64WithDefault("logger.stStatus", 0)
 			config.GetStringSliceWithDefault("logger.stStatus", []string{})
 			config.GetIntSliceWithDefault("logger.stStatus", []int{})
-			// t.AssertNE(config.Get("logger"), nil)
+			t.Assert(config.Get("logger"), nil)
 		})
 		t.Run("json", func(ot *testing.T) {
 			testInput := `{"author": "lovelacelee","github": "https://github.com/lovelacelee","version": "1.0.0"}`
@@ -128,6 +128,19 @@ func TestConfig(t *testing.T) {
 			root.SelectElement("Message").AddChild(
 				config.NewElement("Device", "IPC", config.XMLAttr{K: "SN", V: "ABC"}))
 			xn.Save("new.xml")
+
+			ackMsg := make(map[string]interface{})
+			ackMsg["UserName"] = "guest"
+			ackMsg["UserType"] = "0"
+			ackMsg["Ver"] = "2.0"
+			ackMsg["Right"] = "65535"
+			bytes, err := config.XmlEncode(ackMsg, "Message")
+			t.Assert(err, nil)
+			ackBytes, err := config.XmlEncodeWithIndent(ackMsg, "Message")
+			t.Assert(err, nil)
+			config.XmlDecodeWithoutRoot(ackBytes)
+			config.XmlDecode(bytes)
+			config.XmlToJson(bytes)
 		})
 	})
 

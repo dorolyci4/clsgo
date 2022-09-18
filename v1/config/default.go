@@ -13,6 +13,7 @@ func ClsConfigDefault(cfg Config, name string, gen bool) error {
 		"path":                utils.TempPath("logs/"),
 		"file":                "{Y-m-d}.log",
 		"stStatus":            0,
+		"prefix":              "[" + name + "]",
 		"level":               "all",
 		"rotateSize":          "1MB",
 		"rotateBackupLimit":   1,
@@ -23,7 +24,6 @@ func ClsConfigDefault(cfg Config, name string, gen bool) error {
 		"clsgo": map[string]any{
 			"stStatus":            0,
 			"level":               "all",
-			"prefix":              "[CLSGO]",
 			"writerColorEnable":   true,
 			"stdoutColorDisabled": false,
 		},
