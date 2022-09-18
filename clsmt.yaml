@@ -1,6 +1,7 @@
 commands:
   test: go test ./... -v -count=1 -bench="Bench*" -cover
   bench: go test ./... -v -run=none -bench="Bench*" -count=1
+  cover: go test ./... -race -coverprofile=coverage.txt -covermode=atomic
   check:
     - staticcheck ./...
     - gocyclo -over 50 .

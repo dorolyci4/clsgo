@@ -5,7 +5,7 @@
     <a href="https://goreportcard.com/report/github.com/lovelacelee/clsgo"><img src="https://goreportcard.com/badge/github.com/lovelacelee/clsgo" alt="Code Status" /></a>
     <a href="https://github.com/lovelacelee/clsgo/actions/workflows/static_analysis.yml"><img src="https://github.com/lovelacelee/clsgo/actions/workflows/static_analysis.yml/badge.svg" alt="Static Analysis"/></a>
     <a href="https://github.com/lovelacelee/clsgo/actions/workflows/build.yml"><img src="https://github.com/lovelacelee/clsgo/actions/workflows/build.yml/badge.svg" alt="Build Result"/></a>
-    ![Coverage](https://img.shields.io/badge/Coverage-100.0%25-brightgreen)
+    [![codecov](https://codecov.io/gh/lovelacelee/clsgo/branch/master/graph/badge.svg?token=8MHTBPAL5E)](https://codecov.io/gh/lovelacelee/clsgo)
 </p>
 
 [CLSGO](https://pkg.go.dev/github.com/lovelacelee/clsgo) packages is a collection of excellent open source components for Golang learning and development, a step-by-step sample library for the learning phase, and a project template for rapid development for engineering development. Most implement ideas comes from [Viper](https://github.com/spf13/viper), [GFrame](https://github.com/gogf/gf) etc.
