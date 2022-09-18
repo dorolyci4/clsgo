@@ -105,7 +105,7 @@ func init() {
 	if resend > 0 {
 		resendDelay = time.Duration(resend) * time.Second
 	}
-	log.Debugfi("MQ reconnect:%v reinit:%v resend:%v", reconnect, reinit, resend)
+	// log.Debugfi("MQ reconnect:%v reinit:%v resend:%v", reconnect, reinit, resend)
 }
 
 // New creates a new consumer state instance, and automatically,
