@@ -18,6 +18,7 @@ func ExampleGet() {
 	// fmt.Println(s)
 	// Output:
 	// {"status":"0","info":"INVALID_USER_KEY","infocode":"10001"}
+	clean()
 }
 
 func TestGet(t *testing.T) {

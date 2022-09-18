@@ -1,12 +1,16 @@
 package config
 
+import (
+	"github.com/lovelacelee/clsgo/v1/utils"
+)
+
 // With all necessary nodes
 func ClsConfigDefault(cfg Config, name string, gen bool) error {
 	cfg.SetDefault("project.name", name)
 	cfg.SetDefault("project.seemore", "https://pkg.go.dev/github.com/lovelacelee/clsgo")
 
 	cfg.SetDefault("logger", map[string]any{
-		"path":                "logs/",
+		"path":                utils.TempPath("logs/"),
 		"file":                "{Y-m-d}.log",
 		"stStatus":            0,
 		"level":               "all",
