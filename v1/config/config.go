@@ -26,7 +26,7 @@ func init() {
 
 // Leave it to the user to initialize the configuration file
 func Init(project string) {
-	var generateDeafult = true
+	var generateDeafult = false
 	// Load global config file, generate if not exist
 	Cfg = ClsConfig("config", project, generateDeafult)
 }
