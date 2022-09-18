@@ -8,6 +8,12 @@ import (
 	"testing"
 )
 
+func clean() {
+	utils.DeletePath("logs")
+	utils.DeleteFiles(utils.Cwd(), "/*.yaml$")
+	utils.DeleteFiles(utils.Cwd(), "/*.xml$")
+}
+
 // Example
 func Example() {
 	c1, err := net.DomainTcpClient("lovelacelee.com:8080")
@@ -33,4 +39,5 @@ func Test(t *testing.T) {
 			t.Assert(c, nil)
 		})
 	})
+	clean()
 }

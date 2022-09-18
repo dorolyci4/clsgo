@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/lovelacelee/clsgo/v1/config"
+	"github.com/lovelacelee/clsgo/v1/utils"
 
 	"github.com/gogf/gf/v2/test/gtest"
 	"github.com/lovelacelee/clsgo/v1/log"
@@ -15,10 +16,16 @@ import (
 
 const PublishCount = 5
 
+func clean() {
+	utils.DeletePath("logs")
+	utils.DeleteFiles(utils.Cwd(), "/*.yaml$")
+	utils.DeleteFiles(utils.Cwd(), "/*.xml$")
+}
 func Test(t *testing.T) {
 	gtest.C(t, func(t *gtest.T) {
 
 	})
+	clean()
 }
 
 func Example() {

@@ -5,8 +5,15 @@ import (
 
 	"github.com/lovelacelee/clsgo/v1/crypto"
 	"github.com/lovelacelee/clsgo/v1/log"
+	"github.com/lovelacelee/clsgo/v1/utils"
 )
 
+func clean() {
+	utils.DeleteThingsInDir("logs")
+	utils.DeletePath("logs")
+	utils.DeleteFiles(utils.Cwd(), "/*.yaml$")
+	utils.DeleteFiles(utils.Cwd(), "/*.xml$")
+}
 func TestAes(t *testing.T) {
 	key := "lovelacelee"
 	want := "clsgo is a framework of common project work."
@@ -41,4 +48,6 @@ func TestAes(t *testing.T) {
 	} else {
 		log.Info(aesCFB.EncryptedBase64())
 	}
+
+	clean()
 }

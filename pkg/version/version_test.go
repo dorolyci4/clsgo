@@ -5,7 +5,7 @@ import (
 
 	"github.com/gogf/gf/v2/test/gtest"
 	"github.com/lovelacelee/clsgo/v1/utils"
-	"github.com/lovelacelee/clsgo/v1/version"
+	"github.com/lovelacelee/clsgo/pkg/version"
 )
 
 func TestVersion(t *testing.T) {

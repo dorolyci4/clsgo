@@ -6,7 +6,14 @@ import (
 
 	"github.com/gogf/gf/v2/test/gtest"
 	"github.com/lovelacelee/clsgo/v1/log"
+	"github.com/lovelacelee/clsgo/v1/utils"
 )
+
+func clean() {
+	utils.DeletePath("logs")
+	utils.DeleteFiles(utils.Cwd(), "/*.yaml$")
+	utils.DeleteFiles(utils.Cwd(), "/*.xml$")
+}
 
 // Example
 func Example() {
@@ -27,4 +34,5 @@ func Test(t *testing.T) {
 	gtest.C(t, func(t *gtest.T) {
 
 	})
+	clean()
 }

@@ -2,17 +2,24 @@ package redis_test
 
 import (
 	"fmt"
-	"github.com/gogf/gf/v2/test/gtest"
-	"github.com/lovelacelee/clsgo/v1/redis"
-	"github.com/lovelacelee/clsgo/v1/version"
 	"sync"
 	"testing"
+
+	"github.com/gogf/gf/v2/test/gtest"
+	"github.com/lovelacelee/clsgo/pkg/version"
+	"github.com/lovelacelee/clsgo/v1/redis"
+	"github.com/lovelacelee/clsgo/v1/utils"
 )
 
 var workGroup sync.WaitGroup
 
 const messageCount = 1000
 
+func clean() {
+	utils.DeletePath("logs")
+	utils.DeleteFiles(utils.Cwd(), "/*.yaml$")
+	utils.DeleteFiles(utils.Cwd(), "/*.xml$")
+}
 func Test(t *testing.T) {
 	gtest.C(t, func(t *gtest.T) {
 		t.Run("New-Close", func(to *testing.T) {
@@ -21,6 +28,8 @@ func Test(t *testing.T) {
 			t.AssertNE(c, nil)
 		})
 	})
+
+	clean()
 
 	// workGroup.Add(2)
 	// go ExampleClient_Subscribe()

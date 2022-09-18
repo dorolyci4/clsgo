@@ -5,11 +5,19 @@ import (
 
 	"github.com/lovelacelee/clsgo/v1/database"
 	"github.com/lovelacelee/clsgo/v1/log"
+	"github.com/lovelacelee/clsgo/v1/utils"
 	// "github.com/lovelacelee/clsgo/v1/utils"
 )
 
+func clean() {
+	utils.DeletePath("logs")
+	utils.DeleteFiles(utils.Cwd(), "/*.yaml$")
+	utils.DeleteFiles(utils.Cwd(), "/*.xml$")
+}
 func Test(t *testing.T) {
 	// Example()
+
+	clean()
 }
 
 func Example() {

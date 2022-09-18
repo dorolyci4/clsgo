@@ -18,12 +18,19 @@ var workGroup sync.WaitGroup
 const messageCount = 10
 const retryTimes = 3
 
+func clean() {
+	utils.DeleteThingsInDir("logs")
+	utils.DeletePath("logs")
+	utils.DeleteFiles(utils.Cwd(), "/*.yaml$")
+	utils.DeleteFiles(utils.Cwd(), "/*.xml$")
+}
 func Test(t *testing.T) {
 	gtest.C(t, func(t *gtest.T) {
 		t.Run("TestRabbitMQ", func(to *testing.T) {
 
 		})
 	})
+	clean()
 	// workGroup.Add(1)
 	// go ExampleClient_Publish()
 	// workGroup.Wait()
@@ -67,6 +74,8 @@ func ExampleClient_Publish() {
 	}
 	log.Info("Push routine done")
 	workGroup.Done()
+
+	clean()
 }
 
 func ExampleClient_Consume_cancel() {
@@ -130,4 +139,6 @@ func ExampleClient_Consume_cancel() {
 Exit:
 	log.Infof("Consumer routine done: %d %s", count, lastMessage)
 	workGroup.Done()
+
+	clean()
 }
