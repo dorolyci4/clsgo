@@ -40,12 +40,12 @@ jobs:
         uses: tj-actions/coverage-badge-go@v2
         with:
           filename: coverage.out
-      -
-        name: Run GoReleaser
-        uses: goreleaser/goreleaser-action@v2
-        if: success() && startsWith(github.ref, 'refs/tags/')
-        with:
-          version: latest
-          args: release --rm-dist
-        env:
-          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
+      # -
+      #   name: Run GoReleaser
+      #   uses: goreleaser/goreleaser-action@v2
+      #   if: success() && startsWith(github.ref, 'refs/tags/')
+      #   with:
+      #     version: latest
+      #     args: release --rm-dist
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GH_PAT }}
