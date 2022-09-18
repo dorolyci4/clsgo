@@ -59,7 +59,7 @@ jobs:
         if: steps.verify-changed-files.outputs.files_changed == 'true'
         uses: ad-m/github-push-action@master
         with:
-          github_token: ${{ github.GH_PAT }}
+          github_token: ${{ github.GITHUB_TOKEN }}
           branch: ${{ github.head_ref }}
       # -
       #   name: Run GoReleaser
