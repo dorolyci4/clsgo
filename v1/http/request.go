@@ -8,7 +8,6 @@ import (
 	"os"
 	"time"
 
-	"github.com/lovelacelee/clsgo/v1/log"
 	"github.com/lovelacelee/clsgo/v1/utils"
 )
 
@@ -20,7 +19,6 @@ func Get(url string, timeout ...int) (string, error) {
 	client := &http.Client{Timeout: t * time.Second}
 	resp, err := client.Get(url)
 	if err != nil {
-		log.Errori(err)
 		return "{}", err
 	}
 	defer resp.Body.Close()
@@ -37,7 +35,6 @@ func Post(url string, data interface{}, contentType string, timeout ...int) (str
 	jsonStr, _ := json.Marshal(data)
 	resp, err := client.Post(url, contentType, bytes.NewBuffer(jsonStr))
 	if err != nil {
-		log.Errori(err)
 		return "{}", err
 	}
 	defer resp.Body.Close()
