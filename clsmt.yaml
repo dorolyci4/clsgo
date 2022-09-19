@@ -1,6 +1,6 @@
 commands:
   test:
-    - go test ./v1/config -v -count=1 -coverprofile=cover.out
+    - go test ./v1/crypto -v -count=1 -coverprofile=cover.out
     - go tool cover -html=cover.out
   testall: go test ./... -v -count=1 -bench="Bench*" 
   bench: go test ./... -v -run=none -bench="Bench*" -count=1
