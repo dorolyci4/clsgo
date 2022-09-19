@@ -50,7 +50,8 @@ func (xml *XML) AddTitle(node string, attrs ...string) *XML {
 	return xml
 }
 
-// Element Chain operation is supported
+// Element Chain operation is supported,
+// If path cannot be found, then tag will be created under root tag
 func (xml *XML) CreateElement(tag string, path string, value string, comment string, attrs ...XMLAttr) *XMLElement {
 	if utils.IsEmpty(tag) {
 		return nil

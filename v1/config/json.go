@@ -3,69 +3,87 @@ package config
 import (
 	"bytes"
 	"encoding/json"
-	"github.com/gogf/gf/v2/encoding/gjson"
 	"io"
-	"log"
 	"os"
+
+	"github.com/gogf/gf/v2/encoding/gjson"
+	"github.com/lovelacelee/clsgo/v1/utils"
 )
 
 type Json = gjson.Json
 type Options = gjson.Options
 
-type JsonFile struct {
+// A JSON contains the JSON standard byte stream, and the file path to which you want to store it
+type JSON struct {
 	path    string
 	content []byte
 }
 
+func NewJsonWith(file string, in []byte) *JSON {
+	return &JSON{
+		content: in,
+		path:    file,
+	}
+}
+
+// Create an empty JSON object
+func NewJson() *JSON {
+	return NewJsonWith("", []byte{})
+}
+
+func (obj *JSON) FromString(s string) {
+	obj.content = []byte(s)
+}
+
+func (obj *JSON) OutputTo(file string) {
+	obj.path = file
+}
+
 // Open and read json file
-func (obj *JsonFile) Load(path string) error {
+func (obj *JSON) FromFile(path string) error {
 	obj.path = path
 	f, err := os.Open(obj.path)
 	if err != nil {
-		log.Fatalf("Open %s error %v\n", obj.path, err)
+		return err
 	}
 	defer f.Close()
-	content, err := io.ReadAll(f)
-	if err != nil {
-		log.Fatalf("Read %s error %v\n", obj.path, err)
-	}
+	content, _ := io.ReadAll(f)
 	obj.content = bytes.TrimPrefix(content, []byte("\xef\xbb\xbf"))
 	return err
 }
 
 // Json string
-func (obj *JsonFile) String() string {
+func (obj *JSON) String() string {
 	return string(obj.content)
 }
 
-// Json to struct
-func (obj *JsonFile) Parse(model interface{}) error {
+// Parse byte strem to struct
+func (obj *JSON) Unmarshal(model interface{}) error {
 	// interface{} is the type of anything
-	return json.Unmarshal([]byte(string(obj.content)), model)
+	return JsonUnmarshal([]byte(string(obj.content)), model)
 }
 
-// Struct
-func (obj *JsonFile) Save(model interface{}, filepath string) error {
-	b, err := json.Marshal(model)
-	if err != nil {
-		return err
-	}
+// Encode golang object to json stream
+func (obj *JSON) Marshal(model interface{}) error {
+	b, err := JsonMarshal(model)
 	obj.content = b
-	f, err := os.Create(filepath)
+	return err
+}
+
+// Save byte stream to json file
+func (obj *JSON) Save(filepath ...string) error {
+	file := utils.Param(filepath, "output.json")
+	f, err := os.Create(file)
 	if err != nil {
-		log.Printf("%s create failed\n", filepath)
 		return err
 	}
 	defer f.Close()
 
 	var buffer bytes.Buffer
 	err = json.Indent(&buffer, obj.content, "", "\t")
-	if err != nil {
-		log.Printf("%s format failed\n", filepath)
-	}
+	_, werr := buffer.WriteTo(f)
 
-	_, err = buffer.WriteTo(f)
-	return err
+	return utils.NewError(err).Join(werr)
 }
 
 // Functions implement by gjson

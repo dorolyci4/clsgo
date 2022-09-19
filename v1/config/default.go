@@ -5,7 +5,7 @@ import (
 )
 
 // With all necessary nodes
-func ClsConfigDefault(cfg Config, name string, gen bool) error {
+func useDefaultValue(cfg Config, name string) {
 	cfg.SetDefault("project.name", name)
 	cfg.SetDefault("project.seemore", "https://pkg.go.dev/github.com/lovelacelee/clsgo")
 
@@ -23,15 +23,10 @@ func ClsConfigDefault(cfg Config, name string, gen bool) error {
 		"stdoutColorDisabled": false,
 		"clsgo": map[string]any{
 			"stStatus":            0,
+			"prefix":              "[" + name + "]",
 			"level":               "all",
 			"writerColorEnable":   true,
 			"stdoutColorDisabled": false,
 		},
 	})
-
-	if gen {
-		return cfg.SafeWriteConfig()
-	} else {
-		return nil
-	}
 }

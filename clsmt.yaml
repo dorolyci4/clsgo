@@ -1,9 +1,13 @@
 commands:
-  test: go test ./... -v -count=1 -bench="Bench*" -cover
+  test:
+    - go test ./v1/config -v -count=1 -coverprofile=cover.out
+    - go tool cover -html=cover.out
+  testall: go test ./... -v -count=1 -bench="Bench*" 
   bench: go test ./... -v -run=none -bench="Bench*" -count=1
-  cover: go test ./... -race -coverprofile=coverage.txt -covermode=atomic
+  cover: 
+    - go test ./... -coverprofile=cover.out -covermode=atomic
+    - go tool cover -html=cover.out
   check:
     - staticcheck ./...
     - gocyclo -over 50 .
-    - go test ./... -cover
   profile: go test ./... -v -bench="Bench*" -memprofile memprofile.out -cpuprofile profile.out

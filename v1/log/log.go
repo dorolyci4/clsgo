@@ -14,6 +14,9 @@ import (
 	"github.com/lovelacelee/clsgo/v1/config"
 )
 
+const loggersection = "logger"
+const internallog = loggersection + ".clsgo"
+
 func init() {
 	// glog functions could not follow my heart
 	// Use runtime instead
@@ -21,23 +24,37 @@ func init() {
 
 	// IMPORTANT: g.Cfg() config load only after main called, not valid in go test.
 	// so here load them use viper manually
-	if g.Log("clsgo").GetConfig().Path == "" {
-		// Will generate logs path by default, sometimes you don't want this happen
-		// such as in test cases, or used in command tool like clsmt.
-		// g.Log().SetConfigWithMap(loadLogConfig("logger"))
 
-		// Internal logger instance
-		g.Log("clsgo").SetConfigWithMap(loadLogConfig("logger.clsgo"))
-	}
+	// Overwrite updates parameters that are automatically loaded by GLOG
+	g.Log().SetConfigWithMap(loadLogConfig(loggersection))
+
+	// Internal logger instance
+	g.Log("clsgo").SetConfigWithMap(loadLogConfig(internallog))
+
+	// Infofi("%v", g.Log())
+	// Infof("%v", g.Log("clsgo"))
 }
 
 func loadLogConfig(logger string) map[string]any {
 	m := map[string]any{
-		"flags":                glog.F_TIME_STD,
-		"path":                 config.GetStringWithDefault(logger+".path", "logs/"),
-		"file":                 config.GetStringWithDefault(logger+".file", "{Y-m-d}.log"),
-		"level":                config.GetStringWithDefault(logger+".level", "dev"),
-		"prefix":               config.GetStringWithDefault(logger+".prefix", ""),
+		"flags": glog.F_TIME_STD,
+		// We don't need the logs directory to be generated without using a configuration file
+		"path": config.GetStringWithDefault(logger+".path", ""),
+		"file": config.GetStringWithDefault(logger+".file", func(logger string) string {
+			if logger == internallog {
+				return ""
+			} else {
+				return "{Y-m-d}.log"
+			}
+		}(logger)),
+		"level": config.GetStringWithDefault(logger+".level", "dev"),
+		"prefix": config.GetStringWithDefault(logger+".prefix", func(logger string) string {
+			if logger == internallog {
+				return "CLSGO"
+			} else {
+				return "APP"
+			}
+		}(logger)),
 		"stSkip":               config.GetIntWithDefault(logger+".StSkip", 0),
 		"stStatus":             config.GetIntWithDefault(logger+".StStatus", 0),
 		"stFilter":             config.GetStringWithDefault(logger+".StFilter", ""),

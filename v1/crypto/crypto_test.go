@@ -9,8 +9,8 @@ import (
 )
 
 func clean() {
-	utils.DeleteThingsInDir("logs")
-	utils.DeletePath("logs")
+	// utils.DeleteThingsInDir("logs")
+	// utils.DeletePath("logs")
 	utils.DeleteFiles(utils.Cwd(), "/*.yaml$")
 	utils.DeleteFiles(utils.Cwd(), "/*.xml$")
 }
@@ -25,7 +25,7 @@ func TestAes(t *testing.T) {
 	if aesECB.DecryptedString() != want {
 		t.Errorf("Not passed\n")
 	} else {
-		log.Info(aesECB.EncryptedBase64())
+		log.Infoi(aesECB.EncryptedBase64())
 	}
 	// CBC test
 	aesCBC := crypto.AES{Mod: crypto.CBC, Padding: crypto.PKCS5}
@@ -36,7 +36,7 @@ func TestAes(t *testing.T) {
 	if aesCBC.DecryptedString() != want {
 		t.Errorf("Not passed\n")
 	} else {
-		log.Info(aesCBC.EncryptedBase64())
+		log.Infoi(aesCBC.EncryptedBase64())
 	}
 	// CFB test
 	aesCFB := crypto.AES{Mod: crypto.CFB, Padding: crypto.NoPadding, Iv: []byte("1111111111111111")}
@@ -46,7 +46,7 @@ func TestAes(t *testing.T) {
 	if aesCFB.DecryptedString() != want {
 		t.Errorf("Not passed\n")
 	} else {
-		log.Info(aesCFB.EncryptedBase64())
+		log.Infoi(aesCFB.EncryptedBase64())
 	}
 
 	clean()

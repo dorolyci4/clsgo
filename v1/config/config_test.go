@@ -3,6 +3,8 @@ package config_test
 import (
 	"bytes"
 	"fmt"
+	"os"
+	"sync"
 	"testing"
 	"time"
 
@@ -19,33 +21,74 @@ type JsonModel struct {
 }
 
 func clean() {
-	utils.DeletePath("logs")
 	utils.DeleteFiles(utils.Cwd(), "/*.yaml$")
 	utils.DeleteFiles(utils.Cwd(), "/*.xml$")
+	utils.DeleteFiles(utils.Cwd(), "/*.json$")
 }
+
+var data = `
+project: clsgo
+test:
+  int: 1
+  string: "test"
+  bool: true
+  duration: "1h"
+  float32: 3.14
+  float64: 3.1415926
+  intslice:
+    - 1
+    - 2
+    - 3
+  stringslice:
+    - "a"
+    - "b"
+    - "c"
+  int64: 23492938579
+`
+
 func TestConfig(t *testing.T) {
-	clean()
-	log.Green("Running config test cases")
 	gtest.C(t, func(t *gtest.T) {
 		t.Run("config", func(ot *testing.T) {
-			// Test case use default config.yaml
-			t.AssertNE(config.ClsConfig("notexist", "notexist", true), nil)
-			t.AssertNE(config.ClsConfig("notexist", "notexist", false), nil)
+			clean()
 			t.AssertNE(config.Cfg, nil)
+			config.CreateDefault("")
+			// Test case use default config.yaml
+			t.AssertNE(config.New("notexist", "test"), nil)
 			// First time load, default value returned
-			config.GetIntWithDefault("logger.rotatebackuplimit", 0)
-			config.GetIntWithDefault("logger.rotatebackuplimit", 1)
-			config.GetStringWithDefault("logger.rotateSize", "2MB")
-			config.GetDurationWithDefault("logger.rotateCheckInterval", time.Minute)
-			config.GetBoolWithDefault("logger.writerColorEnable", true)
-			config.GetDurationWithDefault("server.tcpTimeout", time.Duration(1))
-			config.GetStringWithDefault("server.openapiPath", "/api.json")
-			config.GetFloat32WithDefault("logger.stStatus", 0.1)
-			config.GetFloat64WithDefault("logger.stStatus", 0.1)
-			config.GetInt64WithDefault("logger.stStatus", 0)
-			config.GetStringSliceWithDefault("logger.stStatus", []string{})
-			config.GetIntSliceWithDefault("logger.stStatus", []int{})
-			t.Assert(config.Get("logger"), nil)
+			t.Assert(config.GetIntWithDefault("test.int", 0), 0)
+			t.Assert(config.GetStringWithDefault("test.string", "nil"), "nil")
+			t.Assert(config.GetBoolWithDefault("test.bool", false), false)
+			t.Assert(config.GetDurationWithDefault("test.duration", time.Second), time.Second)
+			t.Assert(config.GetFloat32WithDefault("test.float32", 0.8), 0.8)
+			t.Assert(config.GetFloat64WithDefault("test.float64", 0.8888), 0.8888)
+			t.Assert(config.GetIntSliceWithDefault("test.intslice", []int{3, 2, 1}), []int{3, 2, 1})
+			t.Assert(config.GetStringSliceWithDefault("test.stringslice", []string{"c", "b", "a"}), []string{"c", "b", "a"})
+			t.Assert(config.GetInt64WithDefault("test.int64", 8888), 8888)
+
+			t.Assert(config.Cfg.GetInt("test.int"), 0)
+			watched := config.New("config", "test")
+			t.Assert(watched.GetString("test.string"), "")
+			var wg sync.WaitGroup
+			wg.Add(1)
+			go func() {
+				// Do some change
+				os.WriteFile("config.yaml", []byte(data), 0755)
+				config.Cfg.SafeWriteConfig()
+				wg.Done()
+			}()
+			wg.Wait() // Check whether fsnotify works well
+
+			t.Assert(config.GetIntWithDefault("test.int", 0), 1)
+			t.Assert(config.GetStringWithDefault("test.string", "nil"), "test")
+			t.Assert(config.GetBoolWithDefault("test.bool", false), true)
+			t.Assert(config.GetDurationWithDefault("test.duration", time.Second), time.Hour)
+			t.Assert(config.GetFloat32WithDefault("test.float32", 0.8), 3.14)
+			t.Assert(config.GetFloat64WithDefault("test.float64", 0.8888), 3.1415926)
+			t.Assert(config.GetIntSliceWithDefault("test.intslice", []int{3, 2, 1}), []int{1, 2, 3})
+			t.Assert(config.GetStringSliceWithDefault("test.stringslice", []string{"c", "b", "a"}), []string{"a", "b", "c"})
+			t.Assert(config.GetInt64WithDefault("test.int64", 8888), 23492938579)
+
+			t.Assert(watched.GetString("test.string"), "test")
 		})
 		t.Run("json", func(ot *testing.T) {
 			testInput := `{"author": "lovelacelee","github": "https://github.com/lovelacelee","version": "1.0.0"}`
@@ -68,7 +111,7 @@ func TestConfig(t *testing.T) {
 			t.Assert(encString1, encString2)
 
 			t.Assert(config.JsonIsValidDataType(""), false)
-			t.Assert(config.JsonIsValidDataType(".xml"), true)
+			t.Assert(config.JsonIsValidDataType(".json"), true)
 			t.Assert(config.JsonValid(testDecode), true)
 
 			_, err = config.JsonMarshal(testDecode)
@@ -76,7 +119,26 @@ func TestConfig(t *testing.T) {
 			_, err = config.JsonMarshalIndent(testDecode, "", "    ")
 			t.Assert(err, nil)
 
-			t.Assert(config.JsonUnmarshal([]byte(testInput), &mapDecode), nil)
+			var st JsonModel
+			t.Assert(config.JsonUnmarshal([]byte(testInput), &st), nil)
+			t.Assert(st.Author, "lovelacelee")
+
+			f := config.NewJsonWith("test.json", testEncode)
+			f.Save()
+			nf := config.NewJson()
+			nf.FromString(testInput)
+			nf.OutputTo("nf.json")
+
+			t.Assert(nf.Save("newnf.json"), nil)
+			f.FromFile("newnf.json")
+			var nfst JsonModel
+			t.Assert(f.Unmarshal(&nfst), nil)
+			t.Assert(nfst.Author, "lovelacelee")
+			nfst.Author = "Lee"
+			t.Assert(f.Marshal(&nfst), nil)
+			t.AssertNE(f.FromFile("xx.json"), nil)
+			log.Green(f.String())
+			t.AssertNE(f.Save("./test/test.json"), nil)
 		})
 		t.Run("xml", func(ot *testing.T) {
 			xml := `<?xml version="1.0" encoding="utf-8"?>
@@ -110,11 +172,13 @@ func TestConfig(t *testing.T) {
 			// x.AddTitle("xml")
 			t.AssertNE(x.CreateElement("nameinroot", "", "", ""), nil)
 			t.Assert(x.CreateElement("", "", "", ""), nil)
+			t.AssertNE(x.CreateElement("check", "tag", "", ""), nil)
 			t.AssertNE(x.CreateElement("name", "resources", "lovelacelee", "test"), nil)
 			t.AssertNE(x.CreateElement("name", "resources", "lovelacelee", "test", config.XMLAttr{K: "h", V: "178cm"}), nil)
 
 			x.Dump("XML1:", "\n")
 			x.Save()
+			x.Save() // cover precondition: file exist
 			x = config.XMLFile("output.xml")
 			n := x.Get("nameinroot")
 			t.AssertNE(x.Doc.RemoveChild(n), nil)
@@ -147,8 +211,8 @@ func TestConfig(t *testing.T) {
 	clean()
 }
 
-func ExampleClsConfig() {
-	cfg := config.ClsConfig("server", "http", true)
+func ExampleNew() {
+	cfg := config.New("server", "http")
 	fmt.Print(cfg.Get("project.name"))
 	clean()
 	// Output:
@@ -158,8 +222,8 @@ func ExampleClsConfig() {
 // Use global unique config instance
 func Example() {
 	// import "github.com/lovelacelee/clsgo/config"
-	config.Init("clsgo")
-	fmt.Print(config.Cfg.Get("project.name"))
+	config.CreateDefault("clsgo")
+	fmt.Print(config.Default().Get("project.name"))
 	clean()
 	// Output:
 	// clsgo

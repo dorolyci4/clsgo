@@ -5,11 +5,7 @@ package config
 import (
 	"time"
 
-	"github.com/gogf/gf/v2/container/gvar"
-	"github.com/gogf/gf/v2/os/gcfg"
-	"github.com/gogf/gf/v2/os/gctx"
-
-	"github.com/lovelacelee/clsgo/v1/utils"
+	"github.com/fsnotify/fsnotify"
 
 	"github.com/spf13/cast"
 	"github.com/spf13/viper"
@@ -17,164 +13,167 @@ import (
 
 type Config = *viper.Viper
 
-// WARNING: this will be always nil before Init() called.
+const defaultFilename = "config"
+
+// WARNING:
+// If the default configuration file does not exist when the program is running,
+// even if it is created at runtime, the hot update function cannot be enabled.
+// To use the hot update feature, you must recreate an instance and load it once.
+// In test cases and CLSMT, configuration files are not used by default.
 var Cfg Config
 
 func init() {
-	Init("")
+	// Load default config
+	Cfg = New(defaultFilename, "")
 }
 
-// Leave it to the user to initialize the configuration file
-func Init(project string) {
-	var generateDeafult = false
-	// Load global config file, generate if not exist
-	Cfg = ClsConfig("config", project, generateDeafult)
-}
-
-// viper.ConfigWatch is not reliable
-func monitor(cfg *viper.Viper) {
-	for {
-		time.Sleep(time.Second * 5) // delay
-		err := cfg.ReadInConfig()   // Find and read the config file
-		if err != nil {
-			utils.ErrorWithoutHeader("%v", err)
-		}
-	}
-}
-
-// Param: <monitoring> will start a routine to watch file changes, and reload it.
-// and the goroutine never ends.
-// If <monitoring> is true and <filename> config file not exist, it will be create by default.
-// <filename> does not include extension.
-func ClsConfig(filename string, projectname string, monitoring bool) (cfg *viper.Viper) {
-	ViperInstance := viper.New()
-
-	// open a goroutine to watch remote changes forever
-	if monitoring {
-		go monitor(ViperInstance)
-	}
-
-	ViperInstance.SetConfigName(filename)
+func matchFile(cfg Config, project, filename string) {
+	cfg.SetConfigName(filename)
 	// name of config file (without extension)
 	// path to look for the config file in
 	// call multiple times to add many search paths
-	ViperInstance.AddConfigPath(".")
-	ViperInstance.AddConfigPath("./config")
-	ViperInstance.AddConfigPath("/etc/" + projectname)
-	ViperInstance.AddConfigPath("$HOME/." + projectname)
-
-	// Find and read the config file
-	err := ViperInstance.ReadInConfig()
-	if err != nil { // Handle errors reading the config file
-		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
-			if monitoring {
-				ViperInstance.SetConfigType("yaml")
-			}
-			// Use default
-			if errDef := ClsConfigDefault(ViperInstance, projectname, monitoring); errDef != nil {
-				utils.WarnWithoutHeader("%v", errDef)
-			}
-			return ViperInstance
-		} else {
-			utils.ErrorWithoutHeader("%v", err)
-			return nil
-		}
+	cfg.AddConfigPath(".")
+	cfg.AddConfigPath("./config")
+	if project != "" {
+		cfg.AddConfigPath("/etc/" + project)
+		cfg.AddConfigPath("$HOME/." + project)
+	} else {
+		cfg.AddConfigPath("/etc/")
+		cfg.AddConfigPath("$HOME/")
 	}
-	return ViperInstance
+}
+
+// If you want to use the default configuration file, you need to create it manually
+func CreateDefault(project string) {
+	instance := viper.New()
+	matchFile(instance, project, defaultFilename)
+	useDefaultValue(instance, project)
+
+	instance.SetConfigType("yaml")
+	instance.SafeWriteConfig()
+}
+
+func Default() Config {
+	reload := viper.New()
+	matchFile(reload, "", defaultFilename)
+	// Find and read the config file
+	reload.ReadInConfig()
+	return reload
+}
+
+// Create a new configuration object.
+// Filename is the name of the configuration file without a suffix,
+// project is the name of the project corresponding to the configuration file,
+// create determines whether to create the configuration file if it does not exist
+func New(filename, project string) Config {
+	instance := viper.New()
+	matchFile(instance, project, filename)
+	// Find and read the config file
+	err := instance.ReadInConfig()
+	if err != nil { // Handle errors reading the config file
+		// In some typical scenarios, CREATE should be false:
+		// for terminal programs. Or, the configuration file is not required
+		useDefaultValue(instance, project)
+	}
+
+	instance.OnConfigChange(func(in fsnotify.Event) {
+		if in.Op&fsnotify.Write != 0 {
+			instance.ReadInConfig()
+		}
+	})
+	// Only works(enable watcher) when filename found out
+	if instance.ReadInConfig() == nil {
+		instance.WatchConfig()
+	}
+	return instance
 }
 
 // GetWithDefault return the match result form config file,
 // Retrun default value(def) if not found
 func GetIntWithDefault(cfg string, def int) int {
-	if Cfg == nil || !Cfg.InConfig(cfg) {
+	r := Default()
+	if !r.InConfig(cfg) {
 		return def
 	}
-	return cast.ToInt(Cfg.Get(cfg))
+	return cast.ToInt(r.Get(cfg))
 }
 
 // GetWithDefault return the match result form config file,
 // Retrun default value(def) if not found
 func GetStringWithDefault(cfg string, def string) string {
-	if Cfg == nil || !Cfg.InConfig(cfg) {
+	r := Default()
+	if !r.InConfig(cfg) {
 		return def
 	}
-	return cast.ToString(Cfg.Get(cfg))
+	return cast.ToString(r.Get(cfg))
 }
 
 // GetWithDefault return the match result form config file,
 // Retrun default value(def) if not found
 func GetDurationWithDefault(cfg string, def time.Duration) time.Duration {
-	if Cfg == nil || !Cfg.InConfig(cfg) {
+	r := Default()
+	if !r.InConfig(cfg) {
 		return def
 	}
-	return cast.ToDuration(Cfg.Get(cfg))
+	return cast.ToDuration(r.Get(cfg))
 }
 
 // GetWithDefault return the match result form config file,
 // Retrun default value(def) if not found
 func GetBoolWithDefault(cfg string, def bool) bool {
-	if Cfg == nil || !Cfg.InConfig(cfg) {
+	r := Default()
+	if !r.InConfig(cfg) {
 		return def
 	}
-	return cast.ToBool(Cfg.Get(cfg))
+	return cast.ToBool(r.Get(cfg))
 }
 
 // GetWithDefault return the match result form config file,
 // Retrun default value(def) if not found
 func GetFloat32WithDefault(cfg string, def float32) float32 {
-	if Cfg == nil || !Cfg.InConfig(cfg) {
+	r := Default()
+	if !r.InConfig(cfg) {
 		return def
 	}
-	return cast.ToFloat32(Cfg.Get(cfg))
+	return cast.ToFloat32(r.Get(cfg))
 }
 
 // GetWithDefault return the match result form config file,
 // Retrun default value(def) if not found
 func GetFloat64WithDefault(cfg string, def float64) float64 {
-	if Cfg == nil || !Cfg.InConfig(cfg) {
+	r := Default()
+	if !r.InConfig(cfg) {
 		return def
 	}
-	return cast.ToFloat64(Cfg.Get(cfg))
+	return cast.ToFloat64(r.Get(cfg))
 }
 
 // GetWithDefault return the match result form config file,
 // Retrun default value(def) if not found
 func GetIntSliceWithDefault(cfg string, def []int) []int {
-	if Cfg == nil || !Cfg.InConfig(cfg) {
+	r := Default()
+	if !r.InConfig(cfg) {
 		return def
 	}
-	return cast.ToIntSlice(Cfg.Get(cfg))
+	return cast.ToIntSlice(r.Get(cfg))
 }
 
 // GetWithDefault return the match result form config file,
 // Retrun default value(def) if not found
 func GetStringSliceWithDefault(cfg string, def []string) []string {
-	if Cfg == nil || !Cfg.InConfig(cfg) {
+	r := Default()
+	if !r.InConfig(cfg) {
 		return def
 	}
-	return cast.ToStringSlice(Cfg.Get(cfg))
+	return cast.ToStringSlice(r.Get(cfg))
 }
 
 // GetWithDefault return the match result form config file,
 // Retrun default value(def) if not found
 func GetInt64WithDefault(cfg string, def int64) int64 {
-	if Cfg == nil || !Cfg.InConfig(cfg) {
+	r := Default()
+	if !r.InConfig(cfg) {
 		return def
 	}
-	return cast.ToInt64(Cfg.Get(cfg))
-}
-
-// Functions implemented using goframe, gvar returned
-func Get(pattern string, def ...interface{}) (x *gvar.Var) {
-	var ctx = gctx.New()
-	result, err := gcfg.Instance().Get(ctx, pattern)
-	if err != nil {
-		if len(def) > 0 {
-			return gvar.New(def[0])
-		} else {
-			return gvar.New(nil)
-		}
-	} else {
-		return result
-	}
+	return cast.ToInt64(r.Get(cfg))
 }
