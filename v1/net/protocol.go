@@ -10,11 +10,11 @@ type Retry = gtcp.Retry
 
 // User defined TCP protocol
 type TcpProtocol interface {
-	// Method of handling message
-	HandleMessage(conn *Conn) ([]byte, error)
+	// Specify the server name
+	ServerName() string
+	// Return a new object or the exist
 	Instance() TcpProtocol
-
-	// Send methods
-	Login(conn *Conn) error
-	KeepAlive(conn *Conn) error
+	// Recv data from peer
+	// Return proccess result
+	HandleMessage(conn *Conn) ([]byte, error)
 }

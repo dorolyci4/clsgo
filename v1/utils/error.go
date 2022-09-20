@@ -16,6 +16,7 @@ var (
 	ErrChanReadTimeout  = errors.New("read chan time out")
 	ErrChanOptCanceled  = errors.New("chan operation canceled")
 	ErrNotFound         = errors.New("404")
+	ErrTcpDomain        = errors.New("domain server missing port in address")
 )
 
 type CError struct {

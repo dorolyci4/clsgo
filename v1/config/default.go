@@ -24,7 +24,7 @@ func useDefaultValue(cfg Config, name string) {
 		"clsgo": map[string]any{
 			"stStatus":            0,
 			"prefix":              "[" + name + "]",
-			"level":               "all",
+			"level":               "info",
 			"writerColorEnable":   true,
 			"stdoutColorDisabled": false,
 		},

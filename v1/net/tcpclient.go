@@ -1,7 +1,6 @@
 package net
 
 import (
-	"errors"
 	"strings"
 	"time"
 
@@ -23,7 +22,7 @@ type Client struct {
 func TcpClient(ipserver string, proto ...TcpProtocol) (*Client, error) {
 	timeout := config.GetDurationWithDefault("server.tcpTimeout", 5)
 	c, err := gtcp.NewConn(ipserver, timeout*time.Second)
-	if err != nil {
+	if err != nil || c == nil {
 		return nil, err
 	}
 	client := Client{Conn: c, ipServer: ipserver, timeout: timeout}
@@ -38,7 +37,7 @@ func TcpClient(ipserver string, proto ...TcpProtocol) (*Client, error) {
 func DomainTcpClient(domainServer string, proto ...TcpProtocol) (*Client, error) {
 	host := strings.Split(domainServer, ":")
 	if len(host) < 2 {
-		return nil, errors.New("domain server missing port in address")
+		return nil, utils.ErrTcpDomain
 	}
 	s, e := gipv4.GetHostByName(host[0])
 	if e != nil {
@@ -49,22 +48,16 @@ func DomainTcpClient(domainServer string, proto ...TcpProtocol) (*Client, error)
 
 func (client *Client) Close() {
 	if client.Conn != nil {
-		err := client.Conn.Close()
-		utils.WarnIfError(err)
+		client.Conn.Close()
 	}
+	client.Conn = nil
 }
 
-func (client *Client) Reconnect() {
-	if client.Conn != nil {
-		err := client.Conn.Close()
-		utils.WarnIfError(err)
-	}
+func (client *Client) Reconnect() error {
+	client.Close()
 	c, err := gtcp.NewConn(client.ipServer, client.timeout*time.Second)
-	if err != nil {
-		client.Conn = nil
-	} else {
-		client.Conn = c
-	}
+	client.Conn = c
+	return err
 }
 
 func (client *Client) ReconnectIfError(e error) {
