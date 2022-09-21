@@ -1,3 +1,5 @@
+// Copyright of https://github.com/andybalholm/crlf
+
 // The crlf package helps in dealing with files that have DOS-style CR/LF line
 // endings.
 package crlf
@@ -70,6 +72,16 @@ func (ToCRLF) Transform(dst, src []byte, atEOF bool) (nDst, nSrc int, err error)
 }
 
 func (ToCRLF) Reset() {}
+
+func CRString(in string) string {
+	n, _, _ := transform.String(new(Normalize), in)
+	return n
+}
+
+func CRLFString(in string) string {
+	n, _, _ := transform.String(new(ToCRLF), in)
+	return n
+}
 
 // NewReader returns an io.Reader that converts CR or CRLF line endings to LF.
 func NewReader(r io.Reader) io.Reader {

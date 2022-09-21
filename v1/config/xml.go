@@ -1,7 +1,6 @@
 package config
 
 import (
-	"fmt"
 	"os"
 
 	"github.com/beevik/etree"
@@ -68,15 +67,15 @@ func (xml *XML) CreateElement(tag string, path string, value string, comment str
 	return t
 }
 
-func (xml *XML) Dump(prefix, suffix string) {
+func (xml *XML) Dump(prefix, suffix string) string {
 	xml.Doc.WriteSettings.UseCRLF = true
 	xml.Doc.WriteSettings.CanonicalAttrVal = true
 	xml.Doc.WriteSettings.CanonicalEndTags = true
 	// CannonicalText generate &#xD; suffix for every tag
 	// xml.Doc.WriteSettings.CanonicalText = true
-	fmt.Println(prefix)
-	xml.Doc.WriteTo(os.Stdout)
-	fmt.Println(suffix)
+
+	s, _ := xml.Doc.WriteToString()
+	return s
 }
 
 func (xml *XML) String() string {

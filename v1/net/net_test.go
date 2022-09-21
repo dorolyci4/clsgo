@@ -25,7 +25,7 @@ func (p *TestProtocol) ServerName() string {
 func (p *TestProtocol) HandleMessage(conn *net.Conn) ([]byte, error) {
 	data, err := conn.RecvLine()
 	if !utils.IsEmpty(data) {
-		log.Info(data)
+		log.Green("--> %s", data)
 	}
 	time.Sleep(time.Second * 3)
 	return []byte("response message"), err
@@ -56,17 +56,16 @@ type ServerParam struct {
 var ServerParamCases = []ServerParam{
 	{"localhost", true, false},
 	{"localhost:19090", false, true},
-	{"localhos:19090", true, false},
+	{"localhos:19092", true, false},
 }
 
-func TestNetPackage(t *testing.T) {
-	s := net.NewTcpServer("0.0.0.0", 19090, &TestProtocol{})
-	defer s.Close()
+var wg sync.WaitGroup
 
-	var wg sync.WaitGroup
-	wg.Add(4)
+func TestNetPackage(t *testing.T) {
 	gtest.C(t, func(t *gtest.T) {
 		t.Run("TcpServer", func(_ *testing.T) {
+			s := net.NewTcpServer("0.0.0.0", 19091, false, &TestProtocol{})
+			defer s.Close()
 			t.AssertNE(s, nil)
 			go s.Run()
 			wg.Done()
@@ -74,8 +73,12 @@ func TestNetPackage(t *testing.T) {
 		t.Run("DomainTCPClient", func(_ *testing.T) {
 			for _, casei := range ServerParamCases {
 				c, err := net.DomainTcpClient(casei.Domain)
-				t.Assert(err == nil, casei.ErrorNil)
+
 				t.Assert(c == nil, casei.CliIsNil)
+				t.Assert(err == nil, casei.ErrorNil)
+				if c != nil && err == nil {
+					c.Close()
+				}
 			}
 			c, err := net.DomainTcpClient("localhost:19090")
 			t.AssertEQ(err, nil)
@@ -85,7 +88,7 @@ func TestNetPackage(t *testing.T) {
 			c.Close()
 			c.ReconnectIfError(nil)
 			c.ReconnectIfError(utils.ErrTcpDomain)
-			defer c.Close()
+			c.Close()
 
 			wg.Done()
 		})
@@ -106,5 +109,15 @@ func TestNetPackage(t *testing.T) {
 			wg.Done()
 		})
 	})
+}
+
+func TestMain(m *testing.M) {
+	// Start local server
+	s := net.NewTcpServer("0.0.0.0", 19090, true, &TestProtocol{})
+	defer s.Close()
+	go s.Run()
+	time.Sleep(time.Second)
+	wg.Add(4)
+	m.Run()
 	wg.Wait()
 }

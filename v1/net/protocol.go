@@ -1,12 +1,12 @@
 package net
 
 import (
-	"github.com/gogf/gf/v2/net/gtcp"
+	"github.com/lovelacelee/clsgo/v1/net/tcp"
 )
 
-// Wrappers of gtcp
-type Conn = gtcp.Conn
-type Retry = gtcp.Retry
+// Wrappers of tcp
+type Conn = tcp.Conn
+type Retry = tcp.Retry
 
 // User defined TCP protocol
 type TcpProtocol interface {

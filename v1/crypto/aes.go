@@ -12,8 +12,10 @@ import (
 	"encoding/base64"
 	"encoding/hex"
 	"errors"
-	"github.com/lovelacelee/clsgo/v1/log"
 	"io"
+
+	"github.com/lovelacelee/clsgo/v1/log"
+	"github.com/lovelacelee/clsgo/v1/utils"
 )
 
 const (
@@ -48,7 +50,7 @@ type AES struct {
 // keylen only accept [16/24/32]
 func (aes *AES) Key(keystr string, keylen int) {
 	if keylen != 16 && keylen != 24 && keylen != 32 {
-		log.Error("AES key only accept [16/24/32] len, use default 16.")
+		log.Debugi("AES key only accept [16/24/32] len, use default 16.")
 		keylen = 16
 	}
 	key := []byte(keystr)
@@ -61,10 +63,17 @@ func (aes *AES) Key(keystr string, keylen int) {
 	}
 }
 
-func (aes *AES) IvGen() []byte {
+func (aes *AES) IvGen(ivs ...string) []byte {
 	iv := make([]byte, 16)
-	if _, err := io.ReadFull(rand.Reader, iv); err != nil {
-		return nil
+	ivString := utils.Param(ivs, "")
+	if ivString != "" {
+		if len(ivString) < 16 {
+			copy(iv, []byte(ivString))
+		} else {
+			copy(iv, []byte(ivString)[0:16])
+		}
+	} else {
+		io.ReadFull(rand.Reader, iv) // CBC cipher will be different everytime
 	}
 	aes.Iv = iv
 	return iv
@@ -164,8 +173,7 @@ func aesEncryptCBC(origData []byte, padding int, key []byte, iv []byte) (encrypt
 		err = nil
 	case PKCS7:
 		origData, err = PadPKCS7(origData, aes.BlockSize)
-	case NoPadding:
-		err = nil
+
 	}
 	blockMode := cipher.NewCBCEncrypter(block, iv)
 	encrypted = make([]byte, len(origData))
@@ -195,11 +203,7 @@ func aesDecryptCBC(encrypted []byte, padding int, key []byte, iv []byte) (decryp
 }
 
 func aesEncryptCFB(origData []byte, padding int, key []byte, iv []byte) (encrypted []byte, err error) {
-	block, err := aes.NewCipher(key)
-	if err != nil {
-		log.Error(err.Error())
-		return nil, err
-	}
+	block, _ := aes.NewCipher(key)
 
 	switch padding {
 	case PKCS5:
@@ -217,11 +221,8 @@ func aesEncryptCFB(origData []byte, padding int, key []byte, iv []byte) (encrypt
 }
 
 func aesDecryptCFB(encrypted []byte, padding int, key []byte, iv []byte) (decrypted []byte, err error) {
-	block, err := aes.NewCipher(key)
-	if err != nil {
-		log.Error(err.Error())
-		return nil, err
-	}
+	block, _ := aes.NewCipher(key)
+
 	if len(encrypted) < aes.BlockSize {
 		return nil, errors.New("cipher content(encrypted) too short")
 	}

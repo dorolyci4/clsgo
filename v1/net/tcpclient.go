@@ -5,15 +5,15 @@ import (
 	"time"
 
 	"github.com/gogf/gf/v2/net/gipv4"
-	"github.com/gogf/gf/v2/net/gtcp"
 	"github.com/lovelacelee/clsgo/v1/config"
+	"github.com/lovelacelee/clsgo/v1/net/tcp"
 	"github.com/lovelacelee/clsgo/v1/utils"
 )
 
 type Client struct {
 	timeout  time.Duration
 	ipServer string
-	Conn     *gtcp.Conn
+	Conn     *tcp.Conn
 	Proto    TcpProtocol
 }
 
@@ -21,7 +21,7 @@ type Client struct {
 // Config: "server.tcpTimeout" unit:seconds
 func TcpClient(ipserver string, proto ...TcpProtocol) (*Client, error) {
 	timeout := config.GetDurationWithDefault("server.tcpTimeout", 5)
-	c, err := gtcp.NewConn(ipserver, timeout*time.Second)
+	c, err := tcp.NewConn(ipserver, timeout*time.Second)
 	if err != nil || c == nil {
 		return nil, err
 	}
@@ -55,7 +55,7 @@ func (client *Client) Close() {
 
 func (client *Client) Reconnect() error {
 	client.Close()
-	c, err := gtcp.NewConn(client.ipServer, client.timeout*time.Second)
+	c, err := tcp.NewConn(client.ipServer, client.timeout*time.Second)
 	client.Conn = c
 	return err
 }

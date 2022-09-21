@@ -6,14 +6,14 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/gogf/gf/v2/net/gtcp"
 	"github.com/lovelacelee/clsgo/v1/log"
+	"github.com/lovelacelee/clsgo/v1/net/tcp"
 )
 
-type TcpServer = *gtcp.Server
+type TcpServer = *tcp.Server
 
 // Close the TCP connection if any error occurred or the connection lifetime ends.
-func connectionClose(conn *gtcp.Conn) {
+func connectionClose(conn *tcp.Conn) {
 	conn.Close()
 }
 
@@ -22,9 +22,9 @@ func connectionClose(conn *gtcp.Conn) {
 // data packets are walk on the single connection instance.
 // NewTcpServer will be block running after Run() called.
 // Use TcpServer.Close() to terminate the server.
-func NewTcpServer(host string, port int, proto TcpProtocol) TcpServer {
+func NewTcpServer(host string, port int, tcpreuse bool, proto TcpProtocol) TcpServer {
 	log.Debugfi("TCP server[%v] listen %s:%d", proto.ServerName(), host, port)
-	return gtcp.NewServer(host+":"+strconv.Itoa(port), func(conn *gtcp.Conn) {
+	return tcp.NewServer(host+":"+strconv.Itoa(port), tcpreuse, func(conn *tcp.Conn) {
 		log.Debugfi("New connection [%v] %v", proto.ServerName(), conn.RemoteAddr().String())
 		defer connectionClose(conn)
 		p := proto.Instance()
@@ -33,7 +33,7 @@ func NewTcpServer(host string, port int, proto TcpProtocol) TcpServer {
 			if err != nil {
 				break
 			}
-			err = conn.Send(data, gtcp.Retry{Count: 3, Interval: time.Microsecond})
+			err = conn.Send(data, tcp.Retry{Count: 3, Interval: time.Microsecond})
 			if err != nil {
 				break
 			}

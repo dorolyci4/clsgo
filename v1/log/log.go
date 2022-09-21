@@ -47,7 +47,14 @@ func loadLogConfig(logger string) map[string]any {
 				return "{Y-m-d}.log"
 			}
 		}(logger)),
-		"level": config.GetStringWithDefault(logger+".level", "dev"),
+		// Set log level separately
+		"level": config.GetStringWithDefault(logger+".level", func(logger string) string {
+			if logger == internallog {
+				return "info"
+			} else {
+				return "dev"
+			}
+		}(logger)),
 		"prefix": config.GetStringWithDefault(logger+".prefix", func(logger string) string {
 			if logger == internallog {
 				return "CLSGO"
