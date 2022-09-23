@@ -8,9 +8,10 @@ import (
 	"github.com/lovelacelee/clsgo/v1/log"
 )
 
+const want = "clsgo is a framework of common project work."
+
 func TestAes(t *testing.T) {
 	key := "lovelacelee"
-	want := "clsgo is a framework of common project work."
 
 	gtest.C(t, func(t *gtest.T) {
 		t.Run("ECB", func(_ *testing.T) {
@@ -89,6 +90,47 @@ func TestAes(t *testing.T) {
 		})
 	})
 
+}
+
+func TestPKCS7(t *testing.T) {
+	src := want
+	gtest.C(t, func(t *gtest.T) {
+		t.Run("PAD-UNPAD", func(_ *testing.T) {
+			var err error
+			crypto.PadPKCS7([]byte("test"), 256)
+			crypto.PadPKCS7([]byte("test"), 0)
+			crypto.UnpadPKCS7([]byte{}, 0)
+			_, err = crypto.UnpadPKCS7([]byte{}, 32)
+			t.Assert(err, crypto.ErrEmpty)
+			_, err = crypto.UnpadPKCS7([]byte("test"), 32)
+			t.Assert(err, crypto.ErrNotFullBlocks)
+			_, err = crypto.UnpadPKCS7([]byte("test"), 2)
+			t.Assert(err, crypto.ErrBadPadding)
+
+			pad, err := crypto.PadPKCS7([]byte(src), 160)
+			pad[len(pad)-1] = 0x9E //158 < blocksize(160), 158 > len(pad):116
+			unpad, err := crypto.UnpadPKCS7(pad, 160)
+			t.Assert(err, crypto.ErrBadPadding)
+			t.Assert(unpad, nil)
+			crypto.UnpadPKCS7([]byte{}, 256)
+		})
+	})
+}
+
+func TestMD5(t *testing.T) {
+	// Test case match http://md5.cn/
+	src := want
+	gtest.C(t, func(t *gtest.T) {
+		t.Run("Sum", func(_ *testing.T) {
+			t.Assert(crypto.MD5Sum(src), "848129e9a404ac48092a3920911c660f")
+			md5 := crypto.NewMD5(src)
+			t.Assert(md5.Sum(), "848129e9a404ac48092a3920911c660f")
+			t.Assert(md5.SumUpper(), "848129E9A404AC48092A3920911C660F")
+			t.Assert(crypto.Md5Any("clsgo is a f", "ramework of com", "mon project work."), "848129e9a404ac48092a3920911c660f")
+			t.Assert(md5.SumUpper(crypto.MD5_16), "A404AC48092A3920")
+			t.Assert(crypto.MD5Sum(crypto.MD5Sum("admin")), "c3284d0f94606de1fd2af172aba15bf3")
+		})
+	})
 }
 
 func TestMain(m *testing.M) {

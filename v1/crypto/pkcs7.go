@@ -58,11 +58,7 @@ func UnpadPKCS7(data []byte, blockSize int) ([]byte, error) {
 	}
 
 	count := data[dataLen-1]
-	if int(count) > blockSize {
-		return nil, ErrBadPadding
-	}
-
-	if int(count) > dataLen {
+	if int(count) > blockSize || int(count) > dataLen {
 		return nil, ErrBadPadding
 	}
 

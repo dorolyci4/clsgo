@@ -3,35 +3,52 @@ package crypto
 import (
 	"crypto/md5"
 	"encoding/hex"
-	"github.com/gogf/gf/v2/util/gconv"
+	"hash"
 	"strings"
+
+	"github.com/gogf/gf/v2/util/gconv"
+	"github.com/lovelacelee/clsgo/v1/utils"
 )
 
 type MD5 struct {
-	Data []byte
-	hash string
+	hash hash.Hash //md5
 }
 
-func (ctx *MD5) Upper() string {
-	ctx.hash = Md5(ctx.Data)
-	return strings.ToUpper(ctx.hash)
+const MD5_16 = true
+
+func (ctx *MD5) Continue(s string) *MD5 {
+	ctx.hash.Write([]byte(s))
+	return ctx
 }
 
-func (ctx *MD5) Upper16() string {
-	ctx.hash = Md5_16(ctx.Data)
-	return strings.ToUpper(ctx.hash)
+func (ctx *MD5) Sum(b16ornot ...bool) string {
+	b16 := utils.Param(b16ornot, false)
+	cipher := ctx.hash.Sum(nil)
+	sumstring := hex.EncodeToString(cipher)
+	if b16 {
+		return sumstring[8:24]
+	}
+	return sumstring
 }
 
-func Md5(in []byte) string {
-	md5Ctx := md5.New()
-	md5Ctx.Write(in)
-	cipher := md5Ctx.Sum(nil)
-	return hex.EncodeToString(cipher)
+func (ctx *MD5) SumUpper(b16ornot ...bool) string {
+	return strings.ToUpper(ctx.Sum(b16ornot...))
 }
 
-func Md5_16(in []byte) string {
-	s := Md5(in)
-	return s[8:24]
+func NewMD5(s ...string) *MD5 {
+	ctx := &MD5{
+		hash: md5.New(),
+	}
+	for _, v := range s {
+		ctx.Continue(v)
+	}
+	return ctx
+}
+
+// Return lower md5sum string
+func MD5Sum(s string) string {
+	sum := md5.Sum([]byte(s))
+	return hex.EncodeToString(sum[0:])
 }
 
 func Md5Any(in ...any) string {

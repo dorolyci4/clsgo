@@ -24,6 +24,7 @@ require (
 )
 
 require (
+	fyne.io/fyne/v2 v2.2.3 // indirect
 	github.com/BurntSushi/toml v1.1.0 // indirect
 	github.com/ClickHouse/clickhouse-go/v2 v2.2.0 // indirect
 	github.com/cespare/xxhash/v2 v2.1.2 // indirect
