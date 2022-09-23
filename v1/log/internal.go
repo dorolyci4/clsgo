@@ -20,6 +20,14 @@ func Printf(f string, v ...any) {
 	fmt.Printf(f, v...)
 }
 
+func Ignore(v ...any) {
+	return
+}
+
+func Ignoref(fmt string, v ...any) {
+	return
+}
+
 func Infoi(v ...any) {
 	var ctx = context.TODO()
 	pc, file, line, _ := runtime.Caller(1)

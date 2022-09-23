@@ -16,38 +16,36 @@ func (op *PluginTrace) Name() string {
 
 func (op *PluginTrace) Initialize(db *gorm.DB) (err error) {
 	// Before
-	_ = db.Callback().Create().Before("gorm:before_create").Register("callbackBefore", before)
-	_ = db.Callback().Query().Before("gorm:query").Register("callbackBefore", before)
-	_ = db.Callback().Delete().Before("gorm:before_delete").Register("callbackBefore", before)
-	_ = db.Callback().Update().Before("gorm:setup_reflect_value").Register("callbackBefore", before)
-	_ = db.Callback().Row().Before("gorm:row").Register("callbackBefore", before)
-	_ = db.Callback().Raw().Before("gorm:raw").Register("callbackBefore", before)
+	_ = db.Callback().Create().Before("gorm:create").Register("trace-before-create", tracePluginBefore)
+	_ = db.Callback().Query().Before("gorm:query").Register("trace-before-query", tracePluginBefore)
+	_ = db.Callback().Delete().Before("gorm:delete").Register("trace-before-delete", tracePluginBefore)
+	_ = db.Callback().Update().Before("gorm:update").Register("trace-before-update", tracePluginBefore)
+	_ = db.Callback().Row().Before("gorm:row").Register("trace-before-row", tracePluginBefore)
+	_ = db.Callback().Raw().Before("gorm:raw").Register("trace-before-raw", tracePluginBefore)
 
 	// After
-	_ = db.Callback().Create().After("gorm:after_create").Register("callbackAfter", after)
-	_ = db.Callback().Query().After("gorm:after_query").Register("callbackAfter", after)
-	_ = db.Callback().Delete().After("gorm:after_delete").Register("callbackAfter", after)
-	_ = db.Callback().Update().After("gorm:after_update").Register("callbackAfter", after)
-	_ = db.Callback().Row().After("gorm:row").Register("callbackAfter", after)
-	_ = db.Callback().Raw().After("gorm:raw").Register("callbackAfter", after)
+	_ = db.Callback().Create().After("gorm:create").Register("trace-after-create", tracePluginAfter)
+	_ = db.Callback().Query().After("gorm:query").Register("trace-after-query", tracePluginAfter)
+	_ = db.Callback().Delete().After("gorm:delete").Register("trace-after-delete", tracePluginAfter)
+	_ = db.Callback().Update().After("gorm:update").Register("trace-after-update", tracePluginAfter)
+	_ = db.Callback().Row().After("gorm:row").Register("trace-after-row", tracePluginAfter)
+	_ = db.Callback().Raw().After("gorm:raw").Register("trace-after-raw", tracePluginAfter)
 	return
 }
 
 var TracePlugin gorm.Plugin = &PluginTrace{}
 
-func before(db *gorm.DB) {
+func tracePluginBefore(db *gorm.DB) {
 	db.InstanceSet("startTime", time.Now())
 }
 
-func after(db *gorm.DB) {
+func tracePluginAfter(db *gorm.DB) {
 	_ts, isExist := db.InstanceGet("startTime")
-	if !isExist {
-		return
+	if isExist {
+		ts, ok := _ts.(time.Time)
+		if ok {
+			sql := db.Dialector.Explain(db.Statement.SQL.String(), db.Statement.Vars...)
+			log.Debugfi("%s affected %d rows cost %f seconds", sql, db.Statement.RowsAffected, time.Since(ts).Seconds())
+		}
 	}
-	ts, ok := _ts.(time.Time)
-	if !ok {
-		return
-	}
-	sql := db.Dialector.Explain(db.Statement.SQL.String(), db.Statement.Vars...)
-	log.Infofi("%s affected %d rows cost %f seconds", sql, db.Statement.RowsAffected, time.Since(ts).Seconds())
 }

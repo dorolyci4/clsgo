@@ -1,3 +1,5 @@
+// Github-Action: github.com/zhulik/redis-action
+
 package redis_test
 
 import (

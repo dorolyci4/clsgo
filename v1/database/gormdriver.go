@@ -3,7 +3,7 @@ package database
 import (
 	"gorm.io/gorm"
 	// GORM drivers
-	"gorm.io/driver/clickhouse"
+	// "gorm.io/driver/clickhouse"
 	"gorm.io/driver/mysql"
 	"gorm.io/driver/postgres"
 	"gorm.io/driver/sqlite"
@@ -27,19 +27,21 @@ func SQLServer(dsn string) gorm.Dialector {
 }
 
 // dsn := "host=localhost user=gorm password=gorm dbname=gorm port=9920 sslmode=disable TimeZone=Asia/Shanghai"
+// github-action: github.com/Harmon758/postgresql-action
 func Postgres(dsn string) gorm.Dialector {
 	return postgres.Open(dsn)
 }
 
 // dsn := "tcp://localhost:9000?database=gorm&username=gorm&password=gorm&read_timeout=10&write_timeout=20"
-func ClickHouse(dsn string) gorm.Dialector {
-	return clickhouse.Open(dsn)
-}
+// func ClickHouse(dsn string) gorm.Dialector {
+// 	return clickhouse.Open(dsn)
+// }
 
 var GormDriver map[string]func(string) gorm.Dialector = map[string]func(string) gorm.Dialector{
 	"SQLITE":     Sqlite,
 	"MYSQL":      MySQL,
 	"SQLSERVER":  SQLServer,
 	"POSTGRES":   Postgres,
-	"CLICKHOUSE": ClickHouse,
+	"POSTGRESQL": Postgres,
+	// "CLICKHOUSE": ClickHouse,
 }

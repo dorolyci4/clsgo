@@ -72,7 +72,6 @@ func TestConfig(t *testing.T) {
 			go func() {
 				// Do some change
 				os.WriteFile("config.yaml", []byte(data), 0755)
-				config.Cfg.SafeWriteConfig()
 				time.Sleep(time.Microsecond * 50)
 				wg.Done()
 			}()
@@ -88,7 +87,7 @@ func TestConfig(t *testing.T) {
 			t.Assert(config.GetStringSliceWithDefault("test.stringslice", []string{"c", "b", "a"}), []string{"a", "b", "c"})
 			t.Assert(config.GetInt64WithDefault("test.int64", 8888), 23492938579)
 
-			// t.Assert(watched.GetString("test.string"), "test")
+			t.Assert(watched.GetString("test.string"), "test")
 		})
 		t.Run("json", func(_ *testing.T) {
 			testInput := `{"author": "lovelacelee","github": "https://github.com/lovelacelee","version": "1.0.0"}`

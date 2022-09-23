@@ -1,22 +1,17 @@
 package database
 
 import (
-	"encoding/json"
+	"fmt"
 	"strings"
 	"time"
 
-	"github.com/lovelacelee/clsgo/v1/log"
-	"github.com/lovelacelee/clsgo/v1/redis"
 	"github.com/lovelacelee/clsgo/v1/utils"
-
-	"github.com/lovelacelee/clsgo/v1/crypto"
 	"gorm.io/gorm"
 )
 
 type Db struct {
 	Orm    *gorm.DB
 	Config DbConfig
-	RDB    *redis.Client
 }
 
 // See more https://gorm.io/zh_CN/docs/models.html
@@ -30,31 +25,31 @@ type Model struct {
 	gorm.Model
 }
 
-var dbsupported = []string{"MYSQL", "SQLITE", "SQLSERVER", "POSTGRES", "CLICKHOUSE"}
-
-func ConnPoolSetting(db *gorm.DB) error {
-	sqlDB, err := db.DB()
-	if err != nil {
-		return err
+func ConnPoolSetting(db *gorm.DB) {
+	sqlDB, _ := db.DB()
+	if sqlDB != nil {
+		sqlDB.SetMaxIdleConns(10)
+		sqlDB.SetMaxOpenConns(100)
+		sqlDB.SetConnMaxLifetime(time.Hour)
 	}
-	sqlDB.SetMaxIdleConns(10)
-	sqlDB.SetMaxOpenConns(100)
-	sqlDB.SetConnMaxLifetime(time.Hour)
-	return nil
 }
 
-func (db *Db) open(dsn string) *gorm.DB {
-	_db, err := gorm.Open(GormDriver[strings.ToUpper(db.Config.Type)](dsn), &gorm.Config{
-		// Creating and caching precompiled statements while executing any SQL improves the speed of subsequent calls
-		PrepareStmt: true,
-	})
-	if err != nil {
-		log.Errorfi("failed to connect database: %v", err)
-		return nil
+func (db *Db) open(dsn string) (*gorm.DB, error) {
+	if utils.IsEmpty(GormDriver[strings.ToUpper(db.Config.Type)]) {
+		return nil, fmt.Errorf("unsupported database type: %s", db.Config.Type)
 	}
+	_db, err := gorm.Open(GormDriver[strings.ToUpper(db.Config.Type)](dsn),
+		&gorm.Config{
+			// Creating and caching precompiled statements while executing
+			// any SQL improves the speed of subsequent calls
+			PrepareStmt: true,
+		})
 	ConnPoolSetting(_db)
 	db.Orm = _db
-	return _db
+	if db.Valid() {
+		db.Orm.Use(CachePlugin)
+	}
+	return _db, err
 }
 
 func (db *Db) Valid() bool {
@@ -63,70 +58,27 @@ func (db *Db) Valid() bool {
 
 func (db *Db) Close() {
 	if db.Valid() {
-		sqlDB, _ := db.Orm.DB()
-		if sqlDB != nil {
+		if sqlDB, _ := db.Orm.DB(); sqlDB != nil {
 			sqlDB.Close()
 		}
-	}
-	if db.RDB != nil {
-		db.RDB.Close()
+		db.Orm = nil
 	}
 }
 
-// User compose cache key which must be unique in the lifetime of application
-func (db *Db) CacheFind(cacheKeyPrefix string, dest interface{}, conds ...interface{}) {
-	if !db.Valid() {
-		return
-	}
-	key := crypto.Md5Any(conds)
-	cacheKeyPrefix += "_" + key
-	if db.RDB != nil {
-		r, err := db.RDB.Do("EXISTS", cacheKeyPrefix)
-		if err != nil || !r.Bool() {
-			goto DBFIND
-		} else {
-			r, err := db.RDB.Do("GET", cacheKeyPrefix)
-			if err != nil {
-				goto DBFIND
-			}
-			json.Unmarshal(r.Bytes(), dest)
-			return
-		}
-	}
-DBFIND:
-	db.Orm.Find(dest, conds...)
-	// Write cache
-	if db.RDB != nil {
-		// expired 2 seconds
-		db.RDB.Do("SETEX", cacheKeyPrefix, 10, dest)
-	}
-}
-
-// New return the instance of open gorm instance,
+// NewFromConfig return the instance of open gorm instance,
 // group was config name under database section.
 // Returns nil, if group not found.
-func New(group ...string) *Db {
-	c := DbConfig{
-		Type: "mysql",
+func NewFromConfig(group ...string) *Db {
+	c := GetConfig(group...)
+	return New(c.Type, c.Dsn)
+}
+
+func New(dbtype string, dsn string) *Db {
+	dbcfg := DbConfig{
+		Dsn:  dsn,
+		Type: dbtype,
 	}
-	g := "default"
-	if !utils.IsEmpty(group) {
-		g = group[0]
-	}
-	c = GetConfig(g)
-	// log.Infoi(c)
-	db := Db{Config: c}
-	if !utils.CaseFoldIn(c.Type, dbsupported) {
-		log.Errorfi("Unsupported database %s\n", c.Type)
-		return nil
-	}
-	if utils.IsEmpty(c.Dsn) {
-		log.Errorfi("Error database dns: %s\n", c.Dsn)
-		return nil
-	}
-	if !utils.IsEmpty(db.Config.Redis) {
-		db.RDB = redis.New("default")
-	}
-	db.open(db.Config.Dsn)
+	db := Db{Config: dbcfg}
+	db.open(dsn)
 	return &db
 }
