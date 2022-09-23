@@ -21,11 +21,9 @@ func Printf(f string, v ...any) {
 }
 
 func Ignore(v ...any) {
-	return
 }
 
 func Ignoref(fmt string, v ...any) {
-	return
 }
 
 func Infoi(v ...any) {

@@ -4,9 +4,9 @@
 package database
 
 import (
-	"github.com/gogf/gf/v2/os/gcache"
-	"github.com/gogf/gf/v2/os/gctx"
-	"github.com/lovelacelee/clsgo/v1/log"
+	// "github.com/gogf/gf/v2/os/gcache"
+	// "github.com/gogf/gf/v2/os/gctx"
+	// "github.com/lovelacelee/clsgo/v1/log"
 	"gorm.io/gorm"
 )
 
@@ -14,8 +14,8 @@ import (
 type PluginCache struct{}
 
 var (
-	cachectx = gctx.New()
-	cache    = gcache.New()
+// cachectx = gctx.New()
+// cache    = gcache.New()
 )
 
 func (op *PluginCache) Name() string {
@@ -23,7 +23,6 @@ func (op *PluginCache) Name() string {
 }
 
 func (op *PluginCache) Initialize(db *gorm.DB) (err error) {
-	log.Green("")
 	// Before
 	_ = db.Callback().Create().Before("gorm:create").Register("cache-before-create", cachePluginBefore)
 	_ = db.Callback().Query().Before("gorm:query").Register("cache-before-query", cachePluginBefore)

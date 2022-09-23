@@ -8,6 +8,9 @@ commands:
     - go test ./... -coverprofile=cover.out -covermode=set
     - go tool cover -html=cover.out
   check:
+    - go vet -tags ci ./...
+    - go install github.com/fzipp/gocyclo/cmd/gocyclo@latest
+    - go install honnef.co/go/tools/cmd/staticcheck@latest
     - staticcheck ./...
     - gocyclo -over 50 .
   profile: go test ./... -v -bench="Bench*" -memprofile memprofile.out -cpuprofile profile.out
