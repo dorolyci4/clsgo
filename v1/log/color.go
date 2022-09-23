@@ -1,3 +1,5 @@
+// Copyright of github.com/fatih/color
+
 package log
 
 import (

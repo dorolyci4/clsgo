@@ -3,13 +3,11 @@ package log
 
 import (
 	"context"
+	"github.com/gogf/gf/v2/frame/g"
+	"github.com/gogf/gf/v2/os/glog"
 	"path"
 	"runtime"
 	"strconv"
-	"strings"
-
-	"github.com/gogf/gf/v2/frame/g"
-	"github.com/gogf/gf/v2/os/glog"
 
 	"github.com/lovelacelee/clsgo/v1/config"
 )
@@ -102,10 +100,6 @@ func Infof(f string, v ...any) {
 	var ctx = context.TODO()
 	pc, file, line, _ := runtime.Caller(1)
 	name := runtime.FuncForPC(pc).Name()
-	if strings.HasPrefix(f, "[CLSGO[") {
-		g.Log().Warningf(ctx, f[6:], v...)
-		return
-	}
 	s := "[" + path.Base(file) + ":" + strconv.Itoa(line) + " " + path.Base(name) + "]"
 	g.Log().Infof(ctx, s+" "+f, v...)
 }
@@ -124,10 +118,6 @@ func Debugf(f string, v ...any) {
 	var ctx = context.TODO()
 	pc, file, line, _ := runtime.Caller(1)
 	name := runtime.FuncForPC(pc).Name()
-	if strings.HasPrefix(f, "[CLSGO[") {
-		g.Log().Warningf(ctx, f[6:], v...)
-		return
-	}
 	s := "[" + path.Base(file) + ":" + strconv.Itoa(line) + " " + path.Base(name) + "]"
 	g.Log().Debugf(ctx, s+" "+f, v...)
 }
@@ -145,10 +135,6 @@ func Warningf(f string, v ...any) {
 	var ctx = context.TODO()
 	pc, file, line, _ := runtime.Caller(1)
 	name := runtime.FuncForPC(pc).Name()
-	if strings.HasPrefix(f, "[CLSGO[") {
-		g.Log().Warningf(ctx, f[6:], v...)
-		return
-	}
 	s := "[" + path.Base(file) + ":" + strconv.Itoa(line) + " " + path.Base(name) + "]"
 	g.Log().Warningf(ctx, s+" "+f, v...)
 }
@@ -167,54 +153,42 @@ func Errorf(f string, v ...any) {
 	var ctx = context.TODO()
 	pc, file, line, _ := runtime.Caller(1)
 	name := runtime.FuncForPC(pc).Name()
-	if strings.HasPrefix(f, "[CLSGO[") {
-		g.Log().Warningf(ctx, f[6:], v...)
-		return
-	}
 	s := "[" + path.Base(file) + ":" + strconv.Itoa(line) + " " + path.Base(name) + "]"
 	g.Log().Errorf(ctx, s+" "+f, v...)
 }
 
-func Panic(v ...any) {
-	var ctx = context.TODO()
-	pc, file, line, _ := runtime.Caller(1)
-	name := runtime.FuncForPC(pc).Name()
-	s := "[" + path.Base(file) + ":" + strconv.Itoa(line) + " " + path.Base(name) + "]"
-	v = append(v, s)
-	v = reverse(v)
-	g.Log().Panic(ctx, v...)
-}
+// func Panic(v ...any) {
+// 	var ctx = context.TODO()
+// 	pc, file, line, _ := runtime.Caller(1)
+// 	name := runtime.FuncForPC(pc).Name()
+// 	s := "[" + path.Base(file) + ":" + strconv.Itoa(line) + " " + path.Base(name) + "]"
+// 	v = append(v, s)
+// 	v = reverse(v)
+// 	g.Log().Panic(ctx, v...)
+// }
 
-func Panicf(f string, v ...any) {
-	var ctx = context.TODO()
-	pc, file, line, _ := runtime.Caller(1)
-	name := runtime.FuncForPC(pc).Name()
-	if strings.HasPrefix(f, "[CLSGO[") {
-		g.Log().Warningf(ctx, f[6:], v...)
-		return
-	}
-	s := "[" + path.Base(file) + ":" + strconv.Itoa(line) + " " + path.Base(name) + "]"
-	g.Log().Panicf(ctx, s+" "+f, v...)
-}
+// func Panicf(f string, v ...any) {
+// 	var ctx = context.TODO()
+// 	pc, file, line, _ := runtime.Caller(1)
+// 	name := runtime.FuncForPC(pc).Name()
+// 	s := "[" + path.Base(file) + ":" + strconv.Itoa(line) + " " + path.Base(name) + "]"
+// 	g.Log().Panicf(ctx, s+" "+f, v...)
+// }
 
-func Fatal(v ...any) {
-	var ctx = context.TODO()
-	pc, file, line, _ := runtime.Caller(1)
-	name := runtime.FuncForPC(pc).Name()
-	s := "[" + path.Base(file) + ":" + strconv.Itoa(line) + " " + path.Base(name) + "]"
-	v = append(v, s)
-	v = reverse(v)
-	g.Log().Fatal(ctx, v...)
-}
+// func Fatal(v ...any) {
+// 	var ctx = context.TODO()
+// 	pc, file, line, _ := runtime.Caller(1)
+// 	name := runtime.FuncForPC(pc).Name()
+// 	s := "[" + path.Base(file) + ":" + strconv.Itoa(line) + " " + path.Base(name) + "]"
+// 	v = append(v, s)
+// 	v = reverse(v)
+// 	g.Log().Fatal(ctx, v...)
+// }
 
-func Fatalf(f string, v ...any) {
-	var ctx = context.TODO()
-	pc, file, line, _ := runtime.Caller(1)
-	name := runtime.FuncForPC(pc).Name()
-	if strings.HasPrefix(f, "[CLSGO[") {
-		g.Log().Warningf(ctx, f[6:], v...)
-		return
-	}
-	s := "[" + path.Base(file) + ":" + strconv.Itoa(line) + " " + path.Base(name) + "]"
-	g.Log().Fatalf(ctx, s+" "+f, v...)
-}
+// func Fatalf(f string, v ...any) {
+// 	var ctx = context.TODO()
+// 	pc, file, line, _ := runtime.Caller(1)
+// 	name := runtime.FuncForPC(pc).Name()
+// 	s := "[" + path.Base(file) + ":" + strconv.Itoa(line) + " " + path.Base(name) + "]"
+// 	g.Log().Fatalf(ctx, s+" "+f, v...)
+// }

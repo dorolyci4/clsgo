@@ -6,14 +6,7 @@ import (
 
 	"github.com/gogf/gf/v2/test/gtest"
 	"github.com/lovelacelee/clsgo/v1/log"
-	"github.com/lovelacelee/clsgo/v1/utils"
 )
-
-func clean() {
-	utils.DeletePath("logs")
-	utils.DeleteFiles(utils.Cwd(), "/*.yaml$")
-	utils.DeleteFiles(utils.Cwd(), "/*.xml$")
-}
 
 // Example
 func Example() {
@@ -32,7 +25,30 @@ func Example() {
 
 func Test(t *testing.T) {
 	gtest.C(t, func(t *gtest.T) {
+		t.Run("internal", func(_ *testing.T) {
+			log.Print("Print")
+			log.Printf("%s", "Printf")
+			log.Ignore()
+			log.Ignoref("")
+			log.Infoi()
+			log.Infofi("test %v %v %v", "1", 2, 3)
+			log.Debugi("1", "2", "3", "4")
+			log.Debugfi("")
+			log.Warningi()
+			log.Warningfi("")
+			log.Errori()
+			log.Errorfi("")
+		})
+		t.Run("logger", func(_ *testing.T) {
+			log.Info()
+			log.Infof("test %v %v %v", "1", 2, 3)
+			log.Debug()
+			log.Debugf("")
+			log.Warning()
+			log.Warningf("")
+			log.Error()
+			log.Errorf("")
 
+		})
 	})
-	clean()
 }

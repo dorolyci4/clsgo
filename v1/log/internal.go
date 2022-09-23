@@ -103,40 +103,40 @@ func Errorfi(f string, v ...any) {
 	g.Log("clsgo").Errorf(ctx, s+" "+f, v...)
 }
 
-func Panici(v ...any) {
-	var ctx = context.TODO()
-	pc, file, line, _ := runtime.Caller(1)
-	name := runtime.FuncForPC(pc).Name()
-	s := "[" + path.Base(file) + ":" + strconv.Itoa(line) + " " + path.Base(name) + "]"
-	v = append(v, s)
-	v = reverse(v)
-	g.Log("clsgo").Panic(ctx, v...)
-}
+// func Panici(v ...any) {
+// 	var ctx = context.TODO()
+// 	pc, file, line, _ := runtime.Caller(1)
+// 	name := runtime.FuncForPC(pc).Name()
+// 	s := "[" + path.Base(file) + ":" + strconv.Itoa(line) + " " + path.Base(name) + "]"
+// 	v = append(v, s)
+// 	v = reverse(v)
+// 	g.Log("clsgo").Panic(ctx, v...)
+// }
 
-func Panicfi(f string, v ...any) {
-	var ctx = context.TODO()
-	pc, file, line, _ := runtime.Caller(1)
-	name := runtime.FuncForPC(pc).Name()
-	s := "[" + path.Base(file) + ":" + strconv.Itoa(line) + " " + path.Base(name) + "]"
+// func Panicfi(f string, v ...any) {
+// 	var ctx = context.TODO()
+// 	pc, file, line, _ := runtime.Caller(1)
+// 	name := runtime.FuncForPC(pc).Name()
+// 	s := "[" + path.Base(file) + ":" + strconv.Itoa(line) + " " + path.Base(name) + "]"
 
-	g.Log("clsgo").Panicf(ctx, s+" "+f, v...)
-}
+// 	g.Log("clsgo").Panicf(ctx, s+" "+f, v...)
+// }
 
-func Fatali(v ...any) {
-	var ctx = context.TODO()
-	pc, file, line, _ := runtime.Caller(1)
-	name := runtime.FuncForPC(pc).Name()
-	s := "[" + path.Base(file) + ":" + strconv.Itoa(line) + " " + path.Base(name) + "]"
-	v = append(v, s)
-	v = reverse(v)
-	g.Log("clsgo").Fatal(ctx, v...)
-}
+// func Fatali(v ...any) {
+// 	var ctx = context.TODO()
+// 	pc, file, line, _ := runtime.Caller(1)
+// 	name := runtime.FuncForPC(pc).Name()
+// 	s := "[" + path.Base(file) + ":" + strconv.Itoa(line) + " " + path.Base(name) + "]"
+// 	v = append(v, s)
+// 	v = reverse(v)
+// 	g.Log("clsgo").Fatal(ctx, v...)
+// }
 
-func Fatalfi(f string, v ...any) {
-	var ctx = context.TODO()
-	pc, file, line, _ := runtime.Caller(1)
-	name := runtime.FuncForPC(pc).Name()
-	s := "[" + path.Base(file) + ":" + strconv.Itoa(line) + " " + path.Base(name) + "]"
+// func Fatalfi(f string, v ...any) {
+// 	var ctx = context.TODO()
+// 	pc, file, line, _ := runtime.Caller(1)
+// 	name := runtime.FuncForPC(pc).Name()
+// 	s := "[" + path.Base(file) + ":" + strconv.Itoa(line) + " " + path.Base(name) + "]"
 
-	g.Log("clsgo").Fatalf(ctx, s+" "+f, v...)
-}
+// 	g.Log("clsgo").Fatalf(ctx, s+" "+f, v...)
+// }
