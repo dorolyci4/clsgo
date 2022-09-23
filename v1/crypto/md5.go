@@ -4,6 +4,7 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"hash"
+	"os"
 	"strings"
 
 	"github.com/gogf/gf/v2/util/gconv"
@@ -16,8 +17,16 @@ type MD5 struct {
 
 const MD5_16 = true
 
-func (ctx *MD5) Continue(s string) *MD5 {
-	ctx.hash.Write([]byte(s))
+func (ctx *MD5) Append(data []byte) *MD5 {
+	ctx.hash.Write(data)
+	return ctx
+}
+
+func (ctx *MD5) HashFile(filename string) *MD5 {
+	data, err := os.ReadFile(filename)
+	if err == nil {
+		ctx.Append(data)
+	}
 	return ctx
 }
 
@@ -40,7 +49,7 @@ func NewMD5(s ...string) *MD5 {
 		hash: md5.New(),
 	}
 	for _, v := range s {
-		ctx.Continue(v)
+		ctx.Append([]byte(v))
 	}
 	return ctx
 }

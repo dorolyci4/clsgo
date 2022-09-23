@@ -129,7 +129,29 @@ func TestMD5(t *testing.T) {
 			t.Assert(crypto.Md5Any("clsgo is a f", "ramework of com", "mon project work."), "848129e9a404ac48092a3920911c660f")
 			t.Assert(md5.SumUpper(crypto.MD5_16), "A404AC48092A3920")
 			t.Assert(crypto.MD5Sum(crypto.MD5Sum("admin")), "c3284d0f94606de1fd2af172aba15bf3")
+
+			filehash := crypto.NewMD5()
+			filehash.HashFile("test.txt")
+			t.AssertNE(filehash.Sum(), "3e1fbc517393ee0672be074e11f992ef")
+			filehash.HashFile("testdata/test.txt")
+			t.Assert(filehash.Sum(), "3e1fbc517393ee0672be074e11f992ef")
 		})
+	})
+}
+
+func TestBase64(t *testing.T) {
+	// Test case match https://www.base64decode.org/
+	src := want
+	expected := "Y2xzZ28gaXMgYSBmcmFtZXdvcmsgb2YgY29tbW9uIHByb2plY3Qgd29yay4="
+	url := "https://lovelacelee.com"
+	urlbase64 := "aHR0cHM6Ly9sb3ZlbGFjZWxlZS5jb20"
+	gtest.C(t, func(t *gtest.T) {
+		t.Assert(crypto.Base64([]byte(src)), expected)
+		t.Assert(crypto.Base64ToString(expected), src)
+		t.Assert(crypto.Base64FromString(src), expected)
+
+		t.Assert(crypto.Base64UrlSafe(url), urlbase64)
+		t.Assert(crypto.Base64DecodeStringUrlSafe(urlbase64), url)
 	})
 }
 
