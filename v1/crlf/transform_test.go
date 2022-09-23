@@ -103,6 +103,9 @@ func TestCRLF(t *testing.T) {
 			r.Read([]byte{})
 			w := crlf.NewWriter(io.MultiWriter())
 			w.Write([]byte{})
+
+			crlf.CRBytes([]byte{})
+			crlf.CRLFBytes([]byte{})
 		})
 	})
 }

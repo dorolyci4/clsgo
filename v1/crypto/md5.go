@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/gogf/gf/v2/util/gconv"
+	"github.com/lovelacelee/clsgo/v1/crlf"
 	"github.com/lovelacelee/clsgo/v1/utils"
 )
 
@@ -24,8 +25,9 @@ func (ctx *MD5) Append(data []byte) *MD5 {
 
 func (ctx *MD5) HashFile(filename string) *MD5 {
 	data, err := os.ReadFile(filename)
+
 	if err == nil {
-		ctx.Append(data)
+		ctx.Append(crlf.CRBytes(data))
 	}
 	return ctx
 }

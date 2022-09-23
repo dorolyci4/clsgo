@@ -83,6 +83,16 @@ func CRLFString(in string) string {
 	return n
 }
 
+func CRBytes(in []byte) []byte {
+	n, _, _ := transform.Bytes(new(Normalize), in)
+	return n
+}
+
+func CRLFBytes(in []byte) []byte {
+	n, _, _ := transform.Bytes(new(ToCRLF), in)
+	return n
+}
+
 // NewReader returns an io.Reader that converts CR or CRLF line endings to LF.
 func NewReader(r io.Reader) io.Reader {
 	return transform.NewReader(r, new(Normalize))
